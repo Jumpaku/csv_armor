@@ -8,7 +8,7 @@ const decodeErrorInvalidCharAfterField = "decodeErrorInvalidCharAfterField";
 class DecodeException extends BaseException {
   DecodeException(String message, String code, this.input, this.cursor,
       {Object? cause})
-      : super(message, cause == null ? [] : [cause]);
+      : super(message, code, cause == null ? [] : [cause]);
 
   final int cursor;
   final List<String> input;
@@ -20,7 +20,7 @@ class EncodeException extends BaseException {
   EncodeException(
       String message, String code, this.row, this.column, this.value,
       {Object? cause})
-      : super(message, cause == null ? [] : [cause]);
+      : super(message, code, cause == null ? [] : [cause]);
 
   final int row;
   final int column;

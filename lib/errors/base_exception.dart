@@ -1,11 +1,13 @@
 class BaseException implements Exception {
   final List<Object> causes;
   final String message;
+  final String code;
   final StackTrace stackTrace = StackTrace.current;
 
-  BaseException(this.message, this.causes);
+  BaseException(this.message, this.code, this.causes);
 
-  BaseException.wrap(this.message, Object cause) : causes = [cause];
+  BaseException.wrap(this.message, this.code, Object cause) : causes = [cause];
+  BaseException.join(this.message, this.code, List<BaseException> causes) : causes = causes;
 
   @override
   String toString() {
@@ -14,11 +16,6 @@ class BaseException implements Exception {
       s += "$e\n";
     });
     return s;
-  }
-
-  join(BaseException e) {
-    causes.add(e);
-    return this;
   }
 
   walk(Function(Object) f) {
