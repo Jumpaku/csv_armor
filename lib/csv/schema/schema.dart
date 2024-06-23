@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:csv_armor/csv/decoder.dart';
-import 'package:csv_armor/csv/schema/schema_validator.dart';
 import 'package:csv_armor/csv/schema/error.dart';
+import 'package:csv_armor/csv/schema/schema_validator.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaml/yaml.dart';
 
@@ -27,6 +27,17 @@ class Schema {
     if (this.columns.isEmpty) {
       throw SchemaException(
           "empty columns not allowed", schemaErrorEmptyColumn, name ?? "");
+    }
+    for (final column in this.columns) {
+      if (column.formatRegex != null) {
+        try {
+          RegExp(column.formatRegex!);
+        } catch (e) {
+          throw SchemaException("invalid formatRegex", schemaErrorInvalidColumnFormatRegex,
+              (name ?? "") + " " + column.name,
+              cause: e);
+        }
+      }
     }
     if (this.primaryKey.isEmpty) {
       throw SchemaException("empty primaryKey column not allowed",
@@ -80,12 +91,16 @@ class Schema {
     try {
       json = jsonDecode(jsonEncode(loadYaml(yaml)));
     } catch (e) {
-      throw SchemaException(e.toString(), schemaErrorYAMLLoadFailure, "");
+      throw SchemaException(
+          "failed to decode YAML", schemaErrorYAMLLoadFailure, "",
+          cause: e);
     }
 
     final validation = getSchemaValidator().validate(json);
     if (!validation.isValid) {
-      throw SchemaException(validation.errors.toString(), schemaErrorSchemaValidationFailure, "");
+      throw SchemaException(
+          "failed to validate schema", schemaErrorSchemaValidationFailure, "",
+          cause: validation.errors);
     }
 
     return Schema.fromJson(json);

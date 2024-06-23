@@ -156,6 +156,14 @@ primary_key: [id]
 foreign_key: {foreign: {columns: [id], reference: {schema_path: schema.yaml}}}''',
         wantCode: schemaErrorSchemaValidationFailure,
       ),
+      (
+        message: "Should throw with invalid regex",
+        input: '''
+csv_path: table.csv
+columns: [{name: id, format_regex: "("}]
+primary_key: [id]''',
+        wantCode: schemaErrorInvalidColumnFormatRegex,
+      ),
     ];
 
     for (var (i, testcase) in testcases.indexed) {

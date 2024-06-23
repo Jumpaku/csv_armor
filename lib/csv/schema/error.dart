@@ -2,6 +2,7 @@ import 'package:csv_armor/errors/base_exception.dart';
 
 const schemaErrorYAMLLoadFailure = "schemaErrorYAMLLoadFailure";
 const schemaErrorSchemaValidationFailure = "schemaErrorSchemaValidationFailure";
+const schemaErrorInvalidColumnFormatRegex = "schemaErrorInvalidColumnFormatRegex";
 const schemaErrorEmptyColumn = "schemaErrorEmptyColumn";
 const schemaErrorEmptyPrimaryKeyColumn = "schemaErrorEmptyPrimaryKeyColumn";
 const schemaErrorEmptyUniqueKeyColumn = "schemaErrorEmptyUniqueKeyColumn";
