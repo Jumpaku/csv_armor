@@ -1,0 +1,27 @@
+csv_path: ./table.csv
+name: Example
+field_separator: TAB
+record_separator: CRLF
+headers: 0
+columns:
+  - name: col_a
+    format_regex: '^$'
+  - name: col_b
+    format_type: integer
+  - name: col_c
+    format_type: text
+  - name: col_d
+    format_type: datetime
+  - name: col_d
+    format_type: decimal
+  - name: col_d
+    format_type: decimal
+primary_key: [col_a, col_b]
+unique_key:
+  uniq_ab: [col_a, col_b]
+foreign_key:
+  fk_ab:
+    columns: [col_a, col_b]
+    reference:
+      schema_path: ./example.yaml
+      columns: [col_c, col_d]
