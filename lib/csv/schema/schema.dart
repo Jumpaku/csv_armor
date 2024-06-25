@@ -8,7 +8,24 @@ import 'package:yaml/yaml.dart';
 
 part 'schema.g.dart';
 
-enum FormatType { datetime, integer, decimal, text, boolean }
+enum FormatType {
+  datetime,
+  integer,
+  decimal,
+  text,
+  boolean;
+
+  RegExp regex() => switch (this) {
+        FormatType.datetime => RegExp(
+            r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}([.,]\d+)?(Z|[+-]\d{2}:\d{2})$"),
+        FormatType.integer =>
+          RegExp(r"^[+-]?(\d+|0x[0-9a-fA-F]+|0b[01]+|0o[0-7]+)$"),
+        FormatType.decimal => RegExp(r"^[+-]?\d+([.,]\d+)?$"),
+        FormatType.text => RegExp(r"^.*$"),
+        FormatType.boolean =>
+          RegExp(r"^([Tt]rue|[Ff]alse|TRUE|FALSE|[TFtf10])$"),
+      };
+}
 
 @JsonSerializable()
 class Schema {
@@ -24,31 +41,50 @@ class Schema {
     this.uniqueKey = const {},
     this.foreignKey = const {},
   }) {
+    // validate columns
     if (this.columns.isEmpty) {
       throw SchemaException(
           "empty columns not allowed", schemaErrorEmptyColumn, name ?? "");
     }
-    for (final column in this.columns) {
+    final columnNameSet = <String>{};
+    for (final (i, column) in this.columns.indexed) {
+      if (columnNameSet.contains(column.name)) {
+        throw SchemaException(
+            "duplicate column name not allowed",
+            schemaErrorDuplicatedColumnName,
+            (name ?? "") + " " + column.name + " $i");
+      }
+
       if (column.formatRegex != null) {
         try {
           RegExp(column.formatRegex!);
         } catch (e) {
-          throw SchemaException("invalid formatRegex", schemaErrorInvalidColumnFormatRegex,
+          throw SchemaException(
+              "invalid formatRegex",
+              schemaErrorInvalidColumnFormatRegex,
               (name ?? "") + " " + column.name,
               cause: e);
         }
       }
+
+      columnNameSet.add(column.name);
     }
+
+    // validate primaryKey
     if (this.primaryKey.isEmpty) {
       throw SchemaException("empty primaryKey column not allowed",
           schemaErrorEmptyPrimaryKeyColumn, name ?? "");
     }
+
+    // validate uniqueKey
     for (final uk in uniqueKey.entries) {
       if (uk.value.isEmpty) {
         throw SchemaException("empty uniqueKey column not allowed",
             schemaErrorEmptyUniqueKeyColumn, (name ?? "") + " " + uk.key);
       }
     }
+
+    // validate foreignKey
     for (final fk in foreignKey.entries) {
       if (fk.value.columns.isEmpty) {
         throw SchemaException(
@@ -109,6 +145,9 @@ class Schema {
   factory Schema.fromJson(Map<String, dynamic> json) => _$SchemaFromJson(json);
 
   Map<String, dynamic> toJson() => _$SchemaToJson(this);
+
+  Map<String, int> columnIndex() =>
+      Map.fromIterable(columns, key: (c) => c.name, value: (c) => c.index);
 }
 
 @JsonSerializable()
