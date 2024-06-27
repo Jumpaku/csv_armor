@@ -1,11 +1,11 @@
+import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/error.dart';
 
 class Encoder {
   Encoder(
-      {this.recordSeparator = "\r\n",
-      this.fieldSeparator = ",",
-      this.fieldQuote = '"',
-      this.escapedQuote = '""',
+      {this.recordSeparator = RecordSeparator.CRLF,
+      this.fieldSeparator = FieldSeparator.COMMA,
+      this.fieldQuote = FieldQuote.DQUOTE,
       this.forceQuote = false,
       this.forceUnquote = false,
       this.terminatesWithRecordSeparator = true}) {
@@ -14,10 +14,9 @@ class Encoder {
     }
   }
 
-  final String recordSeparator;
-  final String fieldSeparator;
-  final String fieldQuote;
-  final String escapedQuote;
+  final RecordSeparator recordSeparator;
+  final FieldSeparator fieldSeparator;
+  final FieldQuote fieldQuote;
   final bool forceQuote;
   final bool forceUnquote;
   final bool terminatesWithRecordSeparator;
@@ -28,9 +27,9 @@ class Encoder {
           final escapedRecord = record.indexed.map((f) {
             final (column, field) = f;
             final quote = forceQuote ||
-                field.contains(fieldQuote) ||
-                field.contains(fieldSeparator) ||
-                field.contains(recordSeparator);
+                field.contains(fieldQuote.value()) ||
+                field.contains(fieldSeparator.value()) ||
+                field.contains(recordSeparator.value());
             if (quote && forceUnquote) {
               throw EncodeException(
                   "field quote required but forceUnquote is true",
@@ -39,12 +38,13 @@ class Encoder {
                   column,
                   field);
             }
+            final escapedQuote = fieldQuote.value() + fieldQuote.value();
             return quote
-                ? "$fieldQuote${field.replaceAll(fieldQuote, escapedQuote)}$fieldQuote"
+                ? "${fieldQuote.value()}${field.replaceAll(fieldQuote.value(), escapedQuote)}${fieldQuote.value()}"
                 : field;
           });
-          return escapedRecord.join(fieldSeparator);
-        }).join(recordSeparator) +
-        (terminatesWithRecordSeparator ? recordSeparator : "");
+          return escapedRecord.join(fieldSeparator.value());
+        }).join(recordSeparator.value()) +
+        (terminatesWithRecordSeparator ? recordSeparator.value() : "");
   }
 }

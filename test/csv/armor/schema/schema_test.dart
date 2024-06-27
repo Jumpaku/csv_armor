@@ -1,5 +1,5 @@
-import 'package:csv_armor/csv/schema/error.dart';
-import 'package:csv_armor/csv/schema/schema.dart';
+import 'package:csv_armor/csv/armor/schema/error.dart';
+import 'package:csv_armor/csv/armor/schema/schema.dart';
 import 'package:test/test.dart';
 
 typedef _TestcaseCtor = ({

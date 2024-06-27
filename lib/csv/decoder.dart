@@ -39,6 +39,11 @@ enum FieldSeparator {
     };
     return s.peek(sep.length) == sep.join() ? sep.length : 0;
   }
+
+  value() => switch (this) {
+        FieldSeparator.COMMA => ",",
+        FieldSeparator.TAB => "\t",
+      };
 }
 
 enum FieldQuote {
@@ -86,6 +91,13 @@ enum RecordSeparator {
     };
     return s.peek(quote.length) == quote.join() ? quote.length : 0;
   }
+
+  value() => switch (this) {
+        RecordSeparator.CRLF => "\r\n",
+        RecordSeparator.LF => "\n",
+        RecordSeparator.CR => "\r",
+        RecordSeparator.ANY => throw AssertionError("unsupported value"),
+      };
 }
 
 class Decoder {

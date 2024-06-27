@@ -1,3 +1,4 @@
+import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/encoder.dart';
 import 'package:test/test.dart';
 
@@ -38,12 +39,12 @@ void main() {
     ];
 
     final sut = Encoder(
-        fieldQuote: '"',
-        fieldSeparator: ",",
-        recordSeparator: "\r\n",
-        forceQuote: false,
-        terminatesWithRecordSeparator: true,
-        escapedQuote: '""');
+      fieldQuote: FieldQuote.DQUOTE,
+      fieldSeparator: FieldSeparator.COMMA,
+      recordSeparator: RecordSeparator.CRLF,
+      forceQuote: false,
+      terminatesWithRecordSeparator: true,
+    );
 
     for (var (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {

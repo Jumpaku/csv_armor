@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:csv_armor/csv/decoder.dart';
-import 'package:csv_armor/csv/schema/error.dart';
-import 'package:csv_armor/csv/schema/schema_validator.dart';
+import 'package:csv_armor/csv/armor/schema/error.dart';
+import 'package:csv_armor/csv/armor/schema/schema_validator.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaml/yaml.dart';
 
