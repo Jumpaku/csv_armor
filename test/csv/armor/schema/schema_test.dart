@@ -15,7 +15,12 @@ void main() {
       (
         message: "Should throw with an empty columns",
         ctor: () => Schema("table.csv", [], ["id"]),
-        wantCode: schemaErrorEmptyColumn,
+        wantCode: schemaErrorEmptyColumns,
+      ),
+      (
+        message: "Should throw with an empty columns",
+        ctor: () => Schema("table.csv", [Column("")], ["id"]),
+        wantCode: schemaErrorEmptyColumnName,
       ),
       (
         message: "Should throw with an empty primary key columns",

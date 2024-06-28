@@ -1,5 +1,6 @@
 import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/error.dart';
+import 'package:csv_armor/src/require.dart';
 
 class Encoder {
   Encoder(
@@ -9,9 +10,8 @@ class Encoder {
       this.forceQuote = false,
       this.forceUnquote = false,
       this.terminatesWithRecordSeparator = true}) {
-    if (forceQuote && forceUnquote) {
-      throw ArgumentError("forceQuote and forceUnquote cannot be both true");
-    }
+    require(!forceQuote || !forceUnquote, ["forceQuote", "forceUnquote"],
+        "forceQuote and forceUnquote cannot be both true");
   }
 
   final RecordSeparator recordSeparator;

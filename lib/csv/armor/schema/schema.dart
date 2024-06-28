@@ -1,9 +1,10 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:csv_armor/csv/armor/schema/error.dart';
 import 'package:csv_armor/csv/armor/schema/schema_validator.dart';
 import 'package:csv_armor/csv/decoder.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:yaml/yaml.dart';
 
 part 'schema.g.dart';
@@ -27,6 +28,102 @@ enum FormatType {
       };
 }
 
+T tryFromJSON<T>(T Function() fromJson) {
+  try {
+    return fromJson();
+  } on SchemaException {
+    rethrow;
+  } catch (e) {
+    throw SchemaException(
+      "failed to decode ${T.runtimeType} form YAML",
+      schemaErrorYAMLLoadFailure,
+      "",
+      cause: e,
+    );
+  }
+}
+
+void _validateSchema(Schema schema) {
+  // validate columns
+  if (schema.columns.isEmpty) {
+    throw SchemaException(
+      "empty columns not allowed",
+      schemaErrorEmptyColumns,
+      schema.name ?? "<unknown>",
+    );
+  }
+  final columnNameSet = <String>{};
+  for (final (i, column) in schema.columns.indexed) {
+    if (columnNameSet.contains(column.name)) {
+      throw SchemaException(
+        "duplicate column name not allowed",
+        schemaErrorDuplicatedColumnName,
+        "${schema.name ?? "<unknown>"}[$i]",
+      );
+    }
+    if (column.name == "") {
+      throw SchemaException(
+        "empty column name not allowed",
+        schemaErrorEmptyColumnName,
+        "${schema.name ?? "<unknown>"}[$i]",
+      );
+    }
+
+    if (column.formatRegex != null) {
+      try {
+        RegExp(column.formatRegex!);
+      } catch (e) {
+        throw SchemaException(
+          "invalid formatRegex",
+          schemaErrorInvalidColumnFormatRegex,
+          "${schema.name ?? "<unknown>"}[$i] (${column.name})",
+          cause: e,
+        );
+      }
+    }
+
+    columnNameSet.add(column.name);
+  }
+
+  // validate primaryKey
+  if (schema.primaryKey.isEmpty) {
+    throw SchemaException(
+      "empty primaryKey column not allowed",
+      schemaErrorEmptyPrimaryKeyColumn,
+      schema.name ?? "<unknown>",
+    );
+  }
+
+  // validate uniqueKey
+  for (final uk in schema.uniqueKey.entries) {
+    if (uk.value.isEmpty) {
+      throw SchemaException(
+        "empty uniqueKey column not allowed",
+        schemaErrorEmptyUniqueKeyColumn,
+        "${schema.name ?? ""}[${uk.key}]",
+      );
+    }
+  }
+
+  // validate foreignKey
+  for (final fk in schema.foreignKey.entries) {
+    if (fk.value.columns.isEmpty) {
+      throw SchemaException(
+        "empty foreignKey referencing column not allowed",
+        schemaErrorEmptyForeignKeyReferencingColumn,
+        "${schema.name ?? ""}[${fk.key}]",
+      );
+    }
+    if (fk.value.reference.columns.isEmpty) {
+      throw SchemaException(
+        "empty foreignKey referenced column not allowed",
+        schemaErrorEmptyForeignKeyReferencedColumn,
+        "${schema.name ?? ""}[${fk.key}]",
+      );
+    }
+  }
+}
+
 @JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class Schema {
   Schema(
@@ -41,77 +138,7 @@ class Schema {
     this.uniqueKey = const {},
     this.foreignKey = const {},
   }) {
-    // validate columns
-    if (columns.isEmpty) {
-      throw SchemaException(
-        "empty columns not allowed",
-        schemaErrorEmptyColumn,
-        name ?? "",
-      );
-    }
-    final columnNameSet = <String>{};
-    for (final (i, column) in columns.indexed) {
-      if (columnNameSet.contains(column.name)) {
-        throw SchemaException(
-          "duplicate column name not allowed",
-          schemaErrorDuplicatedColumnName,
-          "${name ?? ""} ${column.name} $i",
-        );
-      }
-
-      if (column.formatRegex != null) {
-        try {
-          RegExp(column.formatRegex!);
-        } catch (e) {
-          throw SchemaException(
-            "invalid formatRegex",
-            schemaErrorInvalidColumnFormatRegex,
-            "${name ?? ""} ${column.name}",
-            cause: e,
-          );
-        }
-      }
-
-      columnNameSet.add(column.name);
-    }
-
-    // validate primaryKey
-    if (primaryKey.isEmpty) {
-      throw SchemaException(
-        "empty primaryKey column not allowed",
-        schemaErrorEmptyPrimaryKeyColumn,
-        name ?? "",
-      );
-    }
-
-    // validate uniqueKey
-    for (final uk in uniqueKey.entries) {
-      if (uk.value.isEmpty) {
-        throw SchemaException(
-          "empty uniqueKey column not allowed",
-          schemaErrorEmptyUniqueKeyColumn,
-          "${name ?? ""} ${uk.key}",
-        );
-      }
-    }
-
-    // validate foreignKey
-    for (final fk in foreignKey.entries) {
-      if (fk.value.columns.isEmpty) {
-        throw SchemaException(
-          "empty foreignKey referencing column not allowed",
-          schemaErrorEmptyForeignKeyReferencingColumn,
-          "${name ?? ""} ${fk.key}",
-        );
-      }
-      if (fk.value.reference.columns.isEmpty) {
-        throw SchemaException(
-          "empty foreignKey referenced column not allowed",
-          schemaErrorEmptyForeignKeyReferencedColumn,
-          "${name ?? ""} ${fk.key}",
-        );
-      }
-    }
+    _validateSchema(this);
   }
 
   @JsonKey(name: "name")
@@ -161,7 +188,8 @@ class Schema {
     return Schema.fromJson(json as Map<String, dynamic>);
   }
 
-  factory Schema.fromJson(Map<String, dynamic> json) => _$SchemaFromJson(json);
+  factory Schema.fromJson(Map<String, dynamic> json) =>
+      tryFromJSON(() => _$SchemaFromJson(json));
 
   Map<String, dynamic> toJson() => _$SchemaToJson(this);
 
@@ -195,7 +223,8 @@ class Column {
   @JsonKey(name: "format_regex")
   final String? formatRegex;
 
-  factory Column.fromJson(Map<String, dynamic> json) => _$ColumnFromJson(json);
+  factory Column.fromJson(Map<String, dynamic> json) =>
+      tryFromJSON(() => _$ColumnFromJson(json));
 
   Map<String, dynamic> toJson() => _$ColumnToJson(this);
 
@@ -218,7 +247,7 @@ class ForeignKey {
   final ForeignKeyReference reference;
 
   factory ForeignKey.fromJson(Map<String, dynamic> json) =>
-      _$ForeignKeyFromJson(json);
+      tryFromJSON(() => _$ForeignKeyFromJson(json));
 
   Map<String, dynamic> toJson() => _$ForeignKeyToJson(this);
 
@@ -241,7 +270,7 @@ class ForeignKeyReference {
   final List<String> columns;
 
   factory ForeignKeyReference.fromJson(Map<String, dynamic> json) =>
-      _$ForeignKeyReferenceFromJson(json);
+      tryFromJSON(() => _$ForeignKeyReferenceFromJson(json));
 
   Map<String, dynamic> toJson() => _$ForeignKeyReferenceToJson(this);
 

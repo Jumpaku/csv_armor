@@ -1,19 +1,17 @@
 import 'package:csv_armor/errors/base_exception.dart';
 
-const readWriteErrorSchemaReadFailure = "readWriteErrorSchemaReadFailure";
-const readWriteErrorSchemaWriteFailure = "readWriteErrorSchemaWriteFailure";
-const readWriteErrorCSVReadFailure = "readWriteErrorCSVReadFailure";
-const readWriteErrorCSVWriteFailure = "readWriteErrorCSVWriteFailure";
+const fileCacheErrorSchemaReadFailure = "fileCacheErrorSchemaReadFailure";
+const fileCacheErrorSchemaWriteFailure = "fileCacheErrorSchemaWriteFailure";
+const fileCacheErrorCSVReadFailure = "fileCacheErrorCSVReadFailure";
+const fileCacheErrorCSVWriteFailure = "fileCacheErrorCSVWriteFailure";
 
-class ReadWriteException extends BaseException {
-  ReadWriteException(
+class FileCacheException extends BaseException {
+  FileCacheException(
     String message,
     String code,
-    this.targetPath,
-    this.pathFrom, {
+    this.path, {
     Object? cause,
   }) : super(message, code, cause == null ? [] : [cause]);
 
-  final String targetPath;
-  final String pathFrom;
+  final String path;
 }

@@ -4,7 +4,8 @@ const schemaErrorYAMLLoadFailure = "schemaErrorYAMLLoadFailure";
 const schemaErrorSchemaValidationFailure = "schemaErrorSchemaValidationFailure";
 const schemaErrorInvalidColumnFormatRegex = "schemaErrorInvalidColumnFormatRegex";
 const schemaErrorDuplicatedColumnName = "schemaErrorDuplicatedColumnName";
-const schemaErrorEmptyColumn = "schemaErrorEmptyColumn";
+const schemaErrorEmptyColumns = "schemaErrorEmptyColumns";
+const schemaErrorEmptyColumnName = "schemaErrorEmptyColumnName";
 const schemaErrorEmptyPrimaryKeyColumn = "schemaErrorEmptyPrimaryKeyColumn";
 const schemaErrorEmptyUniqueKeyColumn = "schemaErrorEmptyUniqueKeyColumn";
 const schemaErrorEmptyForeignKeyReferencingColumn =
@@ -16,5 +17,5 @@ class SchemaException extends BaseException {
   SchemaException(String message, String code, this.name, {Object? cause})
       : super(message, code, cause == null ? [] : [cause]);
 
-  final String name;
+  final String? name;
 }
