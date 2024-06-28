@@ -11,7 +11,7 @@ $defs:
     properties:
       name:
         description: "The name of the CSV table."
-        type: string
+        type: [ "string", "null" ]
       description:
         description: "The description of the CSV table."
         type: string
@@ -78,7 +78,7 @@ $defs:
         enum: [ "integer", "decimal", "text", "datetime", "bool" ]
       format_regex:
         description: "The format regex of the column."
-        type: string
+        type: [ "string", "null" ]
     required: [ "name" ]
     additionalProperties: false
 

@@ -40,7 +40,7 @@ enum FieldSeparator {
     return s.peek(sep.length) == sep.join() ? sep.length : 0;
   }
 
-  value() => switch (this) {
+  String value() => switch (this) {
         FieldSeparator.COMMA => ",",
         FieldSeparator.TAB => "\t",
       };
@@ -92,7 +92,7 @@ enum RecordSeparator {
     return s.peek(quote.length) == quote.join() ? quote.length : 0;
   }
 
-  value() => switch (this) {
+  String value() => switch (this) {
         RecordSeparator.CRLF => "\r\n",
         RecordSeparator.LF => "\n",
         RecordSeparator.CR => "\r",
@@ -105,7 +105,7 @@ class Decoder {
     this.recordSeparator = RecordSeparator.CRLF,
     this.fieldSeparator = FieldSeparator.COMMA,
     this.fieldQuote = FieldQuote.DQUOTE,
-    escapedQuote = '""',
+    String escapedQuote = '""',
   }) : this.escapedQuote = Characters(escapedQuote).toList();
 
   final RecordSeparator recordSeparator;
@@ -114,7 +114,7 @@ class Decoder {
   final List<String> escapedQuote;
 
   List<List<String>> parse(ParseState s) {
-    List<List<String>> records = [];
+    final records = <List<String>>[];
     if (s.done()) {
       return [];
     }

@@ -28,3 +28,5 @@ doc/api/
 
 .idea
 *.iml
+
+test_tmp

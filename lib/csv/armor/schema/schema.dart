@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/armor/schema/error.dart';
 import 'package:csv_armor/csv/armor/schema/schema_validator.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:csv_armor/csv/decoder.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:yaml/yaml.dart';
 
 part 'schema.g.dart';
@@ -27,7 +27,7 @@ enum FormatType {
       };
 }
 
-@JsonSerializable()
+@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class Schema {
   Schema(
     this.csvPath,
@@ -42,17 +42,21 @@ class Schema {
     this.foreignKey = const {},
   }) {
     // validate columns
-    if (this.columns.isEmpty) {
+    if (columns.isEmpty) {
       throw SchemaException(
-          "empty columns not allowed", schemaErrorEmptyColumn, name ?? "");
+        "empty columns not allowed",
+        schemaErrorEmptyColumn,
+        name ?? "",
+      );
     }
     final columnNameSet = <String>{};
-    for (final (i, column) in this.columns.indexed) {
+    for (final (i, column) in columns.indexed) {
       if (columnNameSet.contains(column.name)) {
         throw SchemaException(
-            "duplicate column name not allowed",
-            schemaErrorDuplicatedColumnName,
-            (name ?? "") + " " + column.name + " $i");
+          "duplicate column name not allowed",
+          schemaErrorDuplicatedColumnName,
+          "${name ?? ""} ${column.name} $i",
+        );
       }
 
       if (column.formatRegex != null) {
@@ -60,10 +64,11 @@ class Schema {
           RegExp(column.formatRegex!);
         } catch (e) {
           throw SchemaException(
-              "invalid formatRegex",
-              schemaErrorInvalidColumnFormatRegex,
-              (name ?? "") + " " + column.name,
-              cause: e);
+            "invalid formatRegex",
+            schemaErrorInvalidColumnFormatRegex,
+            "${name ?? ""} ${column.name}",
+            cause: e,
+          );
         }
       }
 
@@ -71,16 +76,22 @@ class Schema {
     }
 
     // validate primaryKey
-    if (this.primaryKey.isEmpty) {
-      throw SchemaException("empty primaryKey column not allowed",
-          schemaErrorEmptyPrimaryKeyColumn, name ?? "");
+    if (primaryKey.isEmpty) {
+      throw SchemaException(
+        "empty primaryKey column not allowed",
+        schemaErrorEmptyPrimaryKeyColumn,
+        name ?? "",
+      );
     }
 
     // validate uniqueKey
     for (final uk in uniqueKey.entries) {
       if (uk.value.isEmpty) {
-        throw SchemaException("empty uniqueKey column not allowed",
-            schemaErrorEmptyUniqueKeyColumn, (name ?? "") + " " + uk.key);
+        throw SchemaException(
+          "empty uniqueKey column not allowed",
+          schemaErrorEmptyUniqueKeyColumn,
+          "${name ?? ""} ${uk.key}",
+        );
       }
     }
 
@@ -88,15 +99,17 @@ class Schema {
     for (final fk in foreignKey.entries) {
       if (fk.value.columns.isEmpty) {
         throw SchemaException(
-            "empty foreignKey referencing column not allowed",
-            schemaErrorEmptyForeignKeyReferencingColumn,
-            (name ?? "") + " " + fk.key);
+          "empty foreignKey referencing column not allowed",
+          schemaErrorEmptyForeignKeyReferencingColumn,
+          "${name ?? ""} ${fk.key}",
+        );
       }
       if (fk.value.reference.columns.isEmpty) {
         throw SchemaException(
-            "empty foreignKey referenced column not allowed",
-            schemaErrorEmptyForeignKeyReferencedColumn,
-            (name ?? "") + " " + fk.key);
+          "empty foreignKey referenced column not allowed",
+          schemaErrorEmptyForeignKeyReferencedColumn,
+          "${name ?? ""} ${fk.key}",
+        );
       }
     }
   }
@@ -128,18 +141,24 @@ class Schema {
       json = jsonDecode(jsonEncode(loadYaml(yaml)));
     } catch (e) {
       throw SchemaException(
-          "failed to decode YAML", schemaErrorYAMLLoadFailure, "",
-          cause: e);
+        "failed to decode YAML",
+        schemaErrorYAMLLoadFailure,
+        "",
+        cause: e,
+      );
     }
 
     final validation = getSchemaValidator().validate(json);
     if (!validation.isValid) {
       throw SchemaException(
-          "failed to validate schema", schemaErrorSchemaValidationFailure, "",
-          cause: validation.errors);
+        "failed to validate schema",
+        schemaErrorSchemaValidationFailure,
+        "",
+        cause: validation.errors,
+      );
     }
 
-    return Schema.fromJson(json);
+    return Schema.fromJson(json as Map<String, dynamic>);
   }
 
   factory Schema.fromJson(Map<String, dynamic> json) => _$SchemaFromJson(json);
@@ -147,29 +166,49 @@ class Schema {
   Map<String, dynamic> toJson() => _$SchemaToJson(this);
 
   Map<String, int> columnIndex() =>
-      Map.fromIterable(columns, key: (c) => c.name, value: (c) => c.index);
+      {for (final (i, c) in columns.indexed) c.name: i};
+
+  @override
+  bool operator ==(Object other) =>
+      other is Schema &&
+      const DeepCollectionEquality().equals(toJson(), other.toJson());
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(toJson());
 }
 
-@JsonSerializable()
+@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class Column {
-  Column(this.name,
-      {this.allowEmpty = false, this.formatType, this.formatRegex});
+  Column(
+    this.name, {
+    this.allowEmpty = false,
+    this.formatType = FormatType.text,
+    this.formatRegex,
+  });
 
   @JsonKey(name: "name")
   final String name;
   @JsonKey(name: "allow_empty")
   final bool allowEmpty;
   @JsonKey(name: "format_type")
-  final FormatType? formatType;
+  final FormatType formatType;
   @JsonKey(name: "format_regex")
   final String? formatRegex;
 
   factory Column.fromJson(Map<String, dynamic> json) => _$ColumnFromJson(json);
 
   Map<String, dynamic> toJson() => _$ColumnToJson(this);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Column &&
+      const DeepCollectionEquality().equals(toJson(), other.toJson());
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(toJson());
 }
 
-@JsonSerializable()
+@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class ForeignKey {
   ForeignKey(this.columns, this.reference);
 
@@ -182,9 +221,17 @@ class ForeignKey {
       _$ForeignKeyFromJson(json);
 
   Map<String, dynamic> toJson() => _$ForeignKeyToJson(this);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ForeignKey &&
+      const DeepCollectionEquality().equals(toJson(), other.toJson());
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(toJson());
 }
 
-@JsonSerializable()
+@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class ForeignKeyReference {
   ForeignKeyReference(this.schemaPath, this.columns);
 
@@ -197,4 +244,12 @@ class ForeignKeyReference {
       _$ForeignKeyReferenceFromJson(json);
 
   Map<String, dynamic> toJson() => _$ForeignKeyReferenceToJson(this);
+
+  @override
+  bool operator ==(Object other) =>
+      other is ForeignKeyReference &&
+      const DeepCollectionEquality().equals(toJson(), other.toJson());
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(toJson());
 }
