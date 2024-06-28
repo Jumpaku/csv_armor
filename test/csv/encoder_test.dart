@@ -1,5 +1,7 @@
-import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/encoder.dart';
+import 'package:csv_armor/csv/field_quote.dart';
+import 'package:csv_armor/csv/field_separator.dart';
+import 'package:csv_armor/csv/record_separator.dart';
 import 'package:test/test.dart';
 
 typedef _Testcase = ({
@@ -46,7 +48,7 @@ void main() {
       terminatesWithRecordSeparator: true,
     );
 
-    for (var (i, testcase) in testcases.indexed) {
+    for (final (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {
         final actual = sut.encode(testcase.input);
         expect(actual, equals(testcase.expected));

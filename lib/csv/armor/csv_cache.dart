@@ -4,7 +4,7 @@ import 'package:csv_armor/csv/armor/csv_writer.dart';
 import 'package:csv_armor/csv/armor/schema_cache.dart';
 import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/encoder.dart';
-import 'package:path/path.dart';
+import 'package:csv_armor/csv/field_quote.dart';
 
 class CSVCache {
   CSVCache(SchemaCache schemaCache, this._reader, this._writer)
@@ -17,15 +17,14 @@ class CSVCache {
   final Map<String, List<List<String>>> _csvCache = {};
 
   List<List<String>> readCSV(String schemaPath, {bool forceRead = false}) {
-    final schemaPathKey = _schemaCache.pathContext.canonicalize(schemaPath);
+    final schemaPathKey = _schemaCache.resolveKey(schemaPath);
     final storedCSV = _csvCache[schemaPathKey];
     if (storedCSV != null && !forceRead) {
       return storedCSV;
     }
 
     final schema = _schemaCache.readSchema(schemaPathKey, forceRead: forceRead);
-    final csvPath = _schemaCache.pathContext
-        .canonicalize(join(dirname(schemaPathKey), schema.csvPath));
+    final csvPath = _schemaCache.resolve(schemaPathKey, schema.csvPath);
 
     final decoder = Decoder(
       recordSeparator: schema.recordSeparator,
@@ -39,7 +38,7 @@ class CSVCache {
 
   void writeCSV(String schemaPath, List<List<String>> csv,
       {bool forceWrite = false}) {
-    final schemaPathKey = _schemaCache.pathContext.canonicalize(schemaPath);
+    final schemaPathKey = _schemaCache.resolveKey(schemaPath);
     final storedCSV = _csvCache[schemaPathKey];
     const csvEquals = ListEquality<List<String>>(ListEquality<String>());
     if (storedCSV != null && !forceWrite && csvEquals.equals(storedCSV, csv)) {
@@ -47,8 +46,7 @@ class CSVCache {
     }
 
     final schema = _schemaCache.readSchema(schemaPathKey);
-    final csvPath = _schemaCache.pathContext
-        .canonicalize(join(dirname(schemaPathKey), schema.csvPath));
+    final csvPath = _schemaCache.resolve(schemaPathKey, schema.csvPath);
 
     final encoder = Encoder(
       recordSeparator: schema.recordSeparator,

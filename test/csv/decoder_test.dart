@@ -1,4 +1,7 @@
 import 'package:csv_armor/csv/decoder.dart';
+import 'package:csv_armor/csv/field_quote.dart';
+import 'package:csv_armor/csv/field_separator.dart';
+import 'package:csv_armor/csv/record_separator.dart';
 import 'package:test/test.dart';
 
 typedef _Testcase = ({String input, List<List<String>> expected});

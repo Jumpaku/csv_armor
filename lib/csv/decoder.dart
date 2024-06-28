@@ -1,11 +1,14 @@
 import 'dart:math';
 
 import 'package:characters/characters.dart';
+import 'package:csv_armor/csv/field_quote.dart';
+import 'package:csv_armor/csv/field_separator.dart';
+import 'package:csv_armor/csv/record_separator.dart';
 
 import 'error.dart';
 
-class ParseState {
-  ParseState(this.input);
+class _ParseState {
+  _ParseState(this.input);
 
   final List<String> input;
   int cursor = 0;
@@ -27,77 +30,40 @@ class ParseState {
   }
 }
 
-enum FieldSeparator {
-  COMMA,
-  TAB,
-  ;
-
-  int matches(ParseState s) {
-    final sep = switch (this) {
-      FieldSeparator.COMMA => Characters(",").toList(),
-      FieldSeparator.TAB => Characters("\t").toList(),
-    };
-    return s.peek(sep.length) == sep.join() ? sep.length : 0;
-  }
-
-  String value() => switch (this) {
-        FieldSeparator.COMMA => ",",
-        FieldSeparator.TAB => "\t",
-      };
+int _matchesFieldSeparator(_ParseState s, FieldSeparator sep) {
+  final chars = switch (sep) {
+    FieldSeparator.COMMA => Characters(",").toList(),
+    FieldSeparator.TAB => Characters("\t").toList(),
+  };
+  return s.peek(chars.length) == chars.join() ? chars.length : 0;
 }
 
-enum FieldQuote {
-  NONE,
-  DQUOTE,
-  SQUOTE;
-
-  int matches(ParseState s) {
-    final quote = switch (this) {
-      FieldQuote.DQUOTE => Characters("\"").toList(),
-      FieldQuote.SQUOTE => Characters("'").toList(),
-      FieldQuote.NONE => [],
-    };
-    return s.peek(quote.length) == quote.join() ? quote.length : 0;
-  }
-
-  String value() => switch (this) {
-        FieldQuote.DQUOTE => "\"",
-        FieldQuote.SQUOTE => "'",
-        FieldQuote.NONE => "",
-      };
+int _matchesFieldQuote(_ParseState s, FieldQuote quote) {
+  final chars = switch (quote) {
+    FieldQuote.DQUOTE => Characters('"').toList(),
+    FieldQuote.SQUOTE => Characters("'").toList(),
+    FieldQuote.NONE => [],
+  };
+  return s.peek(chars.length) == chars.join() ? chars.length : 0;
 }
 
-enum RecordSeparator {
-  ANY,
-  CRLF,
-  LF,
-  CR;
-
-  int matches(ParseState s) {
-    if (this == RecordSeparator.ANY) {
-      for (final rSep in [CRLF, LF, CR]) {
-        final m = rSep.matches(s);
-        if (m > 0) {
-          return m;
-        }
-        return 0;
-      }
+int _matchesRecordSeparator(_ParseState s, RecordSeparator sep) {
+  if (sep == RecordSeparator.ANY) {
+    for (final rSep in [
+      RecordSeparator.CRLF,
+      RecordSeparator.LF,
+      RecordSeparator.CR,
+    ]) {
+      return _matchesRecordSeparator(s, rSep);
     }
-    final quote = switch (this) {
-      RecordSeparator.CRLF => Characters("\r\n").toList(),
-      RecordSeparator.LF => Characters("\n").toList(),
-      RecordSeparator.CR => Characters("\r").toList(),
-      RecordSeparator.ANY => throw AssertionError("unreachable"),
-    };
-    return s.peek(quote.length) == quote.join() ? quote.length : 0;
   }
-
-  String value() => switch (this) {
-        RecordSeparator.CRLF => "\r\n",
-        RecordSeparator.LF => "\n",
-        RecordSeparator.CR => "\r",
-        RecordSeparator.ANY => throw AssertionError("unsupported value"),
-      };
+  final chars = switch (sep) {
+    RecordSeparator.CRLF => Characters("\r\n").toList(),
+    RecordSeparator.LF => Characters("\n").toList(),
+    RecordSeparator.CR => Characters("\r").toList(),
+    RecordSeparator.ANY => throw AssertionError("unreachable"),
+  };
+  return s.peek(chars.length) == chars.join() ? chars.length : 0;
 }
 
 class Decoder {
@@ -113,54 +79,54 @@ class Decoder {
   final FieldQuote fieldQuote;
   final List<String> escapedQuote;
 
-  List<List<String>> parse(ParseState s) {
+  List<List<String>> _parse(_ParseState s) {
     final records = <List<String>>[];
     if (s.done()) {
       return [];
     }
     while (!s.done()) {
-      final record = parseRecord(s);
+      final record = _parseRecord(s);
       records.add(record);
 
-      if (recordSeparator.matches(s) > 0) {
-        s.move(recordSeparator.matches(s));
+      if (_matchesRecordSeparator(s, recordSeparator) > 0) {
+        s.move(_matchesRecordSeparator(s, recordSeparator));
       }
     }
     return records;
   }
 
-  List<String> parseRecord(ParseState s) {
-    List<String> fields = [];
+  List<String> _parseRecord(_ParseState s) {
+    final List<String> fields = [];
     while (!s.done()) {
-      if (recordSeparator.matches(s) > 0) {
+      if (_matchesRecordSeparator(s, recordSeparator) > 0) {
         break;
       }
-      if (fieldSeparator.matches(s) > 0) {
-        s.move(fieldSeparator.matches(s));
+      if (_matchesFieldSeparator(s, fieldSeparator) > 0) {
+        s.move(_matchesFieldSeparator(s, fieldSeparator));
       }
-      final field = parseField(s);
+      final field = _parseField(s);
       fields.add(field);
     }
     return fields;
   }
 
-  String parseField(ParseState s) {
+  String _parseField(_ParseState s) {
     if (s.done()) {
       return "";
     }
-    if (recordSeparator.matches(s) > 0) {
+    if (_matchesRecordSeparator(s, recordSeparator) > 0) {
       return "";
     }
-    if (fieldSeparator.matches(s) > 0) {
+    if (_matchesFieldSeparator(s, fieldSeparator) > 0) {
       return "";
     }
 
-    final f = (fieldQuote.matches(s) > 0)
-        ? parseQuotedField(s)
-        : parseUnquotedField(s);
+    final f = (_matchesFieldQuote(s, fieldQuote) > 0)
+        ? _parseQuotedField(s)
+        : _parseUnquotedField(s);
     if (s.done() ||
-        fieldSeparator.matches(s) > 0 ||
-        recordSeparator.matches(s) > 0) {
+        _matchesFieldSeparator(s, fieldSeparator) > 0 ||
+        _matchesRecordSeparator(s, recordSeparator) > 0) {
       return f;
     }
 
@@ -168,14 +134,14 @@ class Decoder {
         decodeErrorInvalidCharAfterField);
   }
 
-  String parseQuotedField(ParseState s) {
+  String _parseQuotedField(_ParseState s) {
     if (fieldQuote == FieldQuote.NONE) {
       s.fail("field quote not allowed", decodeErrorFieldQuoteNotAllowed);
     }
-    if (fieldQuote.matches(s) == 0) {
+    if (_matchesFieldQuote(s, fieldQuote) == 0) {
       s.fail("fail to read opening quote", decodeErrorOpeningQuoteNotFound);
     }
-    s.move(fieldQuote.matches(s));
+    s.move(_matchesFieldQuote(s, fieldQuote));
 
     String field = "";
     while (!s.done()) {
@@ -184,8 +150,8 @@ class Decoder {
         s.move(escapedQuote.length);
         continue;
       }
-      if (fieldQuote.matches(s) > 0) {
-        s.move(fieldQuote.matches(s));
+      if (_matchesFieldQuote(s, fieldQuote) > 0) {
+        s.move(_matchesFieldQuote(s, fieldQuote));
         return field;
       }
 
@@ -196,13 +162,13 @@ class Decoder {
     s.fail("fail to read closing quote", decodeErrorClosingQuoteNotFound);
   }
 
-  String parseUnquotedField(ParseState s) {
+  String _parseUnquotedField(_ParseState s) {
     String field = "";
     while (!s.done()) {
-      if (recordSeparator.matches(s) > 0) {
+      if (_matchesRecordSeparator(s, recordSeparator) > 0) {
         return field;
       }
-      if (fieldSeparator.matches(s) > 0) {
+      if (_matchesFieldSeparator(s, fieldSeparator) > 0) {
         return field;
       }
 
@@ -213,6 +179,6 @@ class Decoder {
   }
 
   List<List<String>> decode(String input) {
-    return parse(ParseState(Characters(input).toList()));
+    return _parse(_ParseState(Characters(input).toList()));
   }
 }

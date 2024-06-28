@@ -14,8 +14,17 @@ class SchemaCache {
 
   Context get pathContext => _pathContext;
 
+  String resolveKey(String baseSchemaPath) {
+    return _pathContext.canonicalize(baseSchemaPath);
+  }
+
+  String resolve(String baseSchemaPath, String path) {
+    final schemaPathKey = resolveKey(baseSchemaPath);
+    return _pathContext.canonicalize(join(dirname(schemaPathKey), path));
+  }
+
   Schema readSchema(String schemaPath, {bool forceRead = false}) {
-    final schemaPathKey = _pathContext.canonicalize(schemaPath);
+    final schemaPathKey = resolveKey(schemaPath);
     final storedSchema = _schemaCache[schemaPathKey];
     if (storedSchema != null && !forceRead) {
       return storedSchema;
@@ -31,7 +40,7 @@ class SchemaCache {
     bool forceWrite = true,
     SchemaFormat schemaFormat = SchemaFormat.yaml,
   }) {
-    final schemaPathKey = _pathContext.canonicalize(schemaPath);
+    final schemaPathKey = resolveKey(schemaPath);
     final storedSchema = _schemaCache[schemaPathKey];
     if (storedSchema != null && !forceWrite && storedSchema == schema) {
       return;

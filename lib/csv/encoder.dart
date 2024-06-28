@@ -1,5 +1,7 @@
-import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/error.dart';
+import 'package:csv_armor/csv/field_quote.dart';
+import 'package:csv_armor/csv/field_separator.dart';
+import 'package:csv_armor/csv/record_separator.dart';
 import 'package:csv_armor/src/require.dart';
 
 class Encoder {
