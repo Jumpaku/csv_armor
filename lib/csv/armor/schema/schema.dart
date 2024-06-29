@@ -13,7 +13,6 @@ import 'package:yaml/yaml.dart';
 
 part 'schema.g.dart';
 
-
 @CopyWith()
 @JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
 class Schema {
@@ -60,7 +59,7 @@ class Schema {
     } catch (e) {
       throw SchemaException(
         "failed to decode YAML",
-        schemaErrorYAMLLoadFailure,
+        schemaErrorYamlEncodeFailure,
         "",
         cause: e,
       );
@@ -194,7 +193,7 @@ T _tryFromJSON<T>(T Function() fromJson) {
   } catch (e) {
     throw SchemaException(
       "failed to decode ${T.runtimeType} form YAML",
-      schemaErrorYAMLLoadFailure,
+      schemaErrorYamlEncodeFailure,
       "",
       cause: e,
     );
@@ -210,9 +209,12 @@ void _validateSchema(Schema schema) {
       schema.name ?? "<unknown>",
     );
   }
-  final columnNameSet = <String>{};
+  final columnNameSet = <String, int>{};
+  for (final column in schema.columns) {
+    columnNameSet.update(column.name, (n) => n + 1, ifAbsent: () => 1);
+  }
   for (final (i, column) in schema.columns.indexed) {
-    if (columnNameSet.contains(column.name)) {
+    if ((columnNameSet[column.name] ?? 0) > 1) {
       throw SchemaException(
         "duplicate column name not allowed",
         schemaErrorDuplicatedColumnName,
@@ -239,8 +241,6 @@ void _validateSchema(Schema schema) {
         );
       }
     }
-
-    columnNameSet.add(column.name);
   }
 
   // validate primaryKey
@@ -251,33 +251,54 @@ void _validateSchema(Schema schema) {
       schema.name ?? "<unknown>",
     );
   }
+  if (!schema.primaryKey.every(columnNameSet.containsKey)) {
+    throw SchemaException(
+      "primaryKey column not in columns",
+      schemaErrorPrimaryKeyNotInColumns,
+      schema.name ?? "<unknown>",
+    );
+  }
 
   // validate uniqueKey
-  for (final uk in schema.uniqueKey.entries) {
-    if (uk.value.isEmpty) {
+  schema.uniqueKey.forEach((ukName, uk) {
+    if (uk.isEmpty) {
       throw SchemaException(
         "empty uniqueKey column not allowed",
         schemaErrorEmptyUniqueKeyColumn,
-        "${schema.name ?? ""}[${uk.key}]",
+        "${schema.name ?? ""}[${ukName}]",
       );
     }
-  }
+    if (!uk.every(columnNameSet.containsKey)) {
+      throw SchemaException(
+        "uniqueKey column not in columns",
+        schemaErrorUniqueKeyNotInColumns,
+        "${schema.name ?? ""}[${ukName}]",
+      );
+    }
+  });
 
   // validate foreignKey
-  for (final fk in schema.foreignKey.entries) {
-    if (fk.value.columns.isEmpty) {
+  schema.foreignKey.forEach((fkName, fk) {
+    if (fk.columns.isEmpty) {
       throw SchemaException(
         "empty foreignKey referencing column not allowed",
-        schemaErrorEmptyForeignKeyReferencingColumn,
-        "${schema.name ?? ""}[${fk.key}]",
+        schemaErrorEmptyForeignKeyBaseColumn,
+        "${schema.name ?? ""}[${fkName}]",
       );
     }
-    if (fk.value.reference.columns.isEmpty) {
+    if (!fk.columns.every(columnNameSet.containsKey)) {
       throw SchemaException(
-        "empty foreignKey referenced column not allowed",
-        schemaErrorEmptyForeignKeyReferencedColumn,
-        "${schema.name ?? ""}[${fk.key}]",
+        "uniqueKey column not in columns",
+        schemaErrorForeignKeyReferenceColumnNotInColumns,
+        "${schema.name ?? ""}[${fkName}]",
       );
     }
-  }
+    if (fk.columns.length != fk.reference.columns.length) {
+      throw SchemaException(
+        "foreign key columns and reference columns must have the same length",
+        schemaErrorForeignKeyColumnCountMismatch,
+        "${schema.name ?? ""}[${fkName}]",
+      );
+    }
+  });
 }

@@ -47,15 +47,15 @@ class Store {
             index: (name: name, index: index),
         },
         _columnIDByName = {
-          for (final (index, name) in columns.indexed) name: index
+          for (final (index, name) in columns.indexed) name: index,
         },
         _columnIDByIndex = [for (final (index, _) in columns.indexed) index],
         _primaryKey = [...primaryKeyIndex],
         _data = SplayTreeMap.from({
           for (final row in data)
             PrimaryKey([for (final index in primaryKeyIndex) row[index]]): {
-              for (final (index, value) in row.indexed) index: value
-            }
+              for (final (index, value) in row.indexed) index: value,
+            },
         }) {
     if (columns.isEmpty) {
       throw ArgumentError('columns must not be empty', 'columns');

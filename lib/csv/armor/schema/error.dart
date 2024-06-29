@@ -1,17 +1,22 @@
 import 'package:csv_armor/errors/base_exception.dart';
 
-const schemaErrorYAMLLoadFailure = "schemaErrorYAMLLoadFailure";
+const schemaErrorYamlEncodeFailure = "schemaErrorYamlEncodeFailure";
 const schemaErrorSchemaValidationFailure = "schemaErrorSchemaValidationFailure";
-const schemaErrorInvalidColumnFormatRegex = "schemaErrorInvalidColumnFormatRegex";
+const schemaErrorInvalidColumnFormatRegex =
+    "schemaErrorInvalidColumnFormatRegex";
 const schemaErrorDuplicatedColumnName = "schemaErrorDuplicatedColumnName";
 const schemaErrorEmptyColumns = "schemaErrorEmptyColumns";
 const schemaErrorEmptyColumnName = "schemaErrorEmptyColumnName";
 const schemaErrorEmptyPrimaryKeyColumn = "schemaErrorEmptyPrimaryKeyColumn";
+const schemaErrorPrimaryKeyNotInColumns = "schemaErrorPrimaryKeyNotInColumns";
 const schemaErrorEmptyUniqueKeyColumn = "schemaErrorEmptyUniqueKeyColumn";
-const schemaErrorEmptyForeignKeyReferencingColumn =
-    "schemaErrorEmptyForeignKeyReferencingColumn";
-const schemaErrorEmptyForeignKeyReferencedColumn =
-    "schemaErrorEmptyForeignKeyReferencedColumn";
+const schemaErrorUniqueKeyNotInColumns = "schemaErrorUniqueKeyNotInColumns";
+const schemaErrorEmptyForeignKeyBaseColumn =
+    "schemaErrorEmptyForeignKeyBaseColumn";
+const schemaErrorForeignKeyReferenceColumnNotInColumns =
+    "schemaErrorForeignKeyReferenceColumnNotInColumns";
+const schemaErrorForeignKeyColumnCountMismatch =
+    "schemaErrorForeignKeyColumnCountMismatch";
 
 class SchemaException extends BaseException {
   SchemaException(String message, String code, this.name, {Object? cause})

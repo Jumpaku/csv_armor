@@ -28,10 +28,27 @@ void main() {
         wantCode: schemaErrorEmptyPrimaryKeyColumn,
       ),
       (
+        message: "Should throw with an primary key not in columns",
+        ctor: () => Schema("table.csv", [Column("id")], ["invalid"]),
+        wantCode: schemaErrorPrimaryKeyNotInColumns,
+      ),
+      (
         message: "Should throw with an empty unique key columns",
         ctor: () => Schema("table.csv", [Column("id")], ["id"],
             uniqueKey: {"unique": []}),
         wantCode: schemaErrorEmptyUniqueKeyColumn,
+      ),
+      (
+        message: "Should throw with an unique key not in columns",
+        ctor: () => Schema(
+              "table.csv",
+              [Column("id")],
+              ["id"],
+              uniqueKey: {
+                "unique": ["invalid"],
+              },
+            ),
+        wantCode: schemaErrorUniqueKeyNotInColumns,
       ),
       (
         message: "Should throw with an empty foreign key referencing columns",
@@ -43,7 +60,21 @@ void main() {
                 "foreign": ForeignKey([], ForeignKeyReference("table", ["id"]))
               },
             ),
-        wantCode: schemaErrorEmptyForeignKeyReferencingColumn,
+        wantCode: schemaErrorEmptyForeignKeyBaseColumn,
+      ),
+      (
+        message:
+            "Should throw with an foreign key referencing columns not in columns",
+        ctor: () => Schema(
+              "table.csv",
+              [Column("id")],
+              ["id"],
+              foreignKey: {
+                "foreign": ForeignKey(
+                    ["invalid"], ForeignKeyReference("table", ["id"])),
+              },
+            ),
+        wantCode: schemaErrorForeignKeyReferenceColumnNotInColumns,
       ),
       (
         message: "Should throw with an empty foreign key referenced columns",
@@ -55,7 +86,7 @@ void main() {
                 "foreign": ForeignKey(["id"], ForeignKeyReference("table", []))
               },
             ),
-        wantCode: schemaErrorEmptyForeignKeyReferencedColumn,
+        wantCode: schemaErrorForeignKeyColumnCountMismatch,
       ),
     ];
 
@@ -79,22 +110,22 @@ void main() {
       (
         message: "Should throw with invalid yaml",
         input: r""":""",
-        wantCode: schemaErrorYAMLLoadFailure,
+        wantCode: schemaErrorYamlEncodeFailure,
       ),
       (
         message: "Should throw with invalid yaml",
         input: r"""][""",
-        wantCode: schemaErrorYAMLLoadFailure,
+        wantCode: schemaErrorYamlEncodeFailure,
       ),
       (
         message: "Should throw with invalid yaml",
         input: r"""'a""",
-        wantCode: schemaErrorYAMLLoadFailure,
+        wantCode: schemaErrorYamlEncodeFailure,
       ),
       (
         message: "Should throw with invalid yaml",
         input: r"""}""",
-        wantCode: schemaErrorYAMLLoadFailure,
+        wantCode: schemaErrorYamlEncodeFailure,
       ),
       (
         message: "Should throw without csv_path",
