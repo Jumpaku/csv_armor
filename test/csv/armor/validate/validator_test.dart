@@ -32,6 +32,23 @@ typedef _Testcase_validateFieldFormat = ({
   List<ValidationError> want,
 });
 
+typedef _Testcase_validateForeignKeySchema = ({
+  String message,
+  Schema inBaseSchema,
+  Schema inForeignSchema,
+  List<ValidationError> want,
+});
+
+typedef _Testcase_validateForeignKey = ({
+  String message,
+  String fkName,
+  Schema inBaseSchema,
+  List<List<String>> inBaseCSV,
+  Schema inForeignSchema,
+  List<List<String>> inForeignCSV,
+  List<ValidationError> want,
+});
+
 void main() {
   group("validateShape", () {
     final testcases = <_Testcase_validateShape>[
@@ -179,7 +196,7 @@ void main() {
   });
 
   group("validateFieldFormat", () {
-    final baseSchema = Schema(
+    final defaultSchema = Schema(
       "data.csv",
       [Column("id")],
       ["id"],
@@ -193,7 +210,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects no error with "" for (no regex, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -206,7 +223,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "abc" for (no regex, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -219,7 +236,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -235,7 +252,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -248,7 +265,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "xyz" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -261,7 +278,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (no regex, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -277,7 +294,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "abc" for (no regex, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -292,7 +309,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -309,7 +326,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -325,7 +342,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "xyz" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -340,7 +357,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "123" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -355,7 +372,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -372,7 +389,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -388,7 +405,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "123" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -412,7 +429,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects no error with "" for (no regex, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -425,7 +442,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "abc" for (no regex, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -438,7 +455,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -451,7 +468,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -464,7 +481,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "xyz" for (^xyz\$, text)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -477,7 +494,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (no regex, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -490,7 +507,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "abc" for (no regex, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -505,7 +522,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -518,7 +535,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -534,7 +551,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "xyz" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -549,7 +566,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "123" for (^xyz\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -564,7 +581,7 @@ void main() {
         ),
         (
           message: 'should detects error with "" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -577,7 +594,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -593,7 +610,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "123" for (^123\$, integer)',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: true,
@@ -617,7 +634,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects no error with ""',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -630,7 +647,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "abc"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -654,7 +671,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects error with ""',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -670,7 +687,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -685,7 +702,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -698,7 +715,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0x1Ab"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -711,7 +728,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0o765"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -724,7 +741,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0b1010"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -737,7 +754,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "-123"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -750,7 +767,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "+123"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -763,7 +780,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "1\'2_3"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -776,7 +793,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0x1\'A_b"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -789,7 +806,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0o7\'6_5"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -802,7 +819,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0b1\'0_1"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -826,7 +843,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects error with ""',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -842,7 +859,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -857,7 +874,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -870,7 +887,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "-123"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -883,7 +900,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "+123"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -896,7 +913,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "+123.456"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -909,7 +926,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "-000.000"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -922,7 +939,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "+123,456"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -935,7 +952,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "-000,000"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -948,7 +965,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "-1\'2_3,4_5\'6"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -961,7 +978,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "1\'2_3.4_5\'6"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -985,7 +1002,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects error with ""',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1001,7 +1018,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1016,7 +1033,7 @@ void main() {
         ),
         (
           message: 'should detects error with "2"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1031,7 +1048,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "true"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1044,7 +1061,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "false"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1057,7 +1074,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "True"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1070,7 +1087,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "True"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1083,7 +1100,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "TRUE"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1096,7 +1113,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "FALSE"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1109,7 +1126,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "T"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1122,7 +1139,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "F"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1135,7 +1152,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "t"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1148,7 +1165,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "f"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1161,7 +1178,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "1"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1174,7 +1191,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1198,7 +1215,7 @@ void main() {
       final testcases = <_Testcase_validateFieldFormat>[
         (
           message: 'should detects error with ""',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1214,7 +1231,7 @@ void main() {
         ),
         (
           message: 'should detects error with "abc"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1230,7 +1247,7 @@ void main() {
         (
           message:
               'should detects no error with "2024-06-30T12:34:56.123456789Z"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1244,7 +1261,7 @@ void main() {
         (
           message:
               'should detects no error with "-99999999-01-01T00:00:00.000-14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1258,7 +1275,7 @@ void main() {
         (
           message:
               'should detects no error with "-99999999-01-01T00:00:00.999-14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1271,7 +1288,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0000-01-01T00:00:00.000Z"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1285,7 +1302,7 @@ void main() {
         (
           message:
               'should detects no error with "-99999999-W01-1T00:00:00.000-14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1299,7 +1316,7 @@ void main() {
         (
           message:
               'should detects no error with "99999999-W53-7T24:00:00.999+14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1312,7 +1329,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0000-W01-1T00:00:00.000Z"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1326,7 +1343,7 @@ void main() {
         (
           message:
               'should detects no error with "-99999999-001T00:00:00.000-14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1340,7 +1357,7 @@ void main() {
         (
           message:
               'should detects no error with "99999999-366T24:00:00.999+14:00"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1353,7 +1370,7 @@ void main() {
         ),
         (
           message: 'should detects no error with "0000-001T00:00:00.000Z"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1378,7 +1395,7 @@ void main() {
         (
           message:
               'should detects no error with "" for regex "${r'^\d{3,4}-(abc|def)_[0-9]?$'}"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1395,7 +1412,7 @@ void main() {
         (
           message:
               'should detects no error with "xyz" for regex "${r'^\d{3,4}-(abc|def)_[0-9]?$'}"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1411,7 +1428,7 @@ void main() {
         (
           message:
               'should detects no error with "123-def_" for regex "${r'^\d{3,4}-(abc|def)_[0-9]?$'}"',
-          inSchema: baseSchema.copyWith.columns([
+          inSchema: defaultSchema.copyWith.columns([
             Column(
               "id",
               allowEmpty: false,
@@ -1430,5 +1447,208 @@ void main() {
         });
       }
     });
+  });
+
+  group("validateForeignKeySchema", () {
+    final defaultBaseSchema = Schema(
+      "data.csv",
+      [Column("c1"), Column("c2"), Column("c3")],
+      ["c1"],
+      headers: 1,
+    );
+    final defaultForeignSchema = Schema(
+      "data.csv",
+      [Column("f1"), Column("f2"), Column("f3")],
+      ["f1"],
+      headers: 2,
+    );
+
+    final testcases = <_Testcase_validateForeignKeySchema>[
+      (
+        message:
+            'should detects error with foreign key reference not in foreign columns',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c2", "c1"],
+              ForeignKeyReference("data.csv", ["x1", "x2"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(),
+        want: [
+          ForeignKeyReferenceColumnNotInForeignColumns("fk1", "x1"),
+          ForeignKeyReferenceColumnNotInForeignColumns("fk1", "x2"),
+        ],
+      ),
+      (
+        message:
+            'should detects error with foreign key reference not unique in foreign columns',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c2", "c1"],
+              ForeignKeyReference("data.csv", ["f1", "f2"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(),
+        want: [ForeignKeyReferenceNotUniqueInForeignColumns("fk1")],
+      ),
+      (
+        message:
+            'should detects no error if foreign key reference is foreign primary key',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1"],
+              ForeignKeyReference("data.csv", ["f1"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(),
+        want: [],
+      ),
+      (
+        message:
+            'should detects no error if foreign key reference is foreign unique key',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1"],
+              ForeignKeyReference("data.csv", ["f1"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(),
+        want: [],
+      ),
+      (
+        message:
+            'should detects error if foreign key reference order mismatch foreign primary key order',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1", "c2"],
+              ForeignKeyReference("data.csv", ["f2", "f1"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(
+          primaryKey: ["f1", "f2"],
+        ),
+        want: [ForeignKeyReferenceNotUniqueInForeignColumns("fk1")],
+      ),
+      (
+        message:
+            'should detects error if foreign key reference order mismatch foreign unique key order',
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1", "c2"],
+              ForeignKeyReference("data.csv", ["f2", "f1"]),
+            ),
+          },
+        ),
+        inForeignSchema: defaultForeignSchema.copyWith(
+          uniqueKey: {
+            "uk1": ["f1", "f2"],
+          },
+        ),
+        want: [ForeignKeyReferenceNotUniqueInForeignColumns("fk1")],
+      ),
+    ];
+    for (final testcase in testcases) {
+      test(testcase.message, () {
+        final got = validateForeignKeySchema(
+          testcase.inBaseSchema,
+          testcase.inForeignSchema,
+        );
+        expect(got, equals(testcase.want));
+      });
+    }
+  });
+
+  group("validateForeignKey", () {
+    final defaultBaseSchema = Schema(
+      "data.csv",
+      [Column("c1"), Column("c2"), Column("c3")],
+      ["c1"],
+      headers: 1,
+    );
+    List<List<String>> baseCsvData(List<String> values) => [
+          ["c1", "c2", "c3"],
+          values,
+        ];
+    final defaultForeignSchema = Schema(
+      "data.csv",
+      [Column("f1"), Column("f2"), Column("f3")],
+      ["f1"],
+      headers: 2,
+    );
+    List<List<String>> foreignCsvData(List<String> values) => [
+          ["c1", "c2", "c3"],
+          ["c1", "c2", "c3"],
+          values,
+        ];
+
+    final testcases = <_Testcase_validateForeignKey>[
+      (
+        message:
+            'should detects no error if base key exists in foreign records',
+        fkName: "fk1",
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1", "c2"],
+              ForeignKeyReference("data.csv", ["f2", "f1"]),
+            ),
+          },
+        ),
+        inBaseCSV: baseCsvData(["a", "b", "c"]),
+        inForeignSchema: defaultForeignSchema.copyWith(
+          uniqueKey: {
+            "uk1": ["f2", "f1"],
+          },
+        ),
+        inForeignCSV: foreignCsvData(["b", "a", "c"]),
+        want: [],
+      ),
+      (
+        message:
+            'should detects no error if base key does not exist in foreign records',
+        fkName: "fk1",
+        inBaseSchema: defaultBaseSchema.copyWith(
+          foreignKey: {
+            "fk1": ForeignKey(
+              ["c1", "c2"],
+              ForeignKeyReference("data.csv", ["f2", "f1"]),
+            ),
+          },
+        ),
+        inBaseCSV: baseCsvData(["a", "b", "c"]),
+        inForeignSchema: defaultForeignSchema.copyWith(
+          uniqueKey: {
+            "uk1": ["f2", "f1"],
+          },
+        ),
+        inForeignCSV: foreignCsvData(["x", "y", "z"]),
+        want: [
+          ForeignKeyNotFound("fk1", 1, ["a", "b"])
+        ],
+      ),
+    ];
+    for (final testcase in testcases) {
+      test(testcase.message, () {
+        final got = validateForeignKey(
+          testcase.fkName,
+          testcase.inBaseSchema,
+          testcase.inBaseCSV,
+          testcase.inForeignSchema,
+          testcase.inForeignCSV,
+        );
+        expect(got, equals(testcase.want));
+      });
+    }
   });
 }

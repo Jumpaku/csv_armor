@@ -469,11 +469,11 @@ Map<String, dynamic> _$ColumnToJson(Column instance) => <String, dynamic>{
     };
 
 const _$FieldTypeEnumMap = {
-  FieldType.datetime: 'datetime',
-  FieldType.integer: 'integer',
-  FieldType.decimal: 'decimal',
   FieldType.text: 'text',
+  FieldType.integer: 'integer',
   FieldType.boolean: 'boolean',
+  FieldType.datetime: 'datetime',
+  FieldType.decimal: 'decimal',
 };
 
 ForeignKey _$ForeignKeyFromJson(Map<String, dynamic> json) {

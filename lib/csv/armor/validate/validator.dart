@@ -197,26 +197,31 @@ List<ValidationError> validateForeignKeySchema(
 ) {
   final errors = <ValidationError>[];
   baseSchema.foreignKey.forEach((fkName, fk) {
-    bool foreignKeyColumnUnique = false;
-    if (const ListEquality<String>()
-        .equals(fk.reference.columns, foreignSchema.primaryKey)) {
-      foreignKeyColumnUnique = true;
-    }
-    foreignSchema.uniqueKey.forEach((ukName, uk) {
-      if (const ListEquality<String>().equals(fk.reference.columns, uk)) {
-        foreignKeyColumnUnique = true;
-      }
-    });
-    if (!foreignKeyColumnUnique) {
-      errors.add(ForeignKeyNonUniqueReference(fkName));
-    }
-
+    bool referenceColumnInForeignColumns = true;
     for (final foreignColumn in fk.reference.columns) {
       if (foreignSchema.columns.where((c) => c.name == foreignColumn).isEmpty) {
         errors.add(
           ForeignKeyReferenceColumnNotInForeignColumns(fkName, foreignColumn),
         );
+        referenceColumnInForeignColumns = false;
       }
+    }
+    if (!referenceColumnInForeignColumns) {
+      return;
+    }
+
+    bool foreignKeyReferenceUnique = false;
+    if (const ListEquality<String>()
+        .equals(fk.reference.columns, foreignSchema.primaryKey)) {
+      foreignKeyReferenceUnique = true;
+    }
+    foreignSchema.uniqueKey.forEach((ukName, uk) {
+      if (const ListEquality<String>().equals(fk.reference.columns, uk)) {
+        foreignKeyReferenceUnique = true;
+      }
+    });
+    if (!foreignKeyReferenceUnique) {
+      errors.add(ForeignKeyReferenceNotUniqueInForeignColumns(fkName));
     }
   });
   return errors;
@@ -225,17 +230,17 @@ List<ValidationError> validateForeignKeySchema(
 List<ValidationError> validateForeignKey(
   String fkName,
   Schema baseSchema,
-  List<List<String>> base,
+  List<List<String>> baseCSV,
   Schema foreignSchema,
-  List<List<String>> foreign,
+  List<List<String>> foreignCSV,
 ) {
   final errors = <ValidationError>[];
   final fk = baseSchema.foreignKey[fkName]!;
   final foreignColumnIndex =
       fk.reference.columns.map((c) => foreignSchema.columnIndex()[c]!).toList();
-  final foreignIndex = Index.build(foreignColumnIndex, foreign);
+  final foreignIndex = Index.build(foreignColumnIndex, foreignCSV);
 
-  for (final (rowIndex, row) in base.indexed.skip(baseSchema.headers)) {
+  for (final (rowIndex, row) in baseCSV.indexed.skip(baseSchema.headers)) {
     final baseColumnIndex = baseSchema.columnIndex();
     final baseKay = fk.columns.map((k) => row[baseColumnIndex[k]!]).toList();
     if (foreignIndex.get(IndexKey(baseKay)).isEmpty) {

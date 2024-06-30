@@ -129,11 +129,11 @@ class EmptyFieldNotAllowed extends ValidationError
 
 @MappableClass(
   caseStyle: CaseStyle.snakeCase,
-  discriminatorValue: 'ForeignKeyNonUniqueReference',
+  discriminatorValue: 'ForeignKeyReferenceNotUniqueInForeignColumns',
 )
-class ForeignKeyNonUniqueReference extends ValidationError
-    with ForeignKeyNonUniqueReferenceMappable {
-  ForeignKeyNonUniqueReference(this.name) : super();
+class ForeignKeyReferenceNotUniqueInForeignColumns extends ValidationError
+    with ForeignKeyReferenceNotUniqueInForeignColumnsMappable {
+  ForeignKeyReferenceNotUniqueInForeignColumns(this.name) : super();
 
   final String name;
 }

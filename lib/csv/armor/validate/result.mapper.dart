@@ -137,7 +137,7 @@ class ValidationErrorMapper extends ClassMapperBase<ValidationError> {
       FieldHasNoTypeMatchMapper.ensureInitialized();
       FieldHasNoRegexMatchMapper.ensureInitialized();
       EmptyFieldNotAllowedMapper.ensureInitialized();
-      ForeignKeyNonUniqueReferenceMapper.ensureInitialized();
+      ForeignKeyReferenceNotUniqueInForeignColumnsMapper.ensureInitialized();
       ForeignKeyReferenceColumnNotInForeignColumnsMapper.ensureInitialized();
       ForeignKeyNotFoundMapper.ensureInitialized();
     }
@@ -1338,131 +1338,157 @@ class _EmptyFieldNotAllowedCopyWithImpl<$R, $Out>
           _EmptyFieldNotAllowedCopyWithImpl($value, $cast, t);
 }
 
-class ForeignKeyNonUniqueReferenceMapper
-    extends SubClassMapperBase<ForeignKeyNonUniqueReference> {
-  ForeignKeyNonUniqueReferenceMapper._();
+class ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+    extends SubClassMapperBase<ForeignKeyReferenceNotUniqueInForeignColumns> {
+  ForeignKeyReferenceNotUniqueInForeignColumnsMapper._();
 
-  static ForeignKeyNonUniqueReferenceMapper? _instance;
-  static ForeignKeyNonUniqueReferenceMapper ensureInitialized() {
+  static ForeignKeyReferenceNotUniqueInForeignColumnsMapper? _instance;
+  static ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+      ensureInitialized() {
     if (_instance == null) {
-      MapperContainer.globals
-          .use(_instance = ForeignKeyNonUniqueReferenceMapper._());
+      MapperContainer.globals.use(
+          _instance = ForeignKeyReferenceNotUniqueInForeignColumnsMapper._());
       ValidationErrorMapper.ensureInitialized().addSubMapper(_instance!);
     }
     return _instance!;
   }
 
   @override
-  final String id = 'ForeignKeyNonUniqueReference';
+  final String id = 'ForeignKeyReferenceNotUniqueInForeignColumns';
 
-  static String _$name(ForeignKeyNonUniqueReference v) => v.name;
-  static const Field<ForeignKeyNonUniqueReference, String> _f$name =
-      Field('name', _$name);
+  static String _$name(ForeignKeyReferenceNotUniqueInForeignColumns v) =>
+      v.name;
+  static const Field<ForeignKeyReferenceNotUniqueInForeignColumns, String>
+      _f$name = Field('name', _$name);
 
   @override
-  final MappableFields<ForeignKeyNonUniqueReference> fields = const {
+  final MappableFields<ForeignKeyReferenceNotUniqueInForeignColumns> fields =
+      const {
     #name: _f$name,
   };
 
   @override
   final String discriminatorKey = 'kind';
   @override
-  final dynamic discriminatorValue = 'ForeignKeyNonUniqueReference';
+  final dynamic discriminatorValue =
+      'ForeignKeyReferenceNotUniqueInForeignColumns';
   @override
   late final ClassMapperBase superMapper =
       ValidationErrorMapper.ensureInitialized();
 
-  static ForeignKeyNonUniqueReference _instantiate(DecodingData data) {
-    return ForeignKeyNonUniqueReference(data.dec(_f$name));
+  static ForeignKeyReferenceNotUniqueInForeignColumns _instantiate(
+      DecodingData data) {
+    return ForeignKeyReferenceNotUniqueInForeignColumns(data.dec(_f$name));
   }
 
   @override
   final Function instantiate = _instantiate;
 
-  static ForeignKeyNonUniqueReference fromMap(Map<String, dynamic> map) {
-    return ensureInitialized().decodeMap<ForeignKeyNonUniqueReference>(map);
+  static ForeignKeyReferenceNotUniqueInForeignColumns fromMap(
+      Map<String, dynamic> map) {
+    return ensureInitialized()
+        .decodeMap<ForeignKeyReferenceNotUniqueInForeignColumns>(map);
   }
 
-  static ForeignKeyNonUniqueReference fromJson(String json) {
-    return ensureInitialized().decodeJson<ForeignKeyNonUniqueReference>(json);
+  static ForeignKeyReferenceNotUniqueInForeignColumns fromJson(String json) {
+    return ensureInitialized()
+        .decodeJson<ForeignKeyReferenceNotUniqueInForeignColumns>(json);
   }
 }
 
-mixin ForeignKeyNonUniqueReferenceMappable {
+mixin ForeignKeyReferenceNotUniqueInForeignColumnsMappable {
   String toJson() {
-    return ForeignKeyNonUniqueReferenceMapper.ensureInitialized()
-        .encodeJson<ForeignKeyNonUniqueReference>(
-            this as ForeignKeyNonUniqueReference);
+    return ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+            .ensureInitialized()
+        .encodeJson<ForeignKeyReferenceNotUniqueInForeignColumns>(
+            this as ForeignKeyReferenceNotUniqueInForeignColumns);
   }
 
   Map<String, dynamic> toMap() {
-    return ForeignKeyNonUniqueReferenceMapper.ensureInitialized()
-        .encodeMap<ForeignKeyNonUniqueReference>(
-            this as ForeignKeyNonUniqueReference);
+    return ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+            .ensureInitialized()
+        .encodeMap<ForeignKeyReferenceNotUniqueInForeignColumns>(
+            this as ForeignKeyReferenceNotUniqueInForeignColumns);
   }
 
-  ForeignKeyNonUniqueReferenceCopyWith<ForeignKeyNonUniqueReference,
-          ForeignKeyNonUniqueReference, ForeignKeyNonUniqueReference>
-      get copyWith => _ForeignKeyNonUniqueReferenceCopyWithImpl(
-          this as ForeignKeyNonUniqueReference, $identity, $identity);
+  ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<
+          ForeignKeyReferenceNotUniqueInForeignColumns,
+          ForeignKeyReferenceNotUniqueInForeignColumns,
+          ForeignKeyReferenceNotUniqueInForeignColumns>
+      get copyWith => _ForeignKeyReferenceNotUniqueInForeignColumnsCopyWithImpl(
+          this as ForeignKeyReferenceNotUniqueInForeignColumns,
+          $identity,
+          $identity);
   @override
   String toString() {
-    return ForeignKeyNonUniqueReferenceMapper.ensureInitialized()
-        .stringifyValue(this as ForeignKeyNonUniqueReference);
+    return ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+            .ensureInitialized()
+        .stringifyValue(this as ForeignKeyReferenceNotUniqueInForeignColumns);
   }
 
   @override
   bool operator ==(Object other) {
-    return ForeignKeyNonUniqueReferenceMapper.ensureInitialized()
-        .equalsValue(this as ForeignKeyNonUniqueReference, other);
+    return ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+            .ensureInitialized()
+        .equalsValue(
+            this as ForeignKeyReferenceNotUniqueInForeignColumns, other);
   }
 
   @override
   int get hashCode {
-    return ForeignKeyNonUniqueReferenceMapper.ensureInitialized()
-        .hashValue(this as ForeignKeyNonUniqueReference);
+    return ForeignKeyReferenceNotUniqueInForeignColumnsMapper
+            .ensureInitialized()
+        .hashValue(this as ForeignKeyReferenceNotUniqueInForeignColumns);
   }
 }
 
-extension ForeignKeyNonUniqueReferenceValueCopy<$R, $Out>
-    on ObjectCopyWith<$R, ForeignKeyNonUniqueReference, $Out> {
-  ForeignKeyNonUniqueReferenceCopyWith<$R, ForeignKeyNonUniqueReference, $Out>
-      get $asForeignKeyNonUniqueReference => $base.as(
-          (v, t, t2) => _ForeignKeyNonUniqueReferenceCopyWithImpl(v, t, t2));
+extension ForeignKeyReferenceNotUniqueInForeignColumnsValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, ForeignKeyReferenceNotUniqueInForeignColumns, $Out> {
+  ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<
+      $R,
+      ForeignKeyReferenceNotUniqueInForeignColumns,
+      $Out> get $asForeignKeyReferenceNotUniqueInForeignColumns => $base.as((v,
+          t, t2) =>
+      _ForeignKeyReferenceNotUniqueInForeignColumnsCopyWithImpl(v, t, t2));
 }
 
-abstract class ForeignKeyNonUniqueReferenceCopyWith<
+abstract class ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<
     $R,
-    $In extends ForeignKeyNonUniqueReference,
+    $In extends ForeignKeyReferenceNotUniqueInForeignColumns,
     $Out> implements ValidationErrorCopyWith<$R, $In, $Out> {
   @override
   $R call({String? name});
-  ForeignKeyNonUniqueReferenceCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
-      Then<$Out2, $R2> t);
+  ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<$R2, $In, $Out2>
+      $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
-class _ForeignKeyNonUniqueReferenceCopyWithImpl<$R, $Out>
-    extends ClassCopyWithBase<$R, ForeignKeyNonUniqueReference, $Out>
+class _ForeignKeyReferenceNotUniqueInForeignColumnsCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, ForeignKeyReferenceNotUniqueInForeignColumns,
+        $Out>
     implements
-        ForeignKeyNonUniqueReferenceCopyWith<$R, ForeignKeyNonUniqueReference,
-            $Out> {
-  _ForeignKeyNonUniqueReferenceCopyWithImpl(
+        ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<$R,
+            ForeignKeyReferenceNotUniqueInForeignColumns, $Out> {
+  _ForeignKeyReferenceNotUniqueInForeignColumnsCopyWithImpl(
       super.value, super.then, super.then2);
 
   @override
-  late final ClassMapperBase<ForeignKeyNonUniqueReference> $mapper =
-      ForeignKeyNonUniqueReferenceMapper.ensureInitialized();
+  late final ClassMapperBase<ForeignKeyReferenceNotUniqueInForeignColumns>
+      $mapper =
+      ForeignKeyReferenceNotUniqueInForeignColumnsMapper.ensureInitialized();
   @override
   $R call({String? name}) =>
       $apply(FieldCopyWithData({if (name != null) #name: name}));
   @override
-  ForeignKeyNonUniqueReference $make(CopyWithData data) =>
-      ForeignKeyNonUniqueReference(data.get(#name, or: $value.name));
+  ForeignKeyReferenceNotUniqueInForeignColumns $make(CopyWithData data) =>
+      ForeignKeyReferenceNotUniqueInForeignColumns(
+          data.get(#name, or: $value.name));
 
   @override
-  ForeignKeyNonUniqueReferenceCopyWith<$R2, ForeignKeyNonUniqueReference, $Out2>
-      $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
-          _ForeignKeyNonUniqueReferenceCopyWithImpl($value, $cast, t);
+  ForeignKeyReferenceNotUniqueInForeignColumnsCopyWith<$R2,
+      ForeignKeyReferenceNotUniqueInForeignColumns, $Out2> $chain<$R2, $Out2>(
+          Then<$Out2, $R2> t) =>
+      _ForeignKeyReferenceNotUniqueInForeignColumnsCopyWithImpl(
+          $value, $cast, t);
 }
 
 class ForeignKeyReferenceColumnNotInForeignColumnsMapper
