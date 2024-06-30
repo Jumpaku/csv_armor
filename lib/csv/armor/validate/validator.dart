@@ -244,7 +244,7 @@ List<ValidationError> validateForeignKey(
     final baseColumnIndex = baseSchema.columnIndex();
     final baseKay = fk.columns.map((k) => row[baseColumnIndex[k]!]).toList();
     if (foreignIndex.get(IndexKey(baseKay)).isEmpty) {
-      errors.add(ForeignKeyNotFound(fkName, rowIndex, baseKay));
+      errors.add(ForeignKeyViolation(fkName, rowIndex, baseKay));
     }
   }
 

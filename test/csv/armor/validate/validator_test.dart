@@ -125,8 +125,8 @@ void main() {
         ],
         want: [
           DuplicatedPrimaryKey(["a", "a"], [1, 5]),
-          DuplicatedPrimaryKey(["b", "a"], [2, 6]),
           DuplicatedPrimaryKey(["a", "b"], [3, 7]),
+          DuplicatedPrimaryKey(["b", "a"], [2, 6]),
           DuplicatedPrimaryKey(["b", "b"], [4, 8]),
         ],
       ),
@@ -1634,7 +1634,7 @@ void main() {
         ),
         inForeignCSV: foreignCsvData(["x", "y", "z"]),
         want: [
-          ForeignKeyNotFound("fk1", 1, ["a", "b"])
+          ForeignKeyViolation("fk1", 1, ["a", "b"])
         ],
       ),
     ];

@@ -10,10 +10,11 @@ class PrimaryKey implements Comparable<PrimaryKey> {
 
   @override
   bool operator ==(Object other) =>
-      other is PrimaryKey && primaryKey.equals(other.primaryKey);
+      other is PrimaryKey &&
+      const ListEquality<String>().equals(primaryKey, other.primaryKey);
 
   @override
-  int get hashCode => primaryKey.hashCode;
+  int get hashCode => const ListEquality<String>().hash(primaryKey);
 
   @override
   String toString() => primaryKey.toString();

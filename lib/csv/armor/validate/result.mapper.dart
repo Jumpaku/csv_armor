@@ -139,7 +139,7 @@ class ValidationErrorMapper extends ClassMapperBase<ValidationError> {
       EmptyFieldNotAllowedMapper.ensureInitialized();
       ForeignKeyReferenceNotUniqueInForeignColumnsMapper.ensureInitialized();
       ForeignKeyReferenceColumnNotInForeignColumnsMapper.ensureInitialized();
-      ForeignKeyNotFoundMapper.ensureInitialized();
+      ForeignKeyViolationMapper.ensureInitialized();
     }
     return _instance!;
   }
@@ -1655,33 +1655,33 @@ class _ForeignKeyReferenceColumnNotInForeignColumnsCopyWithImpl<$R, $Out>
           $value, $cast, t);
 }
 
-class ForeignKeyNotFoundMapper extends SubClassMapperBase<ForeignKeyNotFound> {
-  ForeignKeyNotFoundMapper._();
+class ForeignKeyViolationMapper extends SubClassMapperBase<ForeignKeyViolation> {
+  ForeignKeyViolationMapper._();
 
-  static ForeignKeyNotFoundMapper? _instance;
-  static ForeignKeyNotFoundMapper ensureInitialized() {
+  static ForeignKeyViolationMapper? _instance;
+  static ForeignKeyViolationMapper ensureInitialized() {
     if (_instance == null) {
-      MapperContainer.globals.use(_instance = ForeignKeyNotFoundMapper._());
+      MapperContainer.globals.use(_instance = ForeignKeyViolationMapper._());
       ValidationErrorMapper.ensureInitialized().addSubMapper(_instance!);
     }
     return _instance!;
   }
 
   @override
-  final String id = 'ForeignKeyNotFound';
+  final String id = 'ForeignKeyViolation';
 
-  static String _$name(ForeignKeyNotFound v) => v.name;
-  static const Field<ForeignKeyNotFound, String> _f$name =
+  static String _$name(ForeignKeyViolation v) => v.name;
+  static const Field<ForeignKeyViolation, String> _f$name =
       Field('name', _$name);
-  static int _$rowIndex(ForeignKeyNotFound v) => v.rowIndex;
-  static const Field<ForeignKeyNotFound, int> _f$rowIndex =
+  static int _$rowIndex(ForeignKeyViolation v) => v.rowIndex;
+  static const Field<ForeignKeyViolation, int> _f$rowIndex =
       Field('rowIndex', _$rowIndex, key: 'row_index');
-  static List<String> _$baseKey(ForeignKeyNotFound v) => v.baseKey;
-  static const Field<ForeignKeyNotFound, List<String>> _f$baseKey =
+  static List<String> _$baseKey(ForeignKeyViolation v) => v.baseKey;
+  static const Field<ForeignKeyViolation, List<String>> _f$baseKey =
       Field('baseKey', _$baseKey, key: 'base_key');
 
   @override
-  final MappableFields<ForeignKeyNotFound> fields = const {
+  final MappableFields<ForeignKeyViolation> fields = const {
     #name: _f$name,
     #rowIndex: _f$rowIndex,
     #baseKey: _f$baseKey,
@@ -1690,86 +1690,86 @@ class ForeignKeyNotFoundMapper extends SubClassMapperBase<ForeignKeyNotFound> {
   @override
   final String discriminatorKey = 'kind';
   @override
-  final dynamic discriminatorValue = 'ForeignKeyNotFound';
+  final dynamic discriminatorValue = 'ForeignKeyViolation';
   @override
   late final ClassMapperBase superMapper =
       ValidationErrorMapper.ensureInitialized();
 
-  static ForeignKeyNotFound _instantiate(DecodingData data) {
-    return ForeignKeyNotFound(
+  static ForeignKeyViolation _instantiate(DecodingData data) {
+    return ForeignKeyViolation(
         data.dec(_f$name), data.dec(_f$rowIndex), data.dec(_f$baseKey));
   }
 
   @override
   final Function instantiate = _instantiate;
 
-  static ForeignKeyNotFound fromMap(Map<String, dynamic> map) {
-    return ensureInitialized().decodeMap<ForeignKeyNotFound>(map);
+  static ForeignKeyViolation fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<ForeignKeyViolation>(map);
   }
 
-  static ForeignKeyNotFound fromJson(String json) {
-    return ensureInitialized().decodeJson<ForeignKeyNotFound>(json);
+  static ForeignKeyViolation fromJson(String json) {
+    return ensureInitialized().decodeJson<ForeignKeyViolation>(json);
   }
 }
 
-mixin ForeignKeyNotFoundMappable {
+mixin ForeignKeyViolationMappable {
   String toJson() {
-    return ForeignKeyNotFoundMapper.ensureInitialized()
-        .encodeJson<ForeignKeyNotFound>(this as ForeignKeyNotFound);
+    return ForeignKeyViolationMapper.ensureInitialized()
+        .encodeJson<ForeignKeyViolation>(this as ForeignKeyViolation);
   }
 
   Map<String, dynamic> toMap() {
-    return ForeignKeyNotFoundMapper.ensureInitialized()
-        .encodeMap<ForeignKeyNotFound>(this as ForeignKeyNotFound);
+    return ForeignKeyViolationMapper.ensureInitialized()
+        .encodeMap<ForeignKeyViolation>(this as ForeignKeyViolation);
   }
 
-  ForeignKeyNotFoundCopyWith<ForeignKeyNotFound, ForeignKeyNotFound,
-          ForeignKeyNotFound>
-      get copyWith => _ForeignKeyNotFoundCopyWithImpl(
-          this as ForeignKeyNotFound, $identity, $identity);
+  ForeignKeyViolationCopyWith<ForeignKeyViolation, ForeignKeyViolation,
+          ForeignKeyViolation>
+      get copyWith => _ForeignKeyViolationCopyWithImpl(
+          this as ForeignKeyViolation, $identity, $identity);
   @override
   String toString() {
-    return ForeignKeyNotFoundMapper.ensureInitialized()
-        .stringifyValue(this as ForeignKeyNotFound);
+    return ForeignKeyViolationMapper.ensureInitialized()
+        .stringifyValue(this as ForeignKeyViolation);
   }
 
   @override
   bool operator ==(Object other) {
-    return ForeignKeyNotFoundMapper.ensureInitialized()
-        .equalsValue(this as ForeignKeyNotFound, other);
+    return ForeignKeyViolationMapper.ensureInitialized()
+        .equalsValue(this as ForeignKeyViolation, other);
   }
 
   @override
   int get hashCode {
-    return ForeignKeyNotFoundMapper.ensureInitialized()
-        .hashValue(this as ForeignKeyNotFound);
+    return ForeignKeyViolationMapper.ensureInitialized()
+        .hashValue(this as ForeignKeyViolation);
   }
 }
 
-extension ForeignKeyNotFoundValueCopy<$R, $Out>
-    on ObjectCopyWith<$R, ForeignKeyNotFound, $Out> {
-  ForeignKeyNotFoundCopyWith<$R, ForeignKeyNotFound, $Out>
-      get $asForeignKeyNotFound =>
-          $base.as((v, t, t2) => _ForeignKeyNotFoundCopyWithImpl(v, t, t2));
+extension ForeignKeyViolationValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, ForeignKeyViolation, $Out> {
+  ForeignKeyViolationCopyWith<$R, ForeignKeyViolation, $Out>
+      get $asForeignKeyViolation =>
+          $base.as((v, t, t2) => _ForeignKeyViolationCopyWithImpl(v, t, t2));
 }
 
-abstract class ForeignKeyNotFoundCopyWith<$R, $In extends ForeignKeyNotFound,
+abstract class ForeignKeyViolationCopyWith<$R, $In extends ForeignKeyViolation,
     $Out> implements ValidationErrorCopyWith<$R, $In, $Out> {
   ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>> get baseKey;
   @override
   $R call({String? name, int? rowIndex, List<String>? baseKey});
-  ForeignKeyNotFoundCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+  ForeignKeyViolationCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
       Then<$Out2, $R2> t);
 }
 
-class _ForeignKeyNotFoundCopyWithImpl<$R, $Out>
-    extends ClassCopyWithBase<$R, ForeignKeyNotFound, $Out>
-    implements ForeignKeyNotFoundCopyWith<$R, ForeignKeyNotFound, $Out> {
-  _ForeignKeyNotFoundCopyWithImpl(super.value, super.then, super.then2);
+class _ForeignKeyViolationCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, ForeignKeyViolation, $Out>
+    implements ForeignKeyViolationCopyWith<$R, ForeignKeyViolation, $Out> {
+  _ForeignKeyViolationCopyWithImpl(super.value, super.then, super.then2);
 
   @override
-  late final ClassMapperBase<ForeignKeyNotFound> $mapper =
-      ForeignKeyNotFoundMapper.ensureInitialized();
+  late final ClassMapperBase<ForeignKeyViolation> $mapper =
+      ForeignKeyViolationMapper.ensureInitialized();
   @override
   ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>> get baseKey =>
       ListCopyWith($value.baseKey, (v, t) => ObjectCopyWith(v, $identity, t),
@@ -1782,13 +1782,13 @@ class _ForeignKeyNotFoundCopyWithImpl<$R, $Out>
         if (baseKey != null) #baseKey: baseKey
       }));
   @override
-  ForeignKeyNotFound $make(CopyWithData data) => ForeignKeyNotFound(
+  ForeignKeyViolation $make(CopyWithData data) => ForeignKeyViolation(
       data.get(#name, or: $value.name),
       data.get(#rowIndex, or: $value.rowIndex),
       data.get(#baseKey, or: $value.baseKey));
 
   @override
-  ForeignKeyNotFoundCopyWith<$R2, ForeignKeyNotFound, $Out2> $chain<$R2, $Out2>(
+  ForeignKeyViolationCopyWith<$R2, ForeignKeyViolation, $Out2> $chain<$R2, $Out2>(
           Then<$Out2, $R2> t) =>
-      _ForeignKeyNotFoundCopyWithImpl($value, $cast, t);
+      _ForeignKeyViolationCopyWithImpl($value, $cast, t);
 }

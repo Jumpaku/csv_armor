@@ -152,11 +152,11 @@ class ForeignKeyReferenceColumnNotInForeignColumns extends ValidationError
 
 @MappableClass(
   caseStyle: CaseStyle.snakeCase,
-  discriminatorValue: 'ForeignKeyNotFound',
+  discriminatorValue: 'ForeignKeyViolation',
 )
-class ForeignKeyNotFound extends ValidationError
-    with ForeignKeyNotFoundMappable {
-  ForeignKeyNotFound(this.name, this.rowIndex, this.baseKey) : super();
+class ForeignKeyViolation extends ValidationError
+    with ForeignKeyViolationMappable {
+  ForeignKeyViolation(this.name, this.rowIndex, this.baseKey) : super();
 
   final String name;
   final int rowIndex;
