@@ -167,9 +167,9 @@ abstract class _$ColumnCWProxy {
 
   Column allowEmpty(bool allowEmpty);
 
-  Column formatType(FormatType formatType);
+  Column type(FieldType type);
 
-  Column formatRegex(String? formatRegex);
+  Column regex(String? regex);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Column(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -180,8 +180,8 @@ abstract class _$ColumnCWProxy {
   Column call({
     String? name,
     bool? allowEmpty,
-    FormatType? formatType,
-    String? formatRegex,
+    FieldType? type,
+    String? regex,
   });
 }
 
@@ -198,10 +198,10 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
   Column allowEmpty(bool allowEmpty) => this(allowEmpty: allowEmpty);
 
   @override
-  Column formatType(FormatType formatType) => this(formatType: formatType);
+  Column type(FieldType type) => this(type: type);
 
   @override
-  Column formatRegex(String? formatRegex) => this(formatRegex: formatRegex);
+  Column regex(String? regex) => this(regex: regex);
 
   @override
 
@@ -214,8 +214,8 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
   Column call({
     Object? name = const $CopyWithPlaceholder(),
     Object? allowEmpty = const $CopyWithPlaceholder(),
-    Object? formatType = const $CopyWithPlaceholder(),
-    Object? formatRegex = const $CopyWithPlaceholder(),
+    Object? type = const $CopyWithPlaceholder(),
+    Object? regex = const $CopyWithPlaceholder(),
   }) {
     return Column(
       name == const $CopyWithPlaceholder() || name == null
@@ -227,15 +227,14 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
               ? _value.allowEmpty
               // ignore: cast_nullable_to_non_nullable
               : allowEmpty as bool,
-      formatType:
-          formatType == const $CopyWithPlaceholder() || formatType == null
-              ? _value.formatType
-              // ignore: cast_nullable_to_non_nullable
-              : formatType as FormatType,
-      formatRegex: formatRegex == const $CopyWithPlaceholder()
-          ? _value.formatRegex
+      type: type == const $CopyWithPlaceholder() || type == null
+          ? _value.type
           // ignore: cast_nullable_to_non_nullable
-          : formatRegex as String?,
+          : type as FieldType,
+      regex: regex == const $CopyWithPlaceholder()
+          ? _value.regex
+          // ignore: cast_nullable_to_non_nullable
+          : regex as String?,
     );
   }
 }
@@ -451,30 +450,30 @@ const _$FieldQuoteEnumMap = {
 Column _$ColumnFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['name', 'allow_empty', 'format_type', 'format_regex'],
+    allowedKeys: const ['name', 'allow_empty', 'type', 'regex'],
   );
   return Column(
     json['name'] as String,
     allowEmpty: json['allow_empty'] as bool? ?? false,
-    formatType: $enumDecodeNullable(_$FormatTypeEnumMap, json['format_type']) ??
-        FormatType.text,
-    formatRegex: json['format_regex'] as String?,
+    type:
+        $enumDecodeNullable(_$FieldTypeEnumMap, json['type']) ?? FieldType.text,
+    regex: json['regex'] as String?,
   );
 }
 
 Map<String, dynamic> _$ColumnToJson(Column instance) => <String, dynamic>{
       'name': instance.name,
       'allow_empty': instance.allowEmpty,
-      'format_type': _$FormatTypeEnumMap[instance.formatType]!,
-      'format_regex': instance.formatRegex,
+      'type': _$FieldTypeEnumMap[instance.type]!,
+      'regex': instance.regex,
     };
 
-const _$FormatTypeEnumMap = {
-  FormatType.datetime: 'datetime',
-  FormatType.integer: 'integer',
-  FormatType.decimal: 'decimal',
-  FormatType.text: 'text',
-  FormatType.boolean: 'boolean',
+const _$FieldTypeEnumMap = {
+  FieldType.datetime: 'datetime',
+  FieldType.integer: 'integer',
+  FieldType.decimal: 'decimal',
+  FieldType.text: 'text',
+  FieldType.boolean: 'boolean',
 };
 
 ForeignKey _$ForeignKeyFromJson(Map<String, dynamic> json) {

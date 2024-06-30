@@ -22,7 +22,7 @@ class Validator {
     try {
       schema = _schemaCache.readSchema(schemaPath);
     } on BaseException catch (e) {
-      return ValidationResult(errors: [InvalidSchema(schemaPath, e)]);
+      return ValidationResult(errors: [InvalidSchema(schemaPath, e.code)]);
     }
 
     final List<List<String>> csv;
@@ -31,7 +31,7 @@ class Validator {
     } on BaseException catch (e) {
       return ValidationResult(
         errors: [
-          InvalidCSV(_schemaCache.resolve(schemaPath, schema.csvPath), e),
+          InvalidCSV(_schemaCache.resolve(schemaPath, schema.csvPath), e.code),
         ],
       );
     }
@@ -51,7 +51,7 @@ class Validator {
       try {
         foreignSchema = _schemaCache.readSchema(foreignSchemaPath);
       } on BaseException catch (e) {
-        errors.add(InvalidSchema(foreignSchemaPath, e));
+        errors.add(InvalidSchema(foreignSchemaPath, e.code));
         return;
       }
 
@@ -68,7 +68,7 @@ class Validator {
         errors.add(
           InvalidCSV(
             _schemaCache.resolve(foreignSchemaPath, foreignSchema.csvPath),
-            e,
+            e.code,
           ),
         );
         return;
@@ -103,13 +103,20 @@ List<ValidationError> validatePrimaryKey(
   List<List<String>> csv,
 ) {
   final columnIndex = schema.columnIndex();
-  final pkIndex =
-      Index.build(schema.primaryKey.map((k) => columnIndex[k]!).toList(), csv);
+  final pkIndex = Index.build(
+    schema.primaryKey.map((k) => columnIndex[k]!).toList(),
+    csv.skip(schema.headers).toList(),
+  );
 
   final errors = <ValidationError>[];
   pkIndex.collectKeys().forEach((key) {
     if (pkIndex.get(key).length > 1) {
-      errors.add(DuplicatedPrimaryKey(key.key, pkIndex.get(key)));
+      errors.add(
+        DuplicatedPrimaryKey(
+          key.key,
+          pkIndex.get(key).map((i) => i + schema.headers).toList(),
+        ),
+      );
     }
   });
 
@@ -123,10 +130,19 @@ List<ValidationError> validateUniqueKey(
   final columnIndex = schema.columnIndex();
   final errors = <ValidationError>[];
   schema.uniqueKey.forEach((ukName, uk) {
-    final ukIndex = Index.build(uk.map((k) => columnIndex[k]!).toList(), csv);
+    final ukIndex = Index.build(
+      uk.map((k) => columnIndex[k]!).toList(),
+      csv.skip(schema.headers).toList(),
+    );
     ukIndex.collectKeys().forEach((key) {
       if (ukIndex.get(key).length > 1) {
-        errors.add(DuplicatedUniqueKey(ukName, key.key, ukIndex.get(key)));
+        errors.add(
+          DuplicatedUniqueKey(
+            ukName,
+            key.key,
+            ukIndex.get(key).map((i) => i + schema.headers).toList(),
+          ),
+        );
       }
     });
   });
@@ -141,19 +157,33 @@ List<ValidationError> validateFieldFormat(
   for (final (rowIndex, row) in csv.indexed.skip(schema.headers)) {
     for (final (columnIndex, column) in schema.columns.indexed) {
       final value = row[columnIndex];
-      if (column.allowEmpty && value.isEmpty) {
-        continue;
+
+      final regex = column.type.regex();
+      final typeMatch = regex.hasMatch(value);
+      final bool regexMatch;
+      if (column.regex == null) {
+        regexMatch = true;
+      } else {
+        regexMatch = RegExp(column.regex!).hasMatch(value);
       }
-      if (column.formatRegex != null) {
-        if (!RegExp(column.formatRegex!).hasMatch(value)) {
+
+      if (value.isEmpty) {
+        if (column.allowEmpty || (typeMatch && regexMatch)) {
+          continue;
+        } else {
           errors.add(
-              InvalidFieldFormat(rowIndex, columnIndex, column.formatRegex!));
+            EmptyFieldNotAllowed(rowIndex, columnIndex),
+          );
         }
       }
-      final regex = column.formatType.regex();
-      if (!regex.hasMatch(value)) {
+      if (!typeMatch) {
         errors.add(
-          InvalidFieldFormat(rowIndex, columnIndex, column.formatType.name),
+          FieldHasNoTypeMatch(rowIndex, columnIndex, column.type.name),
+        );
+      }
+      if (!regexMatch) {
+        errors.add(
+          FieldHasNoRegexMatch(rowIndex, columnIndex, column.regex!),
         );
       }
     }

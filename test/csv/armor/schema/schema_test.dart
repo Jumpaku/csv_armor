@@ -196,7 +196,7 @@ foreign_key: {foreign: {columns: [id], reference: {schema_path: schema.yaml}}}''
         message: "Should throw with invalid regex",
         input: '''
 csv_path: table.csv
-columns: [{name: id, format_regex: "("}]
+columns: [{name: id, regex: "("}]
 primary_key: [id]''',
         wantCode: schemaErrorInvalidColumnFormatRegex,
       ),

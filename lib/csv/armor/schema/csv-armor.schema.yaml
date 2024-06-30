@@ -72,11 +72,11 @@ $defs:
       allow_empty:
         description: "Whether the column allows empty values."
         type: boolean
-      format_type:
+      type:
         description: "The format of the column."
         type: string
         enum: [ "integer", "decimal", "text", "datetime", "bool" ]
-      format_regex:
+      regex:
         description: "The format regex of the column."
         type: [ "string", "null" ]
     required: [ "name" ]

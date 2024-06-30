@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:csv_armor/csv/armor/schema/error.dart';
-import 'package:csv_armor/csv/armor/schema/format_type.dart';
+import 'package:csv_armor/csv/armor/schema/field_type.dart';
 import 'package:csv_armor/csv/armor/schema/schema_validator.dart';
 import 'package:csv_armor/csv/field_quote.dart';
 import 'package:csv_armor/csv/field_separator.dart';
@@ -103,18 +103,18 @@ class Column {
   Column(
     this.name, {
     this.allowEmpty = false,
-    this.formatType = FormatType.text,
-    this.formatRegex,
+    this.type = FieldType.text,
+    this.regex,
   });
 
   @JsonKey(name: "name")
   final String name;
   @JsonKey(name: "allow_empty")
   final bool allowEmpty;
-  @JsonKey(name: "format_type")
-  final FormatType formatType;
-  @JsonKey(name: "format_regex")
-  final String? formatRegex;
+  @JsonKey(name: "type")
+  final FieldType type;
+  @JsonKey(name: "regex")
+  final String? regex;
 
   factory Column.fromJson(Map<String, dynamic> json) =>
       _tryFromJSON(() => _$ColumnFromJson(json));
@@ -229,9 +229,9 @@ void _validateSchema(Schema schema) {
       );
     }
 
-    if (column.formatRegex != null) {
+    if (column.regex != null) {
       try {
-        RegExp(column.formatRegex!);
+        RegExp(column.regex!);
       } catch (e) {
         throw SchemaException(
           "invalid formatRegex",
