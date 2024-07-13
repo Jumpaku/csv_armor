@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:csv_armor/csv/armor/error.dart';
 import 'package:csv_armor/csv/decoder.dart';
 
-class CSVReader {
-  CSVReader();
+abstract interface class CSVReader {
+  List<List<String>> read(String csvPath, Decoder decoder);
+}
 
+class FileCSVReader implements CSVReader {
+  FileCSVReader();
+
+  @override
   List<List<String>> read(String csvPath, Decoder decoder) {
     String csvString;
     try {

@@ -3,15 +3,21 @@ import 'dart:io';
 
 import 'package:csv_armor/csv/armor/error.dart';
 import 'package:csv_armor/csv/armor/schema/schema.dart';
-import 'package:csv_armor/csv/armor/schema_reader.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
-class SchemaWriter {
-  const SchemaWriter({SchemaFormat schemaFormat = SchemaFormat.yaml})
+enum SchemaFormat { json, yaml }
+
+abstract interface class SchemaWriter {
+  void write(String schemaPath, Schema schema);
+}
+
+class FileSchemaWriter implements SchemaWriter {
+  const FileSchemaWriter({SchemaFormat schemaFormat = SchemaFormat.yaml})
       : _schemaFormat = schemaFormat;
 
   final SchemaFormat _schemaFormat;
 
+  @override
   void write(String schemaPath, Schema schema) {
     final schemaString = switch (_schemaFormat) {
       SchemaFormat.yaml =>

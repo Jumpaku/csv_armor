@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:csv_armor/csv/armor/schema/schema.dart';
-import 'package:csv_armor/csv/armor/schema_reader.dart';
 import 'package:csv_armor/csv/armor/schema_writer.dart';
 import 'package:csv_armor/csv/field_quote.dart';
 import 'package:csv_armor/csv/field_separator.dart';
@@ -27,7 +26,7 @@ void main() {
       final schemaFile = File(path.join(workdir.path, "schema.yaml"))
         ..createSync(recursive: true);
 
-      const sut = SchemaWriter(schemaFormat: SchemaFormat.yaml);
+      const sut = FileSchemaWriter(schemaFormat: SchemaFormat.yaml);
       sut.write(schemaFile.path, want);
 
       final got = Schema.load(schemaFile.readAsStringSync());
@@ -48,7 +47,7 @@ void main() {
       final schemaFile = File(path.join(workdir.path, "schema.json"))
         ..createSync(recursive: true);
 
-      const sut = SchemaWriter(schemaFormat: SchemaFormat.json);
+      const sut = FileSchemaWriter(schemaFormat: SchemaFormat.json);
       sut.write(schemaFile.path, want);
 
       final got = Schema.load(schemaFile.readAsStringSync());

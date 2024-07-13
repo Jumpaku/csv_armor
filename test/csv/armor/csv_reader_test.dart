@@ -27,7 +27,7 @@ void main() {
         ..createSync(recursive: true);
       csvFile.writeAsStringSync('aaa', flush: true);
 
-      final sut = CSVReader();
+      final sut = FileCSVReader();
       final got = sut.read(csvFile.path, decoder);
       expect(got, equals(want));
     });

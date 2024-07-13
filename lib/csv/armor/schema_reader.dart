@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:csv_armor/csv/armor/error.dart';
 import 'package:csv_armor/csv/armor/schema/schema.dart';
 
-enum SchemaFormat { json, yaml }
+abstract interface class SchemaReader {
+  Schema read(String schemaPath);
+}
 
-class SchemaReader {
-  const SchemaReader();
+class FileSchemaReader implements SchemaReader {
+  const FileSchemaReader();
 
+  @override
   Schema read(String schemaPath) {
     String schemaString;
     try {

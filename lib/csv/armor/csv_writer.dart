@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:csv_armor/csv/armor/error.dart';
 import 'package:csv_armor/csv/encoder.dart';
 
-class CSVWriter {
-  const CSVWriter();
+abstract interface class CSVWriter {
+  void write(String csvPath, List<List<String>> records, Encoder encoder);
+}
 
+class FileCSVWriter implements CSVWriter {
+  const FileCSVWriter();
+
+  @override
   void write(String csvPath, List<List<String>> records, Encoder encoder) {
     final csvString = encoder.encode(records);
 

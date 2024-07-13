@@ -24,7 +24,7 @@ void main() {
       const want = '"aaa"';
       final csvFile = File(path.join(workdir.path, "data.csv"));
 
-      const sut = CSVWriter();
+      const sut = FileCSVWriter();
       sut.write(
         csvFile.path,
         [

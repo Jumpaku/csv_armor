@@ -12,7 +12,7 @@ import 'package:csv_armor/errors/base_exception.dart';
 
 class Validator {
   Validator(this._schemaCache)
-      : _csvCache = CSVCache(_schemaCache, CSVReader(), const CSVWriter());
+      : _csvCache = CSVCache(_schemaCache, FileCSVReader(), const FileCSVWriter());
 
   final SchemaCache _schemaCache;
   final CSVCache _csvCache;

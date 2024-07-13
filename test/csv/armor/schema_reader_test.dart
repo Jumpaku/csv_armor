@@ -28,7 +28,7 @@ void main() {
         '''{csv_path: data.csv, columns: [{name: a}], primary_key: [a], record_separator: CRLF, field_separator: COMMA, field_quote: DQUOTE}''',
       );
 
-      const sut = SchemaReader();
+      const sut = FileSchemaReader();
       final got = sut.read(schemaFile.path);
 
       expect(got, equals(want));
