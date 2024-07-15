@@ -1,7 +1,7 @@
 import 'package:csv_armor/csv/armor/schema/field_type.dart';
 import 'package:csv_armor/csv/armor/schema/schema.dart';
 import 'package:csv_armor/csv/armor/validate/result.dart';
-import 'package:csv_armor/csv/armor/validate/validator.dart';
+import 'package:csv_armor/csv/armor/validate/validate_func.dart';
 import 'package:test/test.dart';
 
 typedef _Testcase_validateShape = ({
