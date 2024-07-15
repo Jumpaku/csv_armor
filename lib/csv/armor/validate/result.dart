@@ -22,24 +22,12 @@ sealed class ValidationError with ValidationErrorMappable {}
 
 @MappableClass(
   caseStyle: CaseStyle.snakeCase,
-  discriminatorValue: 'InvalidSchema',
+  discriminatorValue: 'SchemaCSVNotFound',
 )
-class InvalidSchema extends ValidationError with InvalidSchemaMappable {
-  InvalidSchema(this.schemaPath, this.code) : super();
+class SchemaCSVNotFound extends ValidationError with SchemaCSVNotFoundMappable {
+  SchemaCSVNotFound(this.schemaPath) : super();
 
   final String schemaPath;
-  final String code;
-}
-
-@MappableClass(
-  caseStyle: CaseStyle.snakeCase,
-  discriminatorValue: 'InvalidCSV',
-)
-class InvalidCSV extends ValidationError with InvalidCSVMappable {
-  InvalidCSV(this.csvPath, this.code) : super();
-
-  final String csvPath;
-  final String code;
 }
 
 @MappableClass(

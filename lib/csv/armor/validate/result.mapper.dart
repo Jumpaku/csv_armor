@@ -128,8 +128,7 @@ class ValidationErrorMapper extends ClassMapperBase<ValidationError> {
   static ValidationErrorMapper ensureInitialized() {
     if (_instance == null) {
       MapperContainer.globals.use(_instance = ValidationErrorMapper._());
-      InvalidSchemaMapper.ensureInitialized();
-      InvalidCSVMapper.ensureInitialized();
+      SchemaCSVNotFoundMapper.ensureInitialized();
       TooFewHeadersMapper.ensureInitialized();
       ColumnCountMismatchMapper.ensureInitialized();
       DuplicatedPrimaryKeyMapper.ensureInitialized();
@@ -181,241 +180,122 @@ abstract class ValidationErrorCopyWith<$R, $In extends ValidationError, $Out>
       Then<$Out2, $R2> t);
 }
 
-class InvalidSchemaMapper extends SubClassMapperBase<InvalidSchema> {
-  InvalidSchemaMapper._();
+class SchemaCSVNotFoundMapper extends SubClassMapperBase<SchemaCSVNotFound> {
+  SchemaCSVNotFoundMapper._();
 
-  static InvalidSchemaMapper? _instance;
-  static InvalidSchemaMapper ensureInitialized() {
+  static SchemaCSVNotFoundMapper? _instance;
+  static SchemaCSVNotFoundMapper ensureInitialized() {
     if (_instance == null) {
-      MapperContainer.globals.use(_instance = InvalidSchemaMapper._());
+      MapperContainer.globals.use(_instance = SchemaCSVNotFoundMapper._());
       ValidationErrorMapper.ensureInitialized().addSubMapper(_instance!);
     }
     return _instance!;
   }
 
   @override
-  final String id = 'InvalidSchema';
+  final String id = 'SchemaCSVNotFound';
 
-  static String _$schemaPath(InvalidSchema v) => v.schemaPath;
-  static const Field<InvalidSchema, String> _f$schemaPath =
+  static String _$schemaPath(SchemaCSVNotFound v) => v.schemaPath;
+  static const Field<SchemaCSVNotFound, String> _f$schemaPath =
       Field('schemaPath', _$schemaPath, key: 'schema_path');
-  static String _$code(InvalidSchema v) => v.code;
-  static const Field<InvalidSchema, String> _f$code = Field('code', _$code);
 
   @override
-  final MappableFields<InvalidSchema> fields = const {
+  final MappableFields<SchemaCSVNotFound> fields = const {
     #schemaPath: _f$schemaPath,
-    #code: _f$code,
   };
 
   @override
   final String discriminatorKey = 'kind';
   @override
-  final dynamic discriminatorValue = 'InvalidSchema';
+  final dynamic discriminatorValue = 'SchemaCSVNotFound';
   @override
   late final ClassMapperBase superMapper =
       ValidationErrorMapper.ensureInitialized();
 
-  static InvalidSchema _instantiate(DecodingData data) {
-    return InvalidSchema(data.dec(_f$schemaPath), data.dec(_f$code));
+  static SchemaCSVNotFound _instantiate(DecodingData data) {
+    return SchemaCSVNotFound(data.dec(_f$schemaPath));
   }
 
   @override
   final Function instantiate = _instantiate;
 
-  static InvalidSchema fromMap(Map<String, dynamic> map) {
-    return ensureInitialized().decodeMap<InvalidSchema>(map);
+  static SchemaCSVNotFound fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<SchemaCSVNotFound>(map);
   }
 
-  static InvalidSchema fromJson(String json) {
-    return ensureInitialized().decodeJson<InvalidSchema>(json);
+  static SchemaCSVNotFound fromJson(String json) {
+    return ensureInitialized().decodeJson<SchemaCSVNotFound>(json);
   }
 }
 
-mixin InvalidSchemaMappable {
+mixin SchemaCSVNotFoundMappable {
   String toJson() {
-    return InvalidSchemaMapper.ensureInitialized()
-        .encodeJson<InvalidSchema>(this as InvalidSchema);
+    return SchemaCSVNotFoundMapper.ensureInitialized()
+        .encodeJson<SchemaCSVNotFound>(this as SchemaCSVNotFound);
   }
 
   Map<String, dynamic> toMap() {
-    return InvalidSchemaMapper.ensureInitialized()
-        .encodeMap<InvalidSchema>(this as InvalidSchema);
+    return SchemaCSVNotFoundMapper.ensureInitialized()
+        .encodeMap<SchemaCSVNotFound>(this as SchemaCSVNotFound);
   }
 
-  InvalidSchemaCopyWith<InvalidSchema, InvalidSchema, InvalidSchema>
-      get copyWith => _InvalidSchemaCopyWithImpl(
-          this as InvalidSchema, $identity, $identity);
+  SchemaCSVNotFoundCopyWith<SchemaCSVNotFound, SchemaCSVNotFound,
+          SchemaCSVNotFound>
+      get copyWith => _SchemaCSVNotFoundCopyWithImpl(
+          this as SchemaCSVNotFound, $identity, $identity);
   @override
   String toString() {
-    return InvalidSchemaMapper.ensureInitialized()
-        .stringifyValue(this as InvalidSchema);
+    return SchemaCSVNotFoundMapper.ensureInitialized()
+        .stringifyValue(this as SchemaCSVNotFound);
   }
 
   @override
   bool operator ==(Object other) {
-    return InvalidSchemaMapper.ensureInitialized()
-        .equalsValue(this as InvalidSchema, other);
+    return SchemaCSVNotFoundMapper.ensureInitialized()
+        .equalsValue(this as SchemaCSVNotFound, other);
   }
 
   @override
   int get hashCode {
-    return InvalidSchemaMapper.ensureInitialized()
-        .hashValue(this as InvalidSchema);
+    return SchemaCSVNotFoundMapper.ensureInitialized()
+        .hashValue(this as SchemaCSVNotFound);
   }
 }
 
-extension InvalidSchemaValueCopy<$R, $Out>
-    on ObjectCopyWith<$R, InvalidSchema, $Out> {
-  InvalidSchemaCopyWith<$R, InvalidSchema, $Out> get $asInvalidSchema =>
-      $base.as((v, t, t2) => _InvalidSchemaCopyWithImpl(v, t, t2));
+extension SchemaCSVNotFoundValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, SchemaCSVNotFound, $Out> {
+  SchemaCSVNotFoundCopyWith<$R, SchemaCSVNotFound, $Out>
+      get $asSchemaCSVNotFound =>
+          $base.as((v, t, t2) => _SchemaCSVNotFoundCopyWithImpl(v, t, t2));
 }
 
-abstract class InvalidSchemaCopyWith<$R, $In extends InvalidSchema, $Out>
-    implements ValidationErrorCopyWith<$R, $In, $Out> {
+abstract class SchemaCSVNotFoundCopyWith<$R, $In extends SchemaCSVNotFound,
+    $Out> implements ValidationErrorCopyWith<$R, $In, $Out> {
   @override
-  $R call({String? schemaPath, String? code});
-  InvalidSchemaCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
+  $R call({String? schemaPath});
+  SchemaCSVNotFoundCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+      Then<$Out2, $R2> t);
 }
 
-class _InvalidSchemaCopyWithImpl<$R, $Out>
-    extends ClassCopyWithBase<$R, InvalidSchema, $Out>
-    implements InvalidSchemaCopyWith<$R, InvalidSchema, $Out> {
-  _InvalidSchemaCopyWithImpl(super.value, super.then, super.then2);
+class _SchemaCSVNotFoundCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, SchemaCSVNotFound, $Out>
+    implements SchemaCSVNotFoundCopyWith<$R, SchemaCSVNotFound, $Out> {
+  _SchemaCSVNotFoundCopyWithImpl(super.value, super.then, super.then2);
 
   @override
-  late final ClassMapperBase<InvalidSchema> $mapper =
-      InvalidSchemaMapper.ensureInitialized();
+  late final ClassMapperBase<SchemaCSVNotFound> $mapper =
+      SchemaCSVNotFoundMapper.ensureInitialized();
   @override
-  $R call({String? schemaPath, String? code}) => $apply(FieldCopyWithData({
-        if (schemaPath != null) #schemaPath: schemaPath,
-        if (code != null) #code: code
-      }));
+  $R call({String? schemaPath}) => $apply(
+      FieldCopyWithData({if (schemaPath != null) #schemaPath: schemaPath}));
   @override
-  InvalidSchema $make(CopyWithData data) => InvalidSchema(
-      data.get(#schemaPath, or: $value.schemaPath),
-      data.get(#code, or: $value.code));
+  SchemaCSVNotFound $make(CopyWithData data) =>
+      SchemaCSVNotFound(data.get(#schemaPath, or: $value.schemaPath));
 
   @override
-  InvalidSchemaCopyWith<$R2, InvalidSchema, $Out2> $chain<$R2, $Out2>(
+  SchemaCSVNotFoundCopyWith<$R2, SchemaCSVNotFound, $Out2> $chain<$R2, $Out2>(
           Then<$Out2, $R2> t) =>
-      _InvalidSchemaCopyWithImpl($value, $cast, t);
-}
-
-class InvalidCSVMapper extends SubClassMapperBase<InvalidCSV> {
-  InvalidCSVMapper._();
-
-  static InvalidCSVMapper? _instance;
-  static InvalidCSVMapper ensureInitialized() {
-    if (_instance == null) {
-      MapperContainer.globals.use(_instance = InvalidCSVMapper._());
-      ValidationErrorMapper.ensureInitialized().addSubMapper(_instance!);
-    }
-    return _instance!;
-  }
-
-  @override
-  final String id = 'InvalidCSV';
-
-  static String _$csvPath(InvalidCSV v) => v.csvPath;
-  static const Field<InvalidCSV, String> _f$csvPath =
-      Field('csvPath', _$csvPath, key: 'csv_path');
-  static String _$code(InvalidCSV v) => v.code;
-  static const Field<InvalidCSV, String> _f$code = Field('code', _$code);
-
-  @override
-  final MappableFields<InvalidCSV> fields = const {
-    #csvPath: _f$csvPath,
-    #code: _f$code,
-  };
-
-  @override
-  final String discriminatorKey = 'kind';
-  @override
-  final dynamic discriminatorValue = 'InvalidCSV';
-  @override
-  late final ClassMapperBase superMapper =
-      ValidationErrorMapper.ensureInitialized();
-
-  static InvalidCSV _instantiate(DecodingData data) {
-    return InvalidCSV(data.dec(_f$csvPath), data.dec(_f$code));
-  }
-
-  @override
-  final Function instantiate = _instantiate;
-
-  static InvalidCSV fromMap(Map<String, dynamic> map) {
-    return ensureInitialized().decodeMap<InvalidCSV>(map);
-  }
-
-  static InvalidCSV fromJson(String json) {
-    return ensureInitialized().decodeJson<InvalidCSV>(json);
-  }
-}
-
-mixin InvalidCSVMappable {
-  String toJson() {
-    return InvalidCSVMapper.ensureInitialized()
-        .encodeJson<InvalidCSV>(this as InvalidCSV);
-  }
-
-  Map<String, dynamic> toMap() {
-    return InvalidCSVMapper.ensureInitialized()
-        .encodeMap<InvalidCSV>(this as InvalidCSV);
-  }
-
-  InvalidCSVCopyWith<InvalidCSV, InvalidCSV, InvalidCSV> get copyWith =>
-      _InvalidCSVCopyWithImpl(this as InvalidCSV, $identity, $identity);
-  @override
-  String toString() {
-    return InvalidCSVMapper.ensureInitialized()
-        .stringifyValue(this as InvalidCSV);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return InvalidCSVMapper.ensureInitialized()
-        .equalsValue(this as InvalidCSV, other);
-  }
-
-  @override
-  int get hashCode {
-    return InvalidCSVMapper.ensureInitialized().hashValue(this as InvalidCSV);
-  }
-}
-
-extension InvalidCSVValueCopy<$R, $Out>
-    on ObjectCopyWith<$R, InvalidCSV, $Out> {
-  InvalidCSVCopyWith<$R, InvalidCSV, $Out> get $asInvalidCSV =>
-      $base.as((v, t, t2) => _InvalidCSVCopyWithImpl(v, t, t2));
-}
-
-abstract class InvalidCSVCopyWith<$R, $In extends InvalidCSV, $Out>
-    implements ValidationErrorCopyWith<$R, $In, $Out> {
-  @override
-  $R call({String? csvPath, String? code});
-  InvalidCSVCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
-}
-
-class _InvalidCSVCopyWithImpl<$R, $Out>
-    extends ClassCopyWithBase<$R, InvalidCSV, $Out>
-    implements InvalidCSVCopyWith<$R, InvalidCSV, $Out> {
-  _InvalidCSVCopyWithImpl(super.value, super.then, super.then2);
-
-  @override
-  late final ClassMapperBase<InvalidCSV> $mapper =
-      InvalidCSVMapper.ensureInitialized();
-  @override
-  $R call({String? csvPath, String? code}) => $apply(FieldCopyWithData(
-      {if (csvPath != null) #csvPath: csvPath, if (code != null) #code: code}));
-  @override
-  InvalidCSV $make(CopyWithData data) => InvalidCSV(
-      data.get(#csvPath, or: $value.csvPath), data.get(#code, or: $value.code));
-
-  @override
-  InvalidCSVCopyWith<$R2, InvalidCSV, $Out2> $chain<$R2, $Out2>(
-          Then<$Out2, $R2> t) =>
-      _InvalidCSVCopyWithImpl($value, $cast, t);
+      _SchemaCSVNotFoundCopyWithImpl($value, $cast, t);
 }
 
 class TooFewHeadersMapper extends SubClassMapperBase<TooFewHeaders> {
@@ -1655,7 +1535,8 @@ class _ForeignKeyReferenceColumnNotInForeignColumnsCopyWithImpl<$R, $Out>
           $value, $cast, t);
 }
 
-class ForeignKeyViolationMapper extends SubClassMapperBase<ForeignKeyViolation> {
+class ForeignKeyViolationMapper
+    extends SubClassMapperBase<ForeignKeyViolation> {
   ForeignKeyViolationMapper._();
 
   static ForeignKeyViolationMapper? _instance;
@@ -1788,7 +1669,7 @@ class _ForeignKeyViolationCopyWithImpl<$R, $Out>
       data.get(#baseKey, or: $value.baseKey));
 
   @override
-  ForeignKeyViolationCopyWith<$R2, ForeignKeyViolation, $Out2> $chain<$R2, $Out2>(
-          Then<$Out2, $R2> t) =>
-      _ForeignKeyViolationCopyWithImpl($value, $cast, t);
+  ForeignKeyViolationCopyWith<$R2, ForeignKeyViolation, $Out2>
+      $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
+          _ForeignKeyViolationCopyWithImpl($value, $cast, t);
 }

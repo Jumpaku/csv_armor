@@ -16,14 +16,14 @@ class SchemaCSV {
 
 class SchemaCSVCache {
   SchemaCSVCache(
-    this._pathContext,
+    this.pathContext,
     this._schemaReader,
     this._schemaWriter,
     this._csvReader,
     this._csvWriter,
   );
 
-  final path.Context _pathContext;
+  final path.Context pathContext;
 
   final SchemaReader _schemaReader;
   final SchemaWriter _schemaWriter;
@@ -33,12 +33,12 @@ class SchemaCSVCache {
   final Map<String, SchemaCSV> _cache = {};
 
   String _resolveKey(String baseSchemaPath) {
-    return _pathContext.canonicalize(baseSchemaPath);
+    return pathContext.canonicalize(baseSchemaPath);
   }
 
   String _resolve(String baseSchemaPath, String targetPath) {
     final schemaPathKey = _resolveKey(baseSchemaPath);
-    return _pathContext
+    return pathContext
         .canonicalize(path.join(path.dirname(schemaPathKey), targetPath));
   }
 

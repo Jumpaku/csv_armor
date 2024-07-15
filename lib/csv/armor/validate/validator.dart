@@ -1,40 +1,34 @@
 import 'dart:collection';
 
 import 'package:collection/collection.dart';
-import 'package:csv_armor/csv/armor/csv_cache.dart';
-import 'package:csv_armor/csv/armor/csv_reader.dart';
-import 'package:csv_armor/csv/armor/csv_writer.dart';
 import 'package:csv_armor/csv/armor/schema/schema.dart';
-import 'package:csv_armor/csv/armor/schema_cache.dart';
+import 'package:csv_armor/csv/armor/schema_csv.dart';
 import 'package:csv_armor/csv/armor/validate/result.dart';
 import 'package:csv_armor/csv/store/index.dart';
-import 'package:csv_armor/errors/base_exception.dart';
+import 'package:path/path.dart';
 
 class Validator {
-  Validator(this._schemaCache)
-      : _csvCache = CSVCache(_schemaCache, FileCSVReader(), const FileCSVWriter());
+  Validator(this._schemaCSVCache);
 
-  final SchemaCache _schemaCache;
-  final CSVCache _csvCache;
+  final SchemaCSVCache _schemaCSVCache;
 
-  ValidationResult validate(String schemaPath) {
-    final Schema schema;
-    try {
-      schema = _schemaCache.readSchema(schemaPath);
-    } on BaseException catch (e) {
-      return ValidationResult(errors: [InvalidSchema(schemaPath, e.code)]);
+  String _resolve(String baseSchemaPath, String path) {
+    final schemaPathKey = _resolveKey(baseSchemaPath);
+    return _schemaCSVCache.pathContext
+        .canonicalize(join(dirname(schemaPathKey), path));
+  }
+
+  String _resolveKey(String baseSchemaPath) {
+    return _schemaCSVCache.pathContext.canonicalize(baseSchemaPath);
+  }
+
+  ValidationResult validate(String schemaPath, {bool reload = false}) {
+    final schemaCSV = _schemaCSVCache[schemaPath];
+    if (schemaCSV == null) {
+      return ValidationResult(errors: [SchemaCSVNotFound(schemaPath)]);
     }
-
-    final List<List<String>> csv;
-    try {
-      csv = _csvCache.readCSV(schemaPath);
-    } on BaseException catch (e) {
-      return ValidationResult(
-        errors: [
-          InvalidCSV(_schemaCache.resolve(schemaPath, schema.csvPath), e.code),
-        ],
-      );
-    }
+    final csv = schemaCSV.csv;
+    final schema = schemaCSV.schema;
 
     final errors = validateShape(schema, csv);
     if (errors.isNotEmpty) {
@@ -45,37 +39,24 @@ class Validator {
     errors.addAll(validateUniqueKey(schema, csv));
     errors.addAll(validateFieldFormat(schema, csv));
     schema.foreignKey.forEach((fkName, fk) {
-      final foreignSchemaPath =
-          _schemaCache.resolve(schemaPath, fk.reference.schemaPath);
-      final Schema foreignSchema;
-      try {
-        foreignSchema = _schemaCache.readSchema(foreignSchemaPath);
-      } on BaseException catch (e) {
-        errors.add(InvalidSchema(foreignSchemaPath, e.code));
+      final foreignSchemaPath = _resolve(schemaPath, fk.reference.schemaPath);
+      final foreignSchemaCSV = _schemaCSVCache[foreignSchemaPath];
+      if (foreignSchemaCSV == null) {
+        errors.add(SchemaCSVNotFound(foreignSchemaPath));
         return;
       }
 
-      final fkSchemaErrors = validateForeignKeySchema(schema, foreignSchema);
+      final fkSchemaErrors =
+          validateForeignKeySchema(schema, foreignSchemaCSV.schema);
       if (fkSchemaErrors.isNotEmpty) {
         errors.addAll(fkSchemaErrors);
         return;
       }
-
-      final List<List<String>> foreignCSV;
-      try {
-        foreignCSV = _csvCache.readCSV(foreignSchemaPath);
-      } on BaseException catch (e) {
-        errors.add(
-          InvalidCSV(
-            _schemaCache.resolve(foreignSchemaPath, foreignSchema.csvPath),
-            e.code,
-          ),
-        );
-        return;
-      }
-
+      final foreignSchema = foreignSchemaCSV.schema;
+      final foreignCSV = foreignSchemaCSV.csv;
       errors.addAll(
-          validateForeignKey(fkName, schema, csv, foreignSchema, foreignCSV));
+        validateForeignKey(fkName, schema, csv, foreignSchema, foreignCSV),
+      );
     });
 
     return ValidationResult(errors: errors);
