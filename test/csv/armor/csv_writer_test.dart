@@ -2,21 +2,23 @@ import 'dart:io';
 
 import 'package:csv_armor/csv/armor/csv_writer.dart';
 import 'package:csv_armor/csv/encoder.dart';
-import 'package:csv_armor/csv/field_quote.dart';
-import 'package:csv_armor/csv/field_separator.dart';
+import 'package:csv_armor/csv/encoder_config.dart';
 import 'package:csv_armor/csv/record_separator.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
 void main() {
   group('CSVWriter', () {
-    final encoder = Encoder(
+    final encoder = Encoder(EncoderConfig(
       recordSeparator: RecordSeparator.CRLF,
-      fieldSeparator: FieldSeparator.COMMA,
-      fieldQuote: FieldQuote.DQUOTE,
-      forceQuote: true,
+      fieldSeparator: ",",
       terminatesWithRecordSeparator: false,
-    );
+      fieldQuote: const EncoderConfigQuote(
+        quote: '"',
+        quoteEscape: '""',
+        always: true,
+      ),
+    ));
     final workdir =
         (Directory('./test_tmp')..createSync(recursive: true)).createTempSync();
 

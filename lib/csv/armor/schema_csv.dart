@@ -4,7 +4,10 @@ import 'package:csv_armor/csv/armor/schema/schema.dart';
 import 'package:csv_armor/csv/armor/schema_reader.dart';
 import 'package:csv_armor/csv/armor/schema_writer.dart';
 import 'package:csv_armor/csv/decoder.dart';
+import 'package:csv_armor/csv/decoder_config.dart';
 import 'package:csv_armor/csv/encoder.dart';
+import 'package:csv_armor/csv/encoder_config.dart';
+import 'package:csv_armor/csv/record_separator.dart';
 import 'package:path/path.dart' as path;
 
 class SchemaCSV {
@@ -46,12 +49,7 @@ class SchemaCSVCache {
     for (final schemaPath in schemaPaths) {
       final schemaPathKey = resolveKey(schemaPath);
       final schema = _schemaReader.read(schemaPathKey);
-      final decoder = Decoder(
-        recordSeparator: schema.recordSeparator,
-        fieldSeparator: schema.fieldSeparator,
-        fieldQuote: schema.fieldQuote,
-        escapedQuote: schema.fieldQuote.value() + schema.fieldQuote.value(),
-      );
+      final decoder = Decoder(const DecoderConfig());
       final csvPath = resolveFromSchema(schemaPathKey, schema.csvPath);
       final csv = _csvReader.read(csvPath, decoder);
       _cache[schemaPathKey] = SchemaCSV(schema, csv);
@@ -60,13 +58,19 @@ class SchemaCSVCache {
 
   void save() {
     _cache.forEach((schemaPathKey, schemaCSV) {
-      final encoder = Encoder(
-        recordSeparator: schemaCSV.schema.recordSeparator,
-        fieldSeparator: schemaCSV.schema.fieldSeparator,
-        fieldQuote: schemaCSV.schema.fieldQuote,
-      );
+      final encoder = Encoder(EncoderConfig(
+        recordSeparator: RecordSeparator.CRLF,
+        terminatesWithRecordSeparator: false,
+        fieldSeparator: ",",
+        fieldQuote: const EncoderConfigQuote(
+          quote: '"',
+          quoteEscape: '""',
+          always: false,
+        ),
+      ));
       _schemaWriter.write(schemaPathKey, schemaCSV.schema);
-      final csvPath = resolveFromSchema(schemaPathKey, schemaCSV.schema.csvPath);
+      final csvPath =
+          resolveFromSchema(schemaPathKey, schemaCSV.schema.csvPath);
       _csvWriter.write(csvPath, schemaCSV.csv, encoder);
     });
   }

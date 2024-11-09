@@ -1,6 +1,4 @@
-// This file is 'main.dart'
 
-// Import annotations
 import 'dart:convert';
 
 import 'package:embed_annotation/embed_annotation.dart';

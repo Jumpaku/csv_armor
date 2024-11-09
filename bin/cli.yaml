@@ -1,0 +1,21 @@
+name: csv_armor
+version: v0.0.0
+description: |
+  A CLI tool to check integrity of CSV files organized in a file system based on schema files.
+options:
+  -help:
+    description: Shows help text.
+    type: boolean
+    short: -h
+subcommands:
+  validate:
+    description: Check the integrity of CSV files.
+    options:
+      -help:
+        description: Shows help text.
+        type: boolean
+        short: -h
+    arguments:
+      - name: schema_path
+        description: The CSV file paths to check.
+        variadic: true

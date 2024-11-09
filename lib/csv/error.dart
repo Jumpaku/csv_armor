@@ -4,6 +4,7 @@ const decodeErrorFieldQuoteNotAllowed = "decodeErrorFieldQuoteNotAllowed";
 const decodeErrorOpeningQuoteNotFound = "decodeErrorOpeningQuoteNotFound";
 const decodeErrorClosingQuoteNotFound = "decodeErrorClosingQuoteNotFound";
 const decodeErrorInvalidCharAfterField = "decodeErrorInvalidCharAfterField";
+const decodeErrorInvalidConfig = "decodeErrorInvalidConfig";
 
 class DecodeException extends BaseException {
   DecodeException(String message, String code, this.input, this.cursor,
@@ -15,6 +16,7 @@ class DecodeException extends BaseException {
 }
 
 const encodeErrorFieldQuoteRequired = "encodeErrorFieldQuoteRequired";
+const encodeErrorFieldQuoteEscapeRequired = "encodeErrorFieldQuoteEscapeRequired";
 
 class EncodeException extends BaseException {
   EncodeException(

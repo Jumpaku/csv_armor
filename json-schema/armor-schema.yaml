@@ -18,6 +18,18 @@ $defs:
       csv_path:
         description: "The path to the CSV file."
         type: string
+      field_separator:
+        description: "The field separator."
+        type: string
+        enum: [ "COMMA", "TAB" ]
+      field_quote:
+        description: "The field quote."
+        type: string
+        enum: [ "DQUOTE", "SQUOTE", "NONE" ]
+      record_separator:
+        description: "The record separator."
+        type: string
+        enum: [ "CRLF", "LF", "CR", "ANY" ]
       headers:
         description: "The number of header rows."
         type: integer
