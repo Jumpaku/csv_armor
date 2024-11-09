@@ -17,12 +17,6 @@ abstract class _$SchemaCWProxy {
 
   Schema headers(int headers);
 
-  Schema fieldSeparator(FieldSeparator fieldSeparator);
-
-  Schema recordSeparator(RecordSeparator recordSeparator);
-
-  Schema fieldQuote(FieldQuote fieldQuote);
-
   Schema uniqueKey(Map<String, List<String>> uniqueKey);
 
   Schema foreignKey(Map<String, ForeignKey> foreignKey);
@@ -39,9 +33,6 @@ abstract class _$SchemaCWProxy {
     List<String>? primaryKey,
     String? name,
     int? headers,
-    FieldSeparator? fieldSeparator,
-    RecordSeparator? recordSeparator,
-    FieldQuote? fieldQuote,
     Map<String, List<String>>? uniqueKey,
     Map<String, ForeignKey>? foreignKey,
   });
@@ -69,17 +60,6 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
   Schema headers(int headers) => this(headers: headers);
 
   @override
-  Schema fieldSeparator(FieldSeparator fieldSeparator) =>
-      this(fieldSeparator: fieldSeparator);
-
-  @override
-  Schema recordSeparator(RecordSeparator recordSeparator) =>
-      this(recordSeparator: recordSeparator);
-
-  @override
-  Schema fieldQuote(FieldQuote fieldQuote) => this(fieldQuote: fieldQuote);
-
-  @override
   Schema uniqueKey(Map<String, List<String>> uniqueKey) =>
       this(uniqueKey: uniqueKey);
 
@@ -101,9 +81,6 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
     Object? primaryKey = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? headers = const $CopyWithPlaceholder(),
-    Object? fieldSeparator = const $CopyWithPlaceholder(),
-    Object? recordSeparator = const $CopyWithPlaceholder(),
-    Object? fieldQuote = const $CopyWithPlaceholder(),
     Object? uniqueKey = const $CopyWithPlaceholder(),
     Object? foreignKey = const $CopyWithPlaceholder(),
   }) {
@@ -128,21 +105,6 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
           ? _value.headers
           // ignore: cast_nullable_to_non_nullable
           : headers as int,
-      fieldSeparator: fieldSeparator == const $CopyWithPlaceholder() ||
-              fieldSeparator == null
-          ? _value.fieldSeparator
-          // ignore: cast_nullable_to_non_nullable
-          : fieldSeparator as FieldSeparator,
-      recordSeparator: recordSeparator == const $CopyWithPlaceholder() ||
-              recordSeparator == null
-          ? _value.recordSeparator
-          // ignore: cast_nullable_to_non_nullable
-          : recordSeparator as RecordSeparator,
-      fieldQuote:
-          fieldQuote == const $CopyWithPlaceholder() || fieldQuote == null
-              ? _value.fieldQuote
-              // ignore: cast_nullable_to_non_nullable
-              : fieldQuote as FieldQuote,
       uniqueKey: uniqueKey == const $CopyWithPlaceholder() || uniqueKey == null
           ? _value.uniqueKey
           // ignore: cast_nullable_to_non_nullable
@@ -378,9 +340,6 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
     allowedKeys: const [
       'name',
       'csv_path',
-      'field_separator',
-      'record_separator',
-      'field_quote',
       'headers',
       'columns',
       'primary_key',
@@ -396,14 +355,6 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
     (json['primary_key'] as List<dynamic>).map((e) => e as String).toList(),
     name: json['name'] as String?,
     headers: (json['headers'] as num?)?.toInt() ?? 0,
-    fieldSeparator:
-        $enumDecodeNullable(_$FieldSeparatorEnumMap, json['field_separator']) ??
-            FieldSeparator.COMMA,
-    recordSeparator: $enumDecodeNullable(
-            _$RecordSeparatorEnumMap, json['record_separator']) ??
-        RecordSeparator.CRLF,
-    fieldQuote: $enumDecodeNullable(_$FieldQuoteEnumMap, json['field_quote']) ??
-        FieldQuote.DQUOTE,
     uniqueKey: (json['unique_key'] as Map<String, dynamic>?)?.map(
           (k, e) => MapEntry(
               k, (e as List<dynamic>).map((e) => e as String).toList()),
@@ -419,33 +370,12 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
       'name': instance.name,
       'csv_path': instance.csvPath,
-      'field_separator': _$FieldSeparatorEnumMap[instance.fieldSeparator]!,
-      'record_separator': _$RecordSeparatorEnumMap[instance.recordSeparator]!,
-      'field_quote': _$FieldQuoteEnumMap[instance.fieldQuote]!,
       'headers': instance.headers,
       'columns': instance.columns.map((e) => e.toJson()).toList(),
       'primary_key': instance.primaryKey,
       'unique_key': instance.uniqueKey,
       'foreign_key': instance.foreignKey.map((k, e) => MapEntry(k, e.toJson())),
     };
-
-const _$FieldSeparatorEnumMap = {
-  FieldSeparator.COMMA: 'COMMA',
-  FieldSeparator.TAB: 'TAB',
-};
-
-const _$RecordSeparatorEnumMap = {
-  RecordSeparator.ANY: 'ANY',
-  RecordSeparator.CRLF: 'CRLF',
-  RecordSeparator.LF: 'LF',
-  RecordSeparator.CR: 'CR',
-};
-
-const _$FieldQuoteEnumMap = {
-  FieldQuote.NONE: 'NONE',
-  FieldQuote.DQUOTE: 'DQUOTE',
-  FieldQuote.SQUOTE: 'SQUOTE',
-};
 
 Column _$ColumnFromJson(Map<String, dynamic> json) {
   $checkKeys(

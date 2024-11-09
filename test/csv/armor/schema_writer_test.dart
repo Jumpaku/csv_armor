@@ -2,9 +2,6 @@ import 'dart:io';
 
 import 'package:csv_armor/csv/armor/schema/schema.dart';
 import 'package:csv_armor/csv/armor/schema_writer.dart';
-import 'package:csv_armor/csv/field_quote.dart';
-import 'package:csv_armor/csv/field_separator.dart';
-import 'package:csv_armor/csv/record_separator.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
@@ -18,9 +15,6 @@ void main() {
         "data.csv",
         [Column("a")],
         ["a"],
-        recordSeparator: RecordSeparator.CRLF,
-        fieldSeparator: FieldSeparator.COMMA,
-        fieldQuote: FieldQuote.DQUOTE,
       );
 
       final schemaFile = File(path.join(workdir.path, "schema.yaml"))
@@ -39,9 +33,6 @@ void main() {
         "data.csv",
         [Column("a")],
         ["a"],
-        recordSeparator: RecordSeparator.CRLF,
-        fieldSeparator: FieldSeparator.COMMA,
-        fieldQuote: FieldQuote.DQUOTE,
       );
 
       final schemaFile = File(path.join(workdir.path, "schema.json"))

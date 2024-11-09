@@ -5,9 +5,6 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:csv_armor/csv/armor/schema/error.dart';
 import 'package:csv_armor/csv/armor/schema/field_type.dart';
 import 'package:csv_armor/csv/armor/schema/schema_validator.dart';
-import 'package:csv_armor/csv/field_quote.dart';
-import 'package:csv_armor/csv/field_separator.dart';
-import 'package:csv_armor/csv/record_separator.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:yaml/yaml.dart';
 
@@ -22,9 +19,6 @@ class Schema {
     this.primaryKey, {
     this.name,
     this.headers = 0,
-    this.fieldSeparator = FieldSeparator.COMMA,
-    this.recordSeparator = RecordSeparator.CRLF,
-    this.fieldQuote = FieldQuote.DQUOTE,
     this.uniqueKey = const {},
     this.foreignKey = const {},
   }) {
@@ -35,12 +29,6 @@ class Schema {
   final String? name;
   @JsonKey(name: "csv_path")
   final String csvPath;
-  @JsonKey(name: "field_separator")
-  final FieldSeparator fieldSeparator;
-  @JsonKey(name: "record_separator")
-  final RecordSeparator recordSeparator;
-  @JsonKey(name: "field_quote")
-  final FieldQuote fieldQuote;
   @JsonKey(name: "headers")
   final int headers;
   @JsonKey(name: "columns")
