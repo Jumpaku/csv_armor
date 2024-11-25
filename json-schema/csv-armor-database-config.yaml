@@ -1,0 +1,22 @@
+"$schema": "https://json-schema.org/draft/2020-12/schema"
+"$id": "https://jumpaku.net/csv-armor.schema.json"
+"title": "CSV Armor"
+
+$ref: '#/$defs/Database'
+
+$defs:
+
+  Database:
+    type: object
+    additionalProperties:
+      $ref: '#/$defs/TablePath'
+
+  TablePath:
+    type: object
+    properties:
+      schema_path:
+        type: string
+      csv_path:
+        type: string
+    required: [ "schema_path", "csv_path" ]
+    additionalProperties: false

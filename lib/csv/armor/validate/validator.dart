@@ -1,7 +1,6 @@
-import 'package:csv_armor/csv/armor/schema_csv.dart';
 import 'package:csv_armor/csv/armor/validate/result.dart';
 import 'package:csv_armor/csv/armor/validate/validate_func.dart';
-
+/*
 class Validator {
   Validator(this._schemaCSVCache);
 
@@ -50,3 +49,4 @@ class Validator {
     return ValidationResult(errors: errors);
   }
 }
+*/

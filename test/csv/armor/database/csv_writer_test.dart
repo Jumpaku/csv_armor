@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:csv_armor/csv/armor/csv_writer.dart';
+import 'package:csv_armor/csv/armor/io/csv_writer.dart';
 import 'package:csv_armor/csv/encoder.dart';
 import 'package:csv_armor/csv/encoder_config.dart';
 import 'package:csv_armor/csv/record_separator.dart';
@@ -26,13 +26,12 @@ void main() {
       const want = '"aaa"';
       final csvFile = File(path.join(workdir.path, "data.csv"));
 
-      const sut = FileCSVWriter();
+      final sut = GlobCSVWriter();
       sut.write(
         csvFile.path,
         [
           ['aaa'],
         ],
-        encoder,
       );
 
       final got = csvFile.readAsStringSync();

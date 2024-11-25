@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:csv_armor/csv/armor/csv_reader.dart';
+import 'package:csv_armor/csv/armor/io/csv_reader.dart';
 import 'package:csv_armor/csv/decoder.dart';
 import 'package:csv_armor/csv/decoder_config.dart';
 import 'package:csv_armor/csv/record_separator.dart';
@@ -28,8 +28,8 @@ void main() {
         ..createSync(recursive: true);
       csvFile.writeAsStringSync('aaa', flush: true);
 
-      final sut = FileCSVReader();
-      final got = sut.read(csvFile.path, decoder);
+      final sut = GlobCSVReader();
+      final got = sut.read(csvFile.path);
       expect(got, equals(want));
     });
   });

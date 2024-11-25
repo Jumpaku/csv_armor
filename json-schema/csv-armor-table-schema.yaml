@@ -1,32 +1,30 @@
-"$schema": "https://json-schema.org/draft/2020-12/schema"
+"$schema": "https://json-schema.org/draft/07/schema"
 "$id": "https://jumpaku.net/csv-armor.schema.json"
 "title": "CSV Armor"
-"description": "CSV Armor"
-$ref: '#/$defs/csv_armor'
+
+$ref: '#/$defs/TableSchema'
 
 $defs:
-  csv_armor:
-    description: "The CSV Armor."
+
+  TableSchema:
+    description: "The CSV Armor Table Schema."
     type: object
     properties:
-      name:
-        description: "The name of the CSV table."
-        type: [ "string", "null" ]
       description:
         description: "The description of the CSV table."
         type: string
-      csv_path:
-        description: "The path to the CSV file."
-        type: string
       headers:
-        description: "The number of header rows."
-        type: integer
-        minimum: 0
+        description: "The header rows."
+        type: array
+        items:
+          type: array
+          items:
+            type: string
       columns:
         description: "The columns."
         type: array
         items:
-          $ref: '#/$defs/column'
+          $ref: '#/$defs/Column'
       primary_key:
         description: "The primary key."
         type: array
@@ -43,11 +41,11 @@ $defs:
         description: "The foreign keys."
         type: object
         additionalProperties:
-          $ref: '#/$defs/foreign_key'
+          $ref: '#/$defs/ForeignKey'
     required: [ "csv_path", "columns", "primary_key" ]
     additionalProperties: false
 
-  column:
+  Column:
     description: "The column."
     type: object
     properties:
@@ -70,7 +68,7 @@ $defs:
     required: [ "name" ]
     additionalProperties: false
 
-  foreign_key:
+  ForeignKey:
     description: "The foreign key."
     type: object
     properties:
@@ -81,21 +79,19 @@ $defs:
           type: string
       reference:
         description: "The reference of the foreign key."
-        $ref: '#/$defs/foreign_key_reference'
+        $ref: '#/$defs/ForeignKeyReference'
     required: [ "columns", "reference" ]
     additionalProperties: false
 
-  foreign_key_reference:
+  ForeignKeyReference:
     description: "The reference of the foreign key."
     type: object
     properties:
-      schema_path:
+      table:
         description: "The path to the schema of referenced table."
         type: string
-      columns:
-        description: "The referenced columns."
-        type: array
-        items:
-          type: string
-    required: [ "schema_path", "columns" ]
+      unique_key:
+        description: "The unique key of the referenced table."
+        type: string
+    required: [ "description" ]
     additionalProperties: false

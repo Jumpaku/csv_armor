@@ -1,110 +1,102 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'schema.dart';
+part of 'table_schema.dart';
 
 // **************************************************************************
 // CopyWithGenerator
 // **************************************************************************
 
-abstract class _$SchemaCWProxy {
-  Schema csvPath(String csvPath);
+abstract class _$TableSchemaCWProxy {
+  TableSchema description(String description);
 
-  Schema columns(List<Column> columns);
+  TableSchema headers(List<List<String>> headers);
 
-  Schema primaryKey(List<String> primaryKey);
+  TableSchema columns(List<Column> columns);
 
-  Schema name(String? name);
+  TableSchema primaryKey(List<String> primaryKey);
 
-  Schema headers(int headers);
+  TableSchema uniqueKey(Map<String, List<String>> uniqueKey);
 
-  Schema uniqueKey(Map<String, List<String>> uniqueKey);
+  TableSchema foreignKey(Map<String, ForeignKey> foreignKey);
 
-  Schema foreignKey(Map<String, ForeignKey> foreignKey);
-
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Schema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `TableSchema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
   /// ```dart
-  /// Schema(...).copyWith(id: 12, name: "My name")
+  /// TableSchema(...).copyWith(id: 12, name: "My name")
   /// ````
-  Schema call({
-    String? csvPath,
+  TableSchema call({
+    String? description,
+    List<List<String>>? headers,
     List<Column>? columns,
     List<String>? primaryKey,
-    String? name,
-    int? headers,
     Map<String, List<String>>? uniqueKey,
     Map<String, ForeignKey>? foreignKey,
   });
 }
 
-/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfSchema.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfSchema.copyWith.fieldName(...)`
-class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
-  const _$SchemaCWProxyImpl(this._value);
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfTableSchema.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfTableSchema.copyWith.fieldName(...)`
+class _$TableSchemaCWProxyImpl implements _$TableSchemaCWProxy {
+  const _$TableSchemaCWProxyImpl(this._value);
 
-  final Schema _value;
-
-  @override
-  Schema csvPath(String csvPath) => this(csvPath: csvPath);
+  final TableSchema _value;
 
   @override
-  Schema columns(List<Column> columns) => this(columns: columns);
+  TableSchema description(String description) => this(description: description);
 
   @override
-  Schema primaryKey(List<String> primaryKey) => this(primaryKey: primaryKey);
+  TableSchema headers(List<List<String>> headers) => this(headers: headers);
 
   @override
-  Schema name(String? name) => this(name: name);
+  TableSchema columns(List<Column> columns) => this(columns: columns);
 
   @override
-  Schema headers(int headers) => this(headers: headers);
+  TableSchema primaryKey(List<String> primaryKey) =>
+      this(primaryKey: primaryKey);
 
   @override
-  Schema uniqueKey(Map<String, List<String>> uniqueKey) =>
+  TableSchema uniqueKey(Map<String, List<String>> uniqueKey) =>
       this(uniqueKey: uniqueKey);
 
   @override
-  Schema foreignKey(Map<String, ForeignKey> foreignKey) =>
+  TableSchema foreignKey(Map<String, ForeignKey> foreignKey) =>
       this(foreignKey: foreignKey);
 
   @override
 
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Schema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `TableSchema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
   /// ```dart
-  /// Schema(...).copyWith(id: 12, name: "My name")
+  /// TableSchema(...).copyWith(id: 12, name: "My name")
   /// ````
-  Schema call({
-    Object? csvPath = const $CopyWithPlaceholder(),
+  TableSchema call({
+    Object? description = const $CopyWithPlaceholder(),
+    Object? headers = const $CopyWithPlaceholder(),
     Object? columns = const $CopyWithPlaceholder(),
     Object? primaryKey = const $CopyWithPlaceholder(),
-    Object? name = const $CopyWithPlaceholder(),
-    Object? headers = const $CopyWithPlaceholder(),
     Object? uniqueKey = const $CopyWithPlaceholder(),
     Object? foreignKey = const $CopyWithPlaceholder(),
   }) {
-    return Schema(
-      csvPath == const $CopyWithPlaceholder() || csvPath == null
-          ? _value.csvPath
-          // ignore: cast_nullable_to_non_nullable
-          : csvPath as String,
-      columns == const $CopyWithPlaceholder() || columns == null
-          ? _value.columns
-          // ignore: cast_nullable_to_non_nullable
-          : columns as List<Column>,
-      primaryKey == const $CopyWithPlaceholder() || primaryKey == null
-          ? _value.primaryKey
-          // ignore: cast_nullable_to_non_nullable
-          : primaryKey as List<String>,
-      name: name == const $CopyWithPlaceholder()
-          ? _value.name
-          // ignore: cast_nullable_to_non_nullable
-          : name as String?,
+    return TableSchema(
+      description:
+          description == const $CopyWithPlaceholder() || description == null
+              ? _value.description
+              // ignore: cast_nullable_to_non_nullable
+              : description as String,
       headers: headers == const $CopyWithPlaceholder() || headers == null
           ? _value.headers
           // ignore: cast_nullable_to_non_nullable
-          : headers as int,
+          : headers as List<List<String>>,
+      columns: columns == const $CopyWithPlaceholder() || columns == null
+          ? _value.columns
+          // ignore: cast_nullable_to_non_nullable
+          : columns as List<Column>,
+      primaryKey:
+          primaryKey == const $CopyWithPlaceholder() || primaryKey == null
+              ? _value.primaryKey
+              // ignore: cast_nullable_to_non_nullable
+              : primaryKey as List<String>,
       uniqueKey: uniqueKey == const $CopyWithPlaceholder() || uniqueKey == null
           ? _value.uniqueKey
           // ignore: cast_nullable_to_non_nullable
@@ -118,18 +110,20 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
   }
 }
 
-extension $SchemaCopyWith on Schema {
-  /// Returns a callable class that can be used as follows: `instanceOfSchema.copyWith(...)` or like so:`instanceOfSchema.copyWith.fieldName(...)`.
+extension $TableSchemaCopyWith on TableSchema {
+  /// Returns a callable class that can be used as follows: `instanceOfTableSchema.copyWith(...)` or like so:`instanceOfTableSchema.copyWith.fieldName(...)`.
   // ignore: library_private_types_in_public_api
-  _$SchemaCWProxy get copyWith => _$SchemaCWProxyImpl(this);
+  _$TableSchemaCWProxy get copyWith => _$TableSchemaCWProxyImpl(this);
 }
 
 abstract class _$ColumnCWProxy {
   Column name(String name);
 
+  Column description(String description);
+
   Column allowEmpty(bool allowEmpty);
 
-  Column type(FieldType type);
+  Column type(String? type);
 
   Column regex(String? regex);
 
@@ -141,8 +135,9 @@ abstract class _$ColumnCWProxy {
   /// ````
   Column call({
     String? name,
+    String? description,
     bool? allowEmpty,
-    FieldType? type,
+    String? type,
     String? regex,
   });
 }
@@ -157,10 +152,13 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
   Column name(String name) => this(name: name);
 
   @override
+  Column description(String description) => this(description: description);
+
+  @override
   Column allowEmpty(bool allowEmpty) => this(allowEmpty: allowEmpty);
 
   @override
-  Column type(FieldType type) => this(type: type);
+  Column type(String? type) => this(type: type);
 
   @override
   Column regex(String? regex) => this(regex: regex);
@@ -175,6 +173,7 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
   /// ````
   Column call({
     Object? name = const $CopyWithPlaceholder(),
+    Object? description = const $CopyWithPlaceholder(),
     Object? allowEmpty = const $CopyWithPlaceholder(),
     Object? type = const $CopyWithPlaceholder(),
     Object? regex = const $CopyWithPlaceholder(),
@@ -184,15 +183,20 @@ class _$ColumnCWProxyImpl implements _$ColumnCWProxy {
           ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String,
+      description:
+          description == const $CopyWithPlaceholder() || description == null
+              ? _value.description
+              // ignore: cast_nullable_to_non_nullable
+              : description as String,
       allowEmpty:
           allowEmpty == const $CopyWithPlaceholder() || allowEmpty == null
               ? _value.allowEmpty
               // ignore: cast_nullable_to_non_nullable
               : allowEmpty as bool,
-      type: type == const $CopyWithPlaceholder() || type == null
+      type: type == const $CopyWithPlaceholder()
           ? _value.type
           // ignore: cast_nullable_to_non_nullable
-          : type as FieldType,
+          : type as String?,
       regex: regex == const $CopyWithPlaceholder()
           ? _value.regex
           // ignore: cast_nullable_to_non_nullable
@@ -269,9 +273,9 @@ extension $ForeignKeyCopyWith on ForeignKey {
 }
 
 abstract class _$ForeignKeyReferenceCWProxy {
-  ForeignKeyReference schemaPath(String schemaPath);
+  ForeignKeyReference table(String table);
 
-  ForeignKeyReference columns(List<String> columns);
+  ForeignKeyReference uniqueKey(String? uniqueKey);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ForeignKeyReference(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -280,8 +284,8 @@ abstract class _$ForeignKeyReferenceCWProxy {
   /// ForeignKeyReference(...).copyWith(id: 12, name: "My name")
   /// ````
   ForeignKeyReference call({
-    String? schemaPath,
-    List<String>? columns,
+    String? table,
+    String? uniqueKey,
   });
 }
 
@@ -292,11 +296,11 @@ class _$ForeignKeyReferenceCWProxyImpl implements _$ForeignKeyReferenceCWProxy {
   final ForeignKeyReference _value;
 
   @override
-  ForeignKeyReference schemaPath(String schemaPath) =>
-      this(schemaPath: schemaPath);
+  ForeignKeyReference table(String table) => this(table: table);
 
   @override
-  ForeignKeyReference columns(List<String> columns) => this(columns: columns);
+  ForeignKeyReference uniqueKey(String? uniqueKey) =>
+      this(uniqueKey: uniqueKey);
 
   @override
 
@@ -307,18 +311,18 @@ class _$ForeignKeyReferenceCWProxyImpl implements _$ForeignKeyReferenceCWProxy {
   /// ForeignKeyReference(...).copyWith(id: 12, name: "My name")
   /// ````
   ForeignKeyReference call({
-    Object? schemaPath = const $CopyWithPlaceholder(),
-    Object? columns = const $CopyWithPlaceholder(),
+    Object? table = const $CopyWithPlaceholder(),
+    Object? uniqueKey = const $CopyWithPlaceholder(),
   }) {
     return ForeignKeyReference(
-      schemaPath == const $CopyWithPlaceholder() || schemaPath == null
-          ? _value.schemaPath
+      table == const $CopyWithPlaceholder() || table == null
+          ? _value.table
           // ignore: cast_nullable_to_non_nullable
-          : schemaPath as String,
-      columns == const $CopyWithPlaceholder() || columns == null
-          ? _value.columns
+          : table as String,
+      uniqueKey: uniqueKey == const $CopyWithPlaceholder()
+          ? _value.uniqueKey
           // ignore: cast_nullable_to_non_nullable
-          : columns as List<String>,
+          : uniqueKey as String?,
     );
   }
 }
@@ -334,12 +338,11 @@ extension $ForeignKeyReferenceCopyWith on ForeignKeyReference {
 // JsonSerializableGenerator
 // **************************************************************************
 
-Schema _$SchemaFromJson(Map<String, dynamic> json) {
+TableSchema _$TableSchemaFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
     allowedKeys: const [
-      'name',
-      'csv_path',
+      'description',
       'headers',
       'columns',
       'primary_key',
@@ -347,14 +350,17 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
       'foreign_key'
     ],
   );
-  return Schema(
-    json['csv_path'] as String,
-    (json['columns'] as List<dynamic>)
+  return TableSchema(
+    description: json['description'] as String? ?? "",
+    headers: (json['headers'] as List<dynamic>?)
+            ?.map((e) => (e as List<dynamic>).map((e) => e as String).toList())
+            .toList() ??
+        const [],
+    columns: (json['columns'] as List<dynamic>)
         .map((e) => Column.fromJson(e as Map<String, dynamic>))
         .toList(),
-    (json['primary_key'] as List<dynamic>).map((e) => e as String).toList(),
-    name: json['name'] as String?,
-    headers: (json['headers'] as num?)?.toInt() ?? 0,
+    primaryKey:
+        (json['primary_key'] as List<dynamic>).map((e) => e as String).toList(),
     uniqueKey: (json['unique_key'] as Map<String, dynamic>?)?.map(
           (k, e) => MapEntry(
               k, (e as List<dynamic>).map((e) => e as String).toList()),
@@ -367,9 +373,9 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
-      'name': instance.name,
-      'csv_path': instance.csvPath,
+Map<String, dynamic> _$TableSchemaToJson(TableSchema instance) =>
+    <String, dynamic>{
+      'description': instance.description,
       'headers': instance.headers,
       'columns': instance.columns.map((e) => e.toJson()).toList(),
       'primary_key': instance.primaryKey,
@@ -380,31 +386,24 @@ Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
 Column _$ColumnFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['name', 'allow_empty', 'type', 'regex'],
+    allowedKeys: const ['name', 'description', 'allow_empty', 'type', 'regex'],
   );
   return Column(
     json['name'] as String,
+    description: json['description'] as String? ?? "",
     allowEmpty: json['allow_empty'] as bool? ?? false,
-    type:
-        $enumDecodeNullable(_$FieldTypeEnumMap, json['type']) ?? FieldType.text,
+    type: json['type'] as String?,
     regex: json['regex'] as String?,
   );
 }
 
 Map<String, dynamic> _$ColumnToJson(Column instance) => <String, dynamic>{
       'name': instance.name,
+      'description': instance.description,
       'allow_empty': instance.allowEmpty,
-      'type': _$FieldTypeEnumMap[instance.type]!,
+      'type': instance.type,
       'regex': instance.regex,
     };
-
-const _$FieldTypeEnumMap = {
-  FieldType.text: 'text',
-  FieldType.integer: 'integer',
-  FieldType.boolean: 'boolean',
-  FieldType.datetime: 'datetime',
-  FieldType.decimal: 'decimal',
-};
 
 ForeignKey _$ForeignKeyFromJson(Map<String, dynamic> json) {
   $checkKeys(
@@ -426,17 +425,17 @@ Map<String, dynamic> _$ForeignKeyToJson(ForeignKey instance) =>
 ForeignKeyReference _$ForeignKeyReferenceFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['schema_path', 'columns'],
+    allowedKeys: const ['table', 'unique_key'],
   );
   return ForeignKeyReference(
-    json['schema_path'] as String,
-    (json['columns'] as List<dynamic>).map((e) => e as String).toList(),
+    json['table'] as String,
+    uniqueKey: json['unique_key'] as String?,
   );
 }
 
 Map<String, dynamic> _$ForeignKeyReferenceToJson(
         ForeignKeyReference instance) =>
     <String, dynamic>{
-      'schema_path': instance.schemaPath,
-      'columns': instance.columns,
+      'table': instance.table,
+      'unique_key': instance.uniqueKey,
     };

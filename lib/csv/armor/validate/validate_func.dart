@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:csv_armor/csv/armor/schema/schema.dart';
+import 'package:csv_armor/csv/armor/schema/table_schema.dart';
 import 'package:csv_armor/csv/armor/validate/result.dart';
 import 'package:csv_armor/csv/store/index.dart';
-
+/*
 List<ValidationError> validateShape(
   Schema schema,
   List<List<String>> csv,
@@ -171,3 +171,4 @@ List<ValidationError> validateForeignKey(
 
   return errors;
 }
+*/
