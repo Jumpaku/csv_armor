@@ -1,0 +1,141 @@
+"$schema": "https://json-schema.org/draft/2020-12/schema"
+"$id": "https://jumpaku.net/csv-armor-schema.json"
+"title": "CSV Armor Schema"
+
+$ref: '#/$defs/Schema'
+
+$defs:
+
+  Schema:
+    type: object
+    description: "Defines the structure and validation rules for CSV Armor."
+    properties:
+      table_config:
+        type: array
+        description: "An array of table configurations or import paths for table configurations."
+        items:
+          anyOf:
+            - type: object
+              properties:
+                import:
+                  type: string
+                  description: "Path to a file to import table configurations from."
+              required: [ "import" ]
+            - $ref: '#/$defs/TableConfig'
+      column_type:
+        type: object
+        description: "A map of custom column type names to their regexp pattern."
+        additionalProperties:
+          type: string
+      validation:
+        type: array
+        description: "An array of validation rules or import paths for validation rules."
+        items:
+          anyOf:
+            - type: object
+              properties:
+                import:
+                  type: string
+                  description: "Path to a file to import validation rules from."
+              required: [ "import" ]
+            - $ref: '#/$defs/Validation'
+    additionalProperties: false
+
+  TableConfig:
+    type: object
+    description: "Configuration for a table based on CSV files."
+    properties:
+      name:
+        type: string
+        description: "The name of the table."
+      csv_path:
+        type: string
+        description: "The path to the CSV files which may include placeholders enclosed with '[' and ']'."
+      columns:
+        type: array
+        description: "An array of column definitions for the table."
+        items:
+          $ref: '#/$defs/TableColumn'
+      primary_key:
+        type: array
+        description: "An array of column names that make up the primary key."
+        items:
+          type: string
+      unique_key:
+        type: object
+        description: "A map of unique key names to arrays of column names."
+        additionalProperties:
+          type: array
+          items:
+            type: string
+      foreign_key:
+        type: object
+        description: "A map of foreign key names to foreign key definitions."
+        additionalProperties:
+          $ref: '#/$defs/ForeignKey'
+    required: [ "name", "csv_path", "columns", "primary_key" ]
+    additionalProperties: false
+
+  TableColumn:
+    type: object
+    description: "Definition of a column in a CSV table."
+    properties:
+      name:
+        type: string
+        description: "The name of the column."
+      description:
+        type: string
+        description: "A description of the column."
+      allow_empty:
+        type: boolean
+        description: "Whether the column can have empty values."
+        default: false
+      type:
+        type: string
+        description: "The data type of the column which must be defined at the column_type property of the Schema type."
+      regexp:
+        type: string
+        description: "A regular expression to validate the column's values."
+    required: [ "name" ]
+    additionalProperties: false
+
+  ForeignKey:
+    type: object
+    description: "Definition of a foreign key constraint."
+    properties:
+      columns:
+        type: array
+        description: "An array of column names in the current table that make up the foreign key."
+        items:
+          type: string
+      reference:
+        $ref: '#/$defs/ForeignKeyReference'
+        description: "The reference to the foreign table and key."
+    required: [ "columns", "reference" ]
+    additionalProperties: false
+
+  ForeignKeyReference:
+    type: object
+    description: "Reference to a foreign table and its unique key for a foreign key constraint."
+    properties:
+      table:
+        type: string
+        description: "The name of the referenced table."
+      unique_key:
+        type: string
+        description: "The name of the unique key in the referenced table."
+    required: [ "table", "unique_key" ]
+    additionalProperties: false
+
+  Validation:
+    type: object
+    description: "A custom validation rule defined by a SQL query."
+    properties:
+      description:
+        type: string
+        message: "A message of the validation rule."
+      query_error:
+        type: string
+        description: "The SQL query that defines the validation logic, which must return only rows representing validation error."
+    required: [ "description", "query_error" ]
+    additionalProperties: false
