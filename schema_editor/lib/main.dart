@@ -1,0 +1,176 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+
+import 'components/column_type_editor.dart';
+import 'components/table_config_editor.dart';
+import 'components/validation_editor.dart';
+import 'models/schema.dart';
+
+void main() {
+  runApp(const SchemaEditorApp());
+}
+
+class SchemaEditorApp extends StatelessWidget {
+  const SchemaEditorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'CSV Armor Schema Editor',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const SchemaEditorHomePage(),
+    );
+  }
+}
+
+class SchemaEditorHomePage extends StatefulWidget {
+  const SchemaEditorHomePage({super.key});
+
+  @override
+  State<SchemaEditorHomePage> createState() => _SchemaEditorHomePageState();
+}
+
+class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
+  late Schema _schema;
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _schema = Schema(columnType: {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _loadJson() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: ['json']);
+    if (result != null && result.files.single.path != null) {
+      final file = File(result.files.single.path!);
+      final content = await file.readAsString();
+      if (!mounted) return;
+      setState(() {
+        _schema = Schema.fromJson(jsonDecode(content));
+      });
+    }
+  }
+
+  void _saveJson() async {
+    String? output = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Schema As',
+      fileName: 'schema.json',
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (output != null) {
+      final file = File(output);
+      await file.writeAsString(
+          const JsonEncoder.withIndent('  ').convert(_schema.toJson()));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Schema saved!')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget mainContent;
+    switch (_selectedIndex) {
+      case 0:
+        mainContent = TableConfigEditor(
+          initialTableConfigs: _schema.tableConfig,
+          onChanged: (tableConfigs) {
+            setState(() {
+              _schema = _schema.copyWith(tableConfig: List<TableConfig>.from(tableConfigs));
+            });
+          },
+        );
+        break;
+      case 1:
+        mainContent = ColumnTypeEditor(
+          initialColumnType: _schema.columnType,
+          onChanged: (columnType) {
+            setState(() {
+              _schema = _schema.copyWith(
+                  columnType: Map<String, String>.from(columnType));
+            });
+          },
+        );
+        break;
+      case 2:
+        mainContent = ValidationEditor(
+          initialValidations: _schema.validation,
+          onChanged: (validations) {
+            setState(() {
+              _schema = _schema.copyWith(
+                  validation: List<Validation>.from(validations));
+            });
+          },
+        );
+        break;
+      default:
+        mainContent =
+            const Center(child: Text('Select an item from the sidebar'));
+    }
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.safety_check),
+            tooltip: 'Check',
+            onPressed: () => {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.folder_open),
+            tooltip: 'Open',
+            onPressed: _loadJson,
+          ),
+          IconButton(
+            icon: const Icon(Icons.save),
+            tooltip: 'Save',
+            onPressed: _saveJson,
+          ),
+        ],
+      ),
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            labelType: NavigationRailLabelType.all,
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.table_view),
+                label: Text('Table Config'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.format_list_bulleted),
+                label: Text('Column Type'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.rule),
+                label: Text('Validation'),
+              ),
+            ],
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: mainContent,
+          ),
+        ],
+      ),
+    );
+  }
+}
