@@ -16,74 +16,131 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
     required this.onTableConfigsChanged,
   });
 
-  void _editPrimaryKeyDialog(
-      BuildContext context, int tableIdx, int pkIdx) async {
-    final controller =
-        TextEditingController(text: tableConfigs[tableIdx].primaryKey[pkIdx]);
-    final result = await showDialog<String>(
+  void _editPrimaryKeyDialog(BuildContext context, int tableIdx) async {
+    final pkList = List<String>.from(tableConfigs[tableIdx].primaryKey);
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Primary Key'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Primary Key'),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    if (result != null && result.isNotEmpty) {
-      final newConfigs = List<TableConfig>.from(tableConfigs);
-      final pk = List<String>.from(newConfigs[tableIdx].primaryKey);
-      pk[pkIdx] = result;
-      newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(primaryKey: pk);
-      onTableConfigsChanged(newConfigs);
-    }
-  }
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void addColumn() {
+              final controller = TextEditingController();
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Add Primary Key Column'),
+                  content: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(labelText: 'Primary Key'),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel')),
+                    ElevatedButton(
+                      onPressed: () =>
+                          Navigator.pop(context, controller.text.trim()),
+                      child: const Text('Add'),
+                    ),
+                  ],
+                ),
+              ).then((result) {
+                if (result != null && result.isNotEmpty) {
+                  setState(() => pkList.add(result));
+                }
+              });
+            }
 
-  void _deletePrimaryKey(int tableIdx, int pkIdx) {
-    final newConfigs = List<TableConfig>.from(tableConfigs);
-    final pk = List<String>.from(newConfigs[tableIdx].primaryKey);
-    pk.removeAt(pkIdx);
-    newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(primaryKey: pk);
-    onTableConfigsChanged(newConfigs);
-  }
+            void editColumn(int idx) {
+              final controller = TextEditingController(text: pkList[idx]);
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Edit Primary Key Column'),
+                  content: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(labelText: 'Primary Key'),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel')),
+                    ElevatedButton(
+                      onPressed: () =>
+                          Navigator.pop(context, controller.text.trim()),
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ).then((result) {
+                if (result != null && result.isNotEmpty) {
+                  setState(() => pkList[idx] = result);
+                }
+              });
+            }
 
-  void _addPrimaryKey(BuildContext context, int tableIdx) async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Primary Key'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Primary Key'),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+            void deleteColumn(int idx) {
+              setState(() => pkList.removeAt(idx));
+            }
+
+            return AlertDialog(
+              title: const Text('Edit Primary Key'),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Primary Key Columns'),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          tooltip: 'Add Primary Key Column',
+                          onPressed: addColumn,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...pkList.asMap().entries.map((entry) => Row(
+                          children: [
+                            Expanded(child: Text(entry.value)),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              tooltip: 'Edit',
+                              onPressed: () => editColumn(entry.key),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              tooltip: 'Delete',
+                              onPressed: () => deleteColumn(entry.key),
+                            ),
+                          ],
+                        )),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final newConfigs = List<TableConfig>.from(tableConfigs);
+                    newConfigs[tableIdx] = newConfigs[tableIdx]
+                        .copyWith(primaryKey: List<String>.from(pkList));
+                    onTableConfigsChanged(newConfigs);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
-    if (result != null && result.isNotEmpty) {
-      final newConfigs = List<TableConfig>.from(tableConfigs);
-      final pk = List<String>.from(newConfigs[tableIdx].primaryKey);
-      pk.add(result);
-      newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(primaryKey: pk);
-      onTableConfigsChanged(newConfigs);
-    }
   }
 
   @override
@@ -93,41 +150,14 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text('Primary Key:'),
+             Text('Primary Key: [${config.primaryKey.join(', ')}]'),
             const Spacer(),
             IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: 'Add Primary Key',
-              onPressed: () => _addPrimaryKey(context, index),
+              icon: const Icon(Icons.edit),
+              tooltip: 'Edit Primary Key',
+              onPressed: () => _editPrimaryKeyDialog(context, index),
             ),
           ],
-        ),
-        Column(
-          children: config.primaryKey.indexed
-              .map(
-                (entry) => Row(
-                  children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16.0, top: 2, bottom: 2),
-                      child: Text(entry.$2),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: 'Edit Primary Key',
-                      onPressed: () =>
-                          _editPrimaryKeyDialog(context, index, entry.$1),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      tooltip: 'Delete Primary Key',
-                      onPressed: () => _deletePrimaryKey(index, entry.$1),
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
         ),
       ],
     );

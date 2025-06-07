@@ -88,66 +88,62 @@ class _TableConfigDetailsEditorState extends State<TableConfigDetailsEditor> {
   Widget build(BuildContext context) {
     final config = widget.config;
     final index = widget.index;
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Name: ${config.name}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  tooltip: 'Edit Name',
-                  onPressed: () => _editNameDialog(index),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text('CSV Path: ${config.csvPath}'),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  tooltip: 'Edit CSV Path',
-                  onPressed: () => _editCsvPathDialog(index),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            TableConfigColumnsEditor(
-              config: config,
-              index: index,
-              tableConfigs: widget.tableConfigs,
-              onTableConfigsChanged: widget.onTableConfigsChanged,
-            ),
-            const SizedBox(height: 8),
-            TableConfigPrimaryKeysEditor(
-              config: config,
-              index: index,
-              tableConfigs: widget.tableConfigs,
-              onTableConfigsChanged: widget.onTableConfigsChanged,
-            ),
-            const SizedBox(height: 8),
-            TableConfigUniqueKeysEditor(
-              config: config,
-              index: index,
-              tableConfigs: widget.tableConfigs,
-              onTableConfigsChanged: widget.onTableConfigsChanged,
-            ),
-            const SizedBox(height: 8),
-            TableConfigForeignKeysEditor(
-              config: config,
-              index: index,
-              tableConfigs: widget.tableConfigs,
-              onTableConfigsChanged: widget.onTableConfigsChanged,
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('Name: ${config.name}'),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: 'Edit Name',
+                onPressed: () => _editNameDialog(index),
+              ),
+            ],
+          ),
+          const Divider(),
+          Row(
+            children: [
+              Text('CSV Path: ${config.csvPath}'),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: 'Edit CSV Path',
+                onPressed: () => _editCsvPathDialog(index),
+              ),
+            ],
+          ),
+          const Divider(),
+          TableConfigColumnsEditor(
+            config: config,
+            index: index,
+            tableConfigs: widget.tableConfigs,
+            onTableConfigsChanged: widget.onTableConfigsChanged,
+          ),
+          const Divider(),
+          TableConfigPrimaryKeysEditor(
+            config: config,
+            index: index,
+            tableConfigs: widget.tableConfigs,
+            onTableConfigsChanged: widget.onTableConfigsChanged,
+          ),
+          const Divider(),
+          TableConfigUniqueKeysEditor(
+            config: config,
+            index: index,
+            tableConfigs: widget.tableConfigs,
+            onTableConfigsChanged: widget.onTableConfigsChanged,
+          ),
+          const Divider(),
+          TableConfigForeignKeysEditor(
+            config: config,
+            index: index,
+            tableConfigs: widget.tableConfigs,
+            onTableConfigsChanged: widget.onTableConfigsChanged,
+          ),
+        ],
       ),
     );
   }

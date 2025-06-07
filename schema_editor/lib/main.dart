@@ -61,6 +61,9 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
         _schema = Schema.fromJson(jsonDecode(content));
       });
     }
+    // Notify TableConfigEditor to update its state after loading new schema
+    // This is handled by passing initialTableConfigs: _schema.tableConfig,
+    // and TableConfigEditor should update when this changes.
   }
 
   void _saveJson() async {
@@ -74,7 +77,7 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
       final file = File(output);
       await file.writeAsString(
           const JsonEncoder.withIndent('  ').convert(_schema.toJson()));
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Schema saved!')));
     }
@@ -86,17 +89,18 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
     switch (_selectedIndex) {
       case 0:
         mainContent = TableConfigEditor(
-          initialTableConfigs: _schema.tableConfig,
+          tableConfigs: _schema.tableConfig,
           onChanged: (tableConfigs) {
             setState(() {
-              _schema = _schema.copyWith(tableConfig: List<TableConfig>.from(tableConfigs));
+              _schema = _schema.copyWith(
+                  tableConfig: List<TableConfig>.from(tableConfigs));
             });
           },
         );
         break;
       case 1:
         mainContent = ColumnTypeEditor(
-          initialColumnType: _schema.columnType,
+          columnType: _schema.columnType,
           onChanged: (columnType) {
             setState(() {
               _schema = _schema.copyWith(
@@ -107,7 +111,7 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
         break;
       case 2:
         mainContent = ValidationEditor(
-          initialValidations: _schema.validation,
+          validations: _schema.validation,
           onChanged: (validations) {
             setState(() {
               _schema = _schema.copyWith(

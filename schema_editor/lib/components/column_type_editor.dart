@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 class ColumnTypeEditor extends StatefulWidget {
-  final Map<String, String>? initialColumnType;
-  final void Function(Map<String, String> columnTypes)? onChanged;
+  final Map<String, String> columnType;
+  final void Function(Map<String, String> columnType)? onChanged;
 
-  const ColumnTypeEditor({super.key, this.initialColumnType, this.onChanged});
+  const ColumnTypeEditor({
+    super.key,
+    required this.columnType,
+    this.onChanged,
+  });
 
   @override
   State<ColumnTypeEditor> createState() => _ColumnTypeEditorState();
@@ -16,7 +20,16 @@ class _ColumnTypeEditorState extends State<ColumnTypeEditor> {
   @override
   void initState() {
     super.initState();
-    _columnType = Map<String, String>.from(widget.initialColumnType ?? {});
+    _columnType = Map<String, String>.from(widget.columnType);
+  }
+
+  @override
+  void didUpdateWidget(covariant ColumnTypeEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.columnType != widget.columnType) {
+      _columnType = Map<String, String>.from(widget.columnType);
+      if (mounted) setState(() {});
+    }
   }
 
   void _addOrEditColumnType(
@@ -81,8 +94,7 @@ class _ColumnTypeEditorState extends State<ColumnTypeEditor> {
       children: [
         Row(
           children: [
-            const Text('Column Types',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Column Types'),
             const Spacer(),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),

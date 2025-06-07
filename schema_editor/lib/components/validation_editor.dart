@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/schema.dart';
 
 class ValidationEditor extends StatefulWidget {
-  final List<Validation>? initialValidations;
+  final List<Validation> validations;
   final void Function(List<Validation> validations)? onChanged;
 
-  const ValidationEditor({super.key, this.initialValidations, this.onChanged});
+  const ValidationEditor({
+    super.key,
+    required this.validations,
+    this.onChanged,
+  });
 
   @override
   State<ValidationEditor> createState() => _ValidationEditorState();
@@ -18,7 +22,16 @@ class _ValidationEditorState extends State<ValidationEditor> {
   @override
   void initState() {
     super.initState();
-    _validations = List<Validation>.from(widget.initialValidations ?? []);
+    _validations = List<Validation>.from(widget.validations);
+  }
+
+  @override
+  void didUpdateWidget(covariant ValidationEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.validations != widget.validations) {
+      _validations = List<Validation>.from(widget.validations);
+      if (mounted) setState(() {});
+    }
   }
 
   void _addOrEditValidation({Validation? initialValidation, int? index}) async {
@@ -96,8 +109,7 @@ class _ValidationEditorState extends State<ValidationEditor> {
       children: [
         Row(
           children: [
-            const Text('Validation',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Validation'),
             const Spacer(),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),

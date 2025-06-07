@@ -16,79 +16,178 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     required this.onTableConfigsChanged,
   });
 
-  void _editForeignKeyDialog(
-      BuildContext context, int tableIdx, String key) async {
-    final fk = tableConfigs[tableIdx].foreignKey[key]!;
-    final columnsController =
-        TextEditingController(text: fk.columns.join(', '));
-    final refTableController = TextEditingController(text: fk.reference.table);
-    final refKeyController =
-        TextEditingController(text: fk.reference.uniqueKey.join(', '));
-    final result = await showDialog<ForeignKey>(
+  void _editForeignKeyDialog(BuildContext context, int tableIdx, [String? key]) async {
+    final isEdit = key != null && key.isNotEmpty;
+    final fk = isEdit ? tableConfigs[tableIdx].foreignKey[key]! : null;
+    final nameController = TextEditingController(text: isEdit ? key : '');
+    final columns = isEdit ? List<String>.from(fk!.columns) : <String>[];
+    final refTableController = TextEditingController(text: isEdit ? fk!.reference.table : '');
+    final refColumns = isEdit ? List<String>.from(fk!.reference.uniqueKey) : <String>[];
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit Foreign Key: $key'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: columnsController,
-              decoration:
-                  const InputDecoration(labelText: 'Columns (comma separated)'),
-            ),
-            TextField(
-              controller: refTableController,
-              decoration: const InputDecoration(labelText: 'Reference Table'),
-            ),
-            TextField(
-              controller: refKeyController,
-              decoration: const InputDecoration(
-                  labelText: 'Reference Key (comma separated)'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final columns = columnsController.text
-                  .split(',')
-                  .map((s) => s.trim())
-                  .where((s) => s.isNotEmpty)
-                  .toList();
-              final refTable = refTableController.text.trim();
-              final refKey = refKeyController.text
-                  .split(',')
-                  .map((s) => s.trim())
-                  .where((s) => s.isNotEmpty)
-                  .toList();
-              if (columns.isNotEmpty &&
-                  refTable.isNotEmpty &&
-                  refKey.isNotEmpty) {
-                Navigator.pop(
-                    context,
-                    ForeignKey(
-                        columns: columns,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void addColumn(List<String> list) {
+              final controller = TextEditingController();
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Add Column'),
+                  content: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(labelText: 'Column Name'),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel')),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, controller.text.trim()),
+                      child: const Text('Add'),
+                    ),
+                  ],
+                ),
+              ).then((result) {
+                if (result != null && result.isNotEmpty) {
+                  setState(() => list.add(result));
+                }
+              });
+            }
+            void editColumn(List<String> list, int idx) {
+              final controller = TextEditingController(text: list[idx]);
+              showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Edit Column'),
+                  content: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(labelText: 'Column Name'),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel')),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, controller.text.trim()),
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ).then((result) {
+                if (result != null && result.isNotEmpty) {
+                  setState(() => list[idx] = result);
+                }
+              });
+            }
+            void deleteColumn(List<String> list, int idx) {
+              setState(() => list.removeAt(idx));
+            }
+            return AlertDialog(
+              title: Text(isEdit ? 'Edit Foreign Key' : 'Add Foreign Key'),
+              content: SizedBox(
+                width: 400,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(labelText: 'Key Name'),
+                      ),
+                      Row(
+                        children: [
+                          const Text('Columns'),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            tooltip: 'Add Column',
+                            onPressed: () => addColumn(columns),
+                          ),
+                        ],
+                      ),
+                      ...columns.asMap().entries.map((entry) => Row(
+                            children: [
+                              Expanded(child: Text(entry.value)),
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                tooltip: 'Edit',
+                                onPressed: () => editColumn(columns, entry.key),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                tooltip: 'Delete',
+                                onPressed: () => deleteColumn(columns, entry.key),
+                              ),
+                            ],
+                          )),
+                      TextField(
+                        controller: refTableController,
+                        decoration: const InputDecoration(labelText: 'Reference Table'),
+                      ),
+                      Row(
+                        children: [
+                          const Text('Reference Columns'),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            tooltip: 'Add Reference Column',
+                            onPressed: () => addColumn(refColumns),
+                          ),
+                        ],
+                      ),
+                      ...refColumns.asMap().entries.map((entry) => Row(
+                            children: [
+                              Expanded(child: Text(entry.value)),
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                tooltip: 'Edit',
+                                onPressed: () => editColumn(refColumns, entry.key),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                tooltip: 'Delete',
+                                onPressed: () => deleteColumn(refColumns, entry.key),
+                              ),
+                            ],
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    final refTable = refTableController.text.trim();
+                    if (name.isNotEmpty && columns.isNotEmpty && refTable.isNotEmpty && refColumns.isNotEmpty) {
+                      final newConfigs = List<TableConfig>.from(tableConfigs);
+                      final foreignKey = Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
+                      foreignKey.remove(key);
+                      foreignKey[name] = ForeignKey(
+                        columns: List<String>.from(columns),
                         reference: ForeignKeyReference(
-                            table: refTable, uniqueKey: refKey)));
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+                          table: refTable,
+                          uniqueKey: List<String>.from(refColumns),
+                        ),
+                      );
+                      newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
+                      onTableConfigsChanged(newConfigs);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
-    if (result != null) {
-      final newConfigs = List<TableConfig>.from(tableConfigs);
-      final foreignKey =
-          Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
-      foreignKey[key] = result;
-      newConfigs[tableIdx] =
-          newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
-      onTableConfigsChanged(newConfigs);
-    }
   }
 
   void _deleteForeignKey(int tableIdx, String key) {
@@ -101,84 +200,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     onTableConfigsChanged(newConfigs);
   }
 
-  void _addForeignKey(BuildContext context, int tableIdx) async {
-    final nameController = TextEditingController();
-    final columnsController = TextEditingController();
-    final refTableController = TextEditingController();
-    final refKeyController = TextEditingController();
-    final result = await showDialog<MapEntry<String, ForeignKey>>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Foreign Key'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Key Name'),
-            ),
-            TextField(
-              controller: columnsController,
-              decoration:
-                  const InputDecoration(labelText: 'Columns (comma separated)'),
-            ),
-            TextField(
-              controller: refTableController,
-              decoration: const InputDecoration(labelText: 'Reference Table'),
-            ),
-            TextField(
-              controller: refKeyController,
-              decoration: const InputDecoration(
-                  labelText: 'Reference Key (comma separated)'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              final columns = columnsController.text
-                  .split(',')
-                  .map((s) => s.trim())
-                  .where((s) => s.isNotEmpty)
-                  .toList();
-              final refTable = refTableController.text.trim();
-              final refKey = refKeyController.text
-                  .split(',')
-                  .map((s) => s.trim())
-                  .where((s) => s.isNotEmpty)
-                  .toList();
-              if (name.isNotEmpty &&
-                  columns.isNotEmpty &&
-                  refTable.isNotEmpty &&
-                  refKey.isNotEmpty) {
-                Navigator.pop(
-                    context,
-                    MapEntry(
-                        name,
-                        ForeignKey(
-                            columns: columns,
-                            reference: ForeignKeyReference(
-                                table: refTable, uniqueKey: refKey))));
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-    if (result != null) {
-      final newConfigs = List<TableConfig>.from(tableConfigs);
-      final foreignKey =
-          Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
-      foreignKey[result.key] = result.value;
-      newConfigs[tableIdx] =
-          newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
-      onTableConfigsChanged(newConfigs);
-    }
+  void _addForeignKey(BuildContext context, int tableIdx) {
+    _editForeignKeyDialog(context, tableIdx);
   }
 
   @override
@@ -205,7 +228,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                         padding: const EdgeInsets.only(
                             left: 16.0, top: 2, bottom: 2),
                         child: Text(
-                            '${e.key}(${e.value.columns.join(', ')}) and ${e.value.reference.table}(${e.value.reference.uniqueKey.join(', ')})'),
+                          '${e.key}: [${e.value.columns.join(', ')}] references ${e.value.reference.table} [${e.value.reference.uniqueKey.join(', ')}]',
+                        ),
                       ),
                       const Spacer(),
                       IconButton(

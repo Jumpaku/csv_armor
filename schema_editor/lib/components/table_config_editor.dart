@@ -4,11 +4,14 @@ import '../models/schema.dart';
 import 'table_config_details_editor.dart';
 
 class TableConfigEditor extends StatefulWidget {
-  final List<TableConfig>? initialTableConfigs;
+  final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig> tableConfigs)? onChanged;
 
-  const TableConfigEditor(
-      {super.key, this.initialTableConfigs, this.onChanged});
+  const TableConfigEditor({
+    super.key,
+    required this.tableConfigs,
+    this.onChanged,
+  });
 
   @override
   State<TableConfigEditor> createState() => _TableConfigEditorState();
@@ -21,7 +24,16 @@ class _TableConfigEditorState extends State<TableConfigEditor> {
   @override
   void initState() {
     super.initState();
-    _tableConfigs = List<TableConfig>.from(widget.initialTableConfigs ?? []);
+    _tableConfigs = List<TableConfig>.from(widget.tableConfigs);
+  }
+
+  @override
+  void didUpdateWidget(covariant TableConfigEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tableConfigs != widget.tableConfigs) {
+      _tableConfigs = List<TableConfig>.from(widget.tableConfigs);
+      if (mounted) setState(() {});
+    }
   }
 
   void _updateTableConfigs(List<TableConfig> newConfigs) {
@@ -101,8 +113,7 @@ class _TableConfigEditorState extends State<TableConfigEditor> {
             children: [
               Row(
                 children: [
-                  const Text('Table Config',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Table Config'),
                   const Spacer(),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.add),
