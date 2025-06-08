@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:embed_annotation/embed_annotation.dart';
 import 'package:json_schema/json_schema.dart';
+import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/schema/validate.dart';
 import 'package:yaml/yaml.dart';
 
@@ -17,10 +18,10 @@ JsonSchema _getValidator() {
 
 final _validator = _getValidator();
 
-SchemaValidationResult validateByJsonSchema(Map<String, dynamic> json) {
+SchemaValidationResult validateByJsonSchema(Schema schema) {
   final result = SchemaValidationResult();
 
-  final errors = _validator.validate(json);
+  final errors = _validator.validate(schema.toJson());
   for (final error in errors.errors) {
     result.addError([], SchemaValidationError.codeInvalidAgainstJsonSchema,
         'Invalid against JSON Schema (csv-armor-schema) [${error.schemaPath}]: ${error.instancePath}: ${error.message}');

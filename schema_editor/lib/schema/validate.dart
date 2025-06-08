@@ -35,7 +35,7 @@ class SchemaValidationResult {
   }
 
   void merge(SchemaValidationResult other) {
-    errors.addAll(other.errors);
+    errors = [...errors, ...other.errors];
   }
 }
 

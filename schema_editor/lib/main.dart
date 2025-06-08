@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:schema_editor/schema/json_schema.dart';
+import 'package:schema_editor/schema/validate.dart';
 
 import 'components/column_type_editor.dart';
 import 'components/table_config_editor.dart';
@@ -63,9 +64,10 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
       final schema = Schema.fromJson(jsonDecode(content));
       if (!mounted) return;
       setState(() {
-        final r = validateByJsonSchema(schema.toJson());
-        for(final error in r.errors) {
-          debugPrint('Validation error: ${error.message}');
+        final r = validateByJsonSchema(schema)..merge(validateSchema(schema));
+        for (final error in r.errors) {
+          debugPrint(
+              'Validation error: ${error.message} ${error.path.map((e) => "/$e").join()}');
         }
         _schema = schema;
         _filePathController.text = result.files.single.path!;
