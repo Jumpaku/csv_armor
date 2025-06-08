@@ -37,16 +37,19 @@ class SchemaEditorHomePage extends StatefulWidget {
 
 class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
   late Schema _schema;
+  late TextEditingController _filePathController;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _schema = Schema(columnType: {});
+    _filePathController = TextEditingController();
   }
 
   @override
   void dispose() {
+    _filePathController.dispose();
     super.dispose();
   }
 
@@ -59,6 +62,7 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
       if (!mounted) return;
       setState(() {
         _schema = Schema.fromJson(jsonDecode(content));
+        _filePathController.text = result.files.single.path!;
       });
     }
     // Notify TableConfigEditor to update its state after loading new schema
@@ -77,6 +81,9 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
       final file = File(output);
       await file.writeAsString(
           const JsonEncoder.withIndent('  ').convert(_schema.toJson()));
+      setState(() {
+        _filePathController.text = output;
+      });
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Schema saved!')));
@@ -127,6 +134,11 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
     }
     return Scaffold(
       appBar: AppBar(
+        title: const Row(
+          children: [
+            Text('CSV Armor Schema Editor'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.safety_check),
