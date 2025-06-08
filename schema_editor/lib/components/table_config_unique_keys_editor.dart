@@ -21,63 +21,66 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
     final nameController = TextEditingController(text: key);
     final columns =
         List<String>.from(tableConfigs[tableIdx].uniqueKey[key] ?? []);
+    final availableColumnNames = tableConfigs[tableIdx].columns.map((col) => col.name).toList();
+
     await showDialog<void>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void addColumn() {
-              final controller = TextEditingController();
-              showDialog<String>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Add Unique Key Column'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(labelText: 'Column Name'),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel')),
-                    ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
-              ).then((result) {
-                if (result != null && result.isNotEmpty) {
-                  setState(() => columns.add(result));
-                }
-              });
-            }
+            void addOrEditColumnDialog({int? columnIndex, String? currentColumnName}) {
+              String? selectedColumn = currentColumnName;
+              final isEdit = columnIndex != null;
+              final dialogTitle = isEdit ? 'Edit Unique Key Column' : 'Add Unique Key Column';
+              final buttonText = isEdit ? 'Save' : 'Add';
 
-            void editColumn(int idx) {
-              final controller = TextEditingController(text: columns[idx]);
               showDialog<String>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Edit Unique Key Column'),
-                  content: TextField(
-                    controller: controller,
+                  title: Text(dialogTitle),
+                  content: DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Column Name'),
+                    value: (selectedColumn != null && availableColumnNames
+                            .where((name) => !columns.contains(name) || (isEdit && name == currentColumnName))
+                            .contains(selectedColumn))
+                        ? selectedColumn
+                        : null,
+                    items: availableColumnNames
+                        .where((name) => !columns.contains(name) || (isEdit && name == currentColumnName))
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      selectedColumn = newValue;
+                    },
+                    validator: (value) => value == null ? 'Please select a column' : null,
                   ),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancel')),
                     ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Save'),
+                      onPressed: () {
+                        if (selectedColumn != null) {
+                          Navigator.pop(context, selectedColumn);
+                        }
+                      },
+                      child: Text(buttonText),
                     ),
                   ],
                 ),
               ).then((result) {
                 if (result != null && result.isNotEmpty) {
-                  setState(() => columns[idx] = result);
+                  setState(() {
+                    if (isEdit) {
+                      columns[columnIndex] = result; // Removed ! operator
+                    } else {
+                      columns.add(result);
+                    }
+                  });
                 }
               });
             }
@@ -105,7 +108,7 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.add),
                           tooltip: 'Add Unique Key Column',
-                          onPressed: addColumn,
+                          onPressed: addOrEditColumnDialog,
                         ),
                       ],
                     ),
@@ -115,7 +118,7 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.edit),
                               tooltip: 'Edit',
-                              onPressed: () => editColumn(entry.key),
+                              onPressed: () => addOrEditColumnDialog(columnIndex: entry.key, currentColumnName: entry.value),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),

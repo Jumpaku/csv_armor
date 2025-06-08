@@ -16,73 +16,87 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     required this.onTableConfigsChanged,
   });
 
-  void _editForeignKeyDialog(BuildContext context, int tableIdx, [String? key]) async {
+  void _editOrAddForeignKeyDialog(BuildContext context, int tableIdx,
+      [String? key]) async {
     final isEdit = key != null && key.isNotEmpty;
     final fk = isEdit ? tableConfigs[tableIdx].foreignKey[key]! : null;
     final nameController = TextEditingController(text: isEdit ? key : '');
     final columns = isEdit ? List<String>.from(fk!.columns) : <String>[];
-    final refTableController = TextEditingController(text: isEdit ? fk!.reference.table : '');
-    final refColumns = isEdit ? List<String>.from(fk!.reference.uniqueKey) : <String>[];
+    final refTableController =
+        TextEditingController(text: isEdit ? fk!.reference.table : '');
+    final refColumns =
+        isEdit ? List<String>.from(fk!.reference.uniqueKey) : <String>[];
     await showDialog<void>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void addColumn(List<String> list) {
-              final controller = TextEditingController();
+            void addOrEditColumnDialog(
+                {required List<String> list,
+                int? columnIndex,
+                String? currentColumnName,
+                required List<String> candidates,
+                required String label}) {
+              String? selectedColumn = currentColumnName;
+              final isEdit = columnIndex != null;
+              final dialogTitle = isEdit ? 'Edit $label' : 'Add $label';
+              final buttonText = isEdit ? 'Save' : 'Add';
               showDialog<String>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Add Column'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(labelText: 'Column Name'),
+                  title: Text(dialogTitle),
+                  content: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(labelText: label),
+                    value: (selectedColumn != null &&
+                            candidates.contains(selectedColumn))
+                        ? selectedColumn
+                        : null,
+                    items: candidates
+                        .where((name) =>
+                            !list.contains(name) ||
+                            (isEdit && name == currentColumnName))
+                        .map((String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                        .toList(),
+                    onChanged: (String? newValue) {
+                      selectedColumn = newValue;
+                    },
+                    validator: (value) =>
+                        value == null ? 'Please select a $label' : null,
                   ),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancel')),
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Add'),
+                      onPressed: () {
+                        if (selectedColumn != null) {
+                          Navigator.pop(context, selectedColumn);
+                        }
+                      },
+                      child: Text(buttonText),
                     ),
                   ],
                 ),
               ).then((result) {
                 if (result != null && result.isNotEmpty) {
-                  setState(() => list.add(result));
+                  setState(() {
+                    if (isEdit) {
+                      list[columnIndex] = result;
+                    } else {
+                      list.add(result);
+                    }
+                  });
                 }
               });
             }
-            void editColumn(List<String> list, int idx) {
-              final controller = TextEditingController(text: list[idx]);
-              showDialog<String>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Edit Column'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(labelText: 'Column Name'),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel')),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Save'),
-                    ),
-                  ],
-                ),
-              ).then((result) {
-                if (result != null && result.isNotEmpty) {
-                  setState(() => list[idx] = result);
-                }
-              });
-            }
+
             void deleteColumn(List<String> list, int idx) {
               setState(() => list.removeAt(idx));
             }
+
             return AlertDialog(
               title: Text(isEdit ? 'Edit Foreign Key' : 'Add Foreign Key'),
               content: SizedBox(
@@ -93,7 +107,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                     children: [
                       TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(labelText: 'Key Name'),
+                        decoration:
+                            const InputDecoration(labelText: 'Key Name'),
                       ),
                       Row(
                         children: [
@@ -102,7 +117,14 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.add),
                             tooltip: 'Add Column',
-                            onPressed: () => addColumn(columns),
+                            onPressed: () => addOrEditColumnDialog(
+                              list: columns,
+                              candidates: tableConfigs[tableIdx]
+                                  .columns
+                                  .map((col) => col.name)
+                                  .toList(),
+                              label: 'Column Name',
+                            ),
                           ),
                         ],
                       ),
@@ -112,18 +134,49 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 tooltip: 'Edit',
-                                onPressed: () => editColumn(columns, entry.key),
+                                onPressed: () => addOrEditColumnDialog(
+                                  list: columns,
+                                  columnIndex: entry.key,
+                                  currentColumnName: entry.value,
+                                  candidates: tableConfigs[tableIdx]
+                                      .columns
+                                      .map((col) => col.name)
+                                      .toList(),
+                                  label: 'Column Name',
+                                ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 tooltip: 'Delete',
-                                onPressed: () => deleteColumn(columns, entry.key),
+                                onPressed: () =>
+                                    deleteColumn(columns, entry.key),
                               ),
                             ],
                           )),
-                      TextField(
-                        controller: refTableController,
-                        decoration: const InputDecoration(labelText: 'Reference Table'),
+                      DropdownButtonFormField<String>(
+                        decoration:
+                            const InputDecoration(labelText: 'Reference Table'),
+                        value: (refTableController.text.isNotEmpty &&
+                                tableConfigs.any(
+                                    (t) => t.name == refTableController.text))
+                            ? refTableController.text
+                            : null,
+                        items: tableConfigs
+                            .map((t) => DropdownMenuItem<String>(
+                                  value: t.name,
+                                  child: Text(t.name),
+                                ))
+                            .toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            refTableController.text = newValue ?? '';
+                            // Optionally reset refColumns if table changes
+                            refColumns.clear();
+                          });
+                        },
+                        validator: (value) => value == null
+                            ? 'Please select a reference table'
+                            : null,
                       ),
                       Row(
                         children: [
@@ -132,7 +185,18 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.add),
                             tooltip: 'Add Reference Column',
-                            onPressed: () => addColumn(refColumns),
+                            onPressed: () => addOrEditColumnDialog(
+                              list: refColumns,
+                              candidates: tableConfigs
+                                  .firstWhere(
+                                      (t) => t.name == refTableController.text,
+                                      orElse: () =>
+                                          TableConfig(name: '', csvPath: ''))
+                                  .columns
+                                  .map((col) => col.name)
+                                  .toList(),
+                              label: 'Reference Column',
+                            ),
                           ),
                         ],
                       ),
@@ -142,12 +206,27 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 tooltip: 'Edit',
-                                onPressed: () => editColumn(refColumns, entry.key),
+                                onPressed: () => addOrEditColumnDialog(
+                                  list: refColumns,
+                                  columnIndex: entry.key,
+                                  currentColumnName: entry.value,
+                                  candidates: tableConfigs
+                                      .firstWhere(
+                                          (t) =>
+                                              t.name == refTableController.text,
+                                          orElse: () => TableConfig(
+                                              name: '', csvPath: ''))
+                                      .columns
+                                      .map((col) => col.name)
+                                      .toList(),
+                                  label: 'Reference Column',
+                                ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 tooltip: 'Delete',
-                                onPressed: () => deleteColumn(refColumns, entry.key),
+                                onPressed: () =>
+                                    deleteColumn(refColumns, entry.key),
                               ),
                             ],
                           )),
@@ -164,9 +243,13 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                   onPressed: () {
                     final name = nameController.text.trim();
                     final refTable = refTableController.text.trim();
-                    if (name.isNotEmpty && columns.isNotEmpty && refTable.isNotEmpty && refColumns.isNotEmpty) {
+                    if (name.isNotEmpty &&
+                        columns.isNotEmpty &&
+                        refTable.isNotEmpty &&
+                        refColumns.isNotEmpty) {
                       final newConfigs = List<TableConfig>.from(tableConfigs);
-                      final foreignKey = Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
+                      final foreignKey = Map<String, ForeignKey>.from(
+                          newConfigs[tableIdx].foreignKey);
                       foreignKey.remove(key);
                       foreignKey[name] = ForeignKey(
                         columns: List<String>.from(columns),
@@ -175,7 +258,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                           uniqueKey: List<String>.from(refColumns),
                         ),
                       );
-                      newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
+                      newConfigs[tableIdx] =
+                          newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
                       onTableConfigsChanged(newConfigs);
                       Navigator.pop(context);
                     }
@@ -200,10 +284,6 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     onTableConfigsChanged(newConfigs);
   }
 
-  void _addForeignKey(BuildContext context, int tableIdx) {
-    _editForeignKeyDialog(context, tableIdx);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -216,7 +296,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.add),
               tooltip: 'Add Foreign Key',
-              onPressed: () => _addForeignKey(context, index),
+              onPressed: () => _editOrAddForeignKeyDialog(context, index),
             ),
           ],
         ),
@@ -236,7 +316,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                         icon: const Icon(Icons.edit),
                         tooltip: 'Edit Foreign Key',
                         onPressed: () =>
-                            _editForeignKeyDialog(context, index, e.key),
+                            _editOrAddForeignKeyDialog(context, index, e.key),
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
