@@ -5,7 +5,8 @@ part 'schema.g.dart';
 
 /// Represents a CSV Armor Schema with table configurations, column types, and validation rules
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class Schema {
   Schema({
     this.tableConfig = const [],
@@ -27,7 +28,8 @@ class Schema {
 
 /// Represents a table configuration in CSV Armor
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class TableConfig {
   TableConfig({
     this.import,
@@ -62,7 +64,8 @@ class TableConfig {
 
 /// Represents a column definition in a CSV table
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class TableColumn {
   TableColumn({
     required this.name,
@@ -83,14 +86,16 @@ class TableColumn {
   @JsonKey(name: 'regexp')
   String? regexp;
 
-  factory TableColumn.fromJson(Map<String, dynamic> json) => _$TableColumnFromJson(json);
+  factory TableColumn.fromJson(Map<String, dynamic> json) =>
+      _$TableColumnFromJson(json);
 
   Map<String, dynamic> toJson() => _$TableColumnToJson(this);
 }
 
 /// Represents a foreign key constraint
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class ForeignKey {
   ForeignKey({
     required this.columns,
@@ -110,11 +115,12 @@ class ForeignKey {
 
 /// Represents a reference to a foreign table and its unique key
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class ForeignKeyReference {
   ForeignKeyReference({
     required this.table,
-     this.uniqueKey,
+    this.uniqueKey,
   });
 
   @JsonKey(name: 'table')
@@ -130,7 +136,8 @@ class ForeignKeyReference {
 
 /// Represents a custom validation rule defined by a SQL query
 @CopyWith()
-@JsonSerializable(disallowUnrecognizedKeys: true, explicitToJson: true)
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class Validation {
   Validation({
     this.import,

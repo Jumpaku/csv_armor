@@ -14,6 +14,7 @@ class SchemaValidationError {
   static const codeInvalidColumnTypeRegexp = 'invalid_column_type_regexp';
   static const codeUndefinedForeignKeyReferenceUniqueKey =
       'undefined_foreign_key_reference_unique_key';
+  static const codeInvalidAgainstJsonSchema = 'invalid_against_json_schema';
 
   SchemaValidationError(this.path, this.code, this.message);
 
@@ -30,7 +31,7 @@ class SchemaValidationResult {
   bool get isValid => errors.isEmpty;
 
   void addError(List<String> path, String code, String message) {
-    errors.add(SchemaValidationError(path, code, message));
+    errors = [...errors, SchemaValidationError(path, code, message)];
   }
 
   void merge(SchemaValidationResult other) {

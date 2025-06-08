@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:schema_editor/schema/json_schema.dart';
 
 import 'components/column_type_editor.dart';
 import 'components/table_config_editor.dart';
@@ -59,9 +60,14 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
     if (result != null && result.files.single.path != null) {
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
+      final schema = Schema.fromJson(jsonDecode(content));
       if (!mounted) return;
       setState(() {
-        _schema = Schema.fromJson(jsonDecode(content));
+        final r = validateByJsonSchema(schema.toJson());
+        for(final error in r.errors) {
+          debugPrint('Validation error: ${error.message}');
+        }
+        _schema = schema;
         _filePathController.text = result.files.single.path!;
       });
     }

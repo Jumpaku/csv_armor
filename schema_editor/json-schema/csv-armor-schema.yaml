@@ -14,14 +14,7 @@ $defs:
         type: array
         description: "An array of table configurations or import paths for table configurations."
         items:
-          anyOf:
-            - type: object
-              properties:
-                import:
-                  type: string
-                  description: "Path to a file to import table configurations from."
-              required: [ "import" ]
-            - $ref: '#/$defs/TableConfig'
+          $ref: '#/$defs/TableConfig'
       column_type:
         type: object
         description: "A map of custom column type names to their regexp pattern."
@@ -31,14 +24,7 @@ $defs:
         type: array
         description: "An array of validation rules or import paths for validation rules."
         items:
-          anyOf:
-            - type: object
-              properties:
-                import:
-                  type: string
-                  description: "Path to a file to import validation rules from."
-              required: [ "import" ]
-            - $ref: '#/$defs/Validation'
+          $ref: '#/$defs/Validation'
     additionalProperties: false
 
   TableConfig:
@@ -73,7 +59,9 @@ $defs:
         description: "A map of foreign key names to foreign key definitions."
         additionalProperties:
           $ref: '#/$defs/ForeignKey'
-    required: [ "name", "csv_path", "columns", "primary_key" ]
+      import:
+        type: string
+        description: "Path to a file to import table configurations from."
     additionalProperties: false
 
   TableColumn:
@@ -137,5 +125,8 @@ $defs:
       query_error:
         type: string
         description: "The SQL query that defines the validation logic, which must return only rows representing validation error."
-    required: [ "description", "query_error" ]
+      import:
+        type: string
+        description: "Path to a file to import validation rules from."
+    required: [ "message" ]
     additionalProperties: false

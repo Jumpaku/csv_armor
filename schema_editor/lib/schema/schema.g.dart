@@ -563,7 +563,7 @@ TableConfig _$TableConfigFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$TableConfigToJson(TableConfig instance) =>
     <String, dynamic>{
-      'import': instance.import,
+      if (instance.import case final value?) 'import': value,
       'name': instance.name,
       'csv_path': instance.csvPath,
       'columns': instance.columns.map((e) => e.toJson()).toList(),
@@ -589,10 +589,10 @@ TableColumn _$TableColumnFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$TableColumnToJson(TableColumn instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'description': instance.description,
+      if (instance.description case final value?) 'description': value,
       'allow_empty': instance.allowEmpty,
-      'type': instance.type,
-      'regexp': instance.regexp,
+      if (instance.type case final value?) 'type': value,
+      if (instance.regexp case final value?) 'regexp': value,
     };
 
 ForeignKey _$ForeignKeyFromJson(Map<String, dynamic> json) {
@@ -629,7 +629,7 @@ Map<String, dynamic> _$ForeignKeyReferenceToJson(
         ForeignKeyReference instance) =>
     <String, dynamic>{
       'table': instance.table,
-      'unique_key': instance.uniqueKey,
+      if (instance.uniqueKey case final value?) 'unique_key': value,
     };
 
 Validation _$ValidationFromJson(Map<String, dynamic> json) {
@@ -646,7 +646,7 @@ Validation _$ValidationFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ValidationToJson(Validation instance) =>
     <String, dynamic>{
-      'import': instance.import,
+      if (instance.import case final value?) 'import': value,
       'message': instance.message,
       'query_error': instance.queryError,
     };
