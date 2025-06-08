@@ -78,9 +78,17 @@ class TableConfigColumnsEditor extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0, top: 2, bottom: 2),
-                  child: Text('name: ${config.columns[colIdx].name}'),
+                  child: Text(config.columns[colIdx].name),
                 ),
+                const Text(': '),
+                Text(
+                    '${config.columns[colIdx].type ?? ''}${config.columns[colIdx].allowEmpty ? ' (allow empty)' : ''}'),
                 const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  tooltip: config.columns[colIdx].description ?? 'No description',
+                  onPressed: () => {},
+                ),
                 IconButton(
                   icon: const Icon(Icons.edit),
                   tooltip: 'Edit Column',
@@ -102,6 +110,7 @@ class TableConfigColumnsEditor extends StatelessWidget {
 
 class _ColumnDialog extends StatefulWidget {
   final TableColumn? initial;
+
   const _ColumnDialog({Key? key, this.initial}) : super(key: key);
 
   @override
@@ -119,10 +128,13 @@ class _ColumnDialogState extends State<_ColumnDialog> {
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.initial?.name ?? '');
-    descriptionController = TextEditingController(text: widget.initial?.description ?? '');
-    allowEmptyController = ValueNotifier<bool>(widget.initial?.allowEmpty ?? false);
+    descriptionController =
+        TextEditingController(text: widget.initial?.description ?? '');
+    allowEmptyController =
+        ValueNotifier<bool>(widget.initial?.allowEmpty ?? false);
     typeController = TextEditingController(text: widget.initial?.type ?? '');
-    regexpController = TextEditingController(text: widget.initial?.regexp ?? '');
+    regexpController =
+        TextEditingController(text: widget.initial?.regexp ?? '');
   }
 
   @override
@@ -186,10 +198,16 @@ class _ColumnDialogState extends State<_ColumnDialog> {
                 context,
                 TableColumn(
                   name: name,
-                  description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
+                  description: descriptionController.text.trim().isEmpty
+                      ? null
+                      : descriptionController.text.trim(),
                   allowEmpty: allowEmptyController.value,
-                  type: typeController.text.trim().isEmpty ? null : typeController.text.trim(),
-                  regexp: regexpController.text.trim().isEmpty ? null : regexpController.text.trim(),
+                  type: typeController.text.trim().isEmpty
+                      ? null
+                      : typeController.text.trim(),
+                  regexp: regexpController.text.trim().isEmpty
+                      ? null
+                      : regexpController.text.trim(),
                 ),
               );
             }

@@ -44,21 +44,25 @@ class _ValidationEditorState extends State<ValidationEditor> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(isEdit ? 'Edit Validation' : 'Add Validation'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: messageController,
-                decoration: const InputDecoration(labelText: 'Message'),
-              ),
-              TextField(
-                controller: queryErrorController,
-                decoration:
-                    const InputDecoration(labelText: 'Query Error (SQL)'),
-                maxLines: 3,
-              ),
-            ],
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.8, // Make dialog wider
+          height: MediaQuery.of(context).size.height * 0.5, // Make dialog taller
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: messageController,
+                  decoration: const InputDecoration(labelText: 'Message'),
+                ),
+                TextField(
+                  controller: queryErrorController,
+                  decoration:
+                      const InputDecoration(labelText: 'Query Error (SQL)'),
+                  maxLines: null, // Allow arbitrary number of lines
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -124,8 +128,7 @@ class _ValidationEditorState extends State<ValidationEditor> {
               ? const Center(child: Text('No validations defined.'))
               : ListView.separated(
                   itemCount: _validations.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
+                  separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
                     final validation = _validations[index];
                     return ListTile(

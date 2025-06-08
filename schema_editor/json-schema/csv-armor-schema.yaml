@@ -131,9 +131,9 @@ $defs:
     type: object
     description: "A custom validation rule defined by a SQL query."
     properties:
-      description:
+      message:
         type: string
-        message: "A message of the validation rule."
+        description: "A message of the validation rule."
       query_error:
         type: string
         description: "The SQL query that defines the validation logic, which must return only rows representing validation error."
