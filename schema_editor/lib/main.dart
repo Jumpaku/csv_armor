@@ -96,6 +96,7 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
                   tableConfig: List<TableConfig>.from(tableConfigs));
             });
           },
+          columnTypes: _schema.columnType, // Added
         );
         break;
       case 1:

@@ -6,11 +6,13 @@ import 'table_config_details_editor.dart';
 class TableConfigEditor extends StatefulWidget {
   final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig> tableConfigs)? onChanged;
+  final Map<String, String> columnTypes; // Added
 
   const TableConfigEditor({
     super.key,
     required this.tableConfigs,
     this.onChanged,
+    required this.columnTypes, // Added
   });
 
   @override
@@ -182,6 +184,7 @@ class _TableConfigEditorState extends State<TableConfigEditor> {
                   index: _selectedIndex!,
                   tableConfigs: _tableConfigs,
                   onTableConfigsChanged: _updateTableConfigs,
+                  columnTypes: widget.columnTypes, // Added
                 )
               : const Center(
                   child: Text('Select a table config to see details.')),

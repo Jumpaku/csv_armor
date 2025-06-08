@@ -7,6 +7,7 @@ class TableConfigColumnsEditor extends StatelessWidget {
   final int index;
   final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig>) onTableConfigsChanged;
+  final Map<String, String> columnTypes; // Added to receive available column types
 
   const TableConfigColumnsEditor({
     super.key,
@@ -14,6 +15,7 @@ class TableConfigColumnsEditor extends StatelessWidget {
     required this.index,
     required this.tableConfigs,
     required this.onTableConfigsChanged,
+    required this.columnTypes, // Added
   });
 
   void _editColumnDialog(BuildContext context, int tableIdx, int colIdx) async {
@@ -22,6 +24,7 @@ class TableConfigColumnsEditor extends StatelessWidget {
       context: context,
       builder: (context) => _ColumnDialog(
         initial: column,
+        availableColumnTypes: columnTypes.keys.toList(), // Pass available types
       ),
     );
     if (result != null) {
@@ -44,7 +47,9 @@ class TableConfigColumnsEditor extends StatelessWidget {
   void _addColumn(BuildContext context, int tableIdx) async {
     final result = await showDialog<TableColumn>(
       context: context,
-      builder: (context) => _ColumnDialog(),
+      builder: (context) => _ColumnDialog(
+        availableColumnTypes: columnTypes.keys.toList(), // Pass available types
+      ),
     );
     if (result != null) {
       final newConfigs = List<TableConfig>.from(tableConfigs);
@@ -110,8 +115,13 @@ class TableConfigColumnsEditor extends StatelessWidget {
 
 class _ColumnDialog extends StatefulWidget {
   final TableColumn? initial;
+  final List<String> availableColumnTypes; // Added
 
-  const _ColumnDialog({Key? key, this.initial}) : super(key: key);
+  const _ColumnDialog({
+    Key? key,
+    this.initial,
+    required this.availableColumnTypes, // Added
+  }) : super(key: key);
 
   @override
   State<_ColumnDialog> createState() => _ColumnDialogState();
@@ -121,7 +131,8 @@ class _ColumnDialogState extends State<_ColumnDialog> {
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
   late final ValueNotifier<bool> allowEmptyController;
-  late final TextEditingController typeController;
+  // late final TextEditingController typeController; // Removed
+  String? selectedType; // Added for dropdown
   late final TextEditingController regexpController;
 
   @override
@@ -132,7 +143,12 @@ class _ColumnDialogState extends State<_ColumnDialog> {
         TextEditingController(text: widget.initial?.description ?? '');
     allowEmptyController =
         ValueNotifier<bool>(widget.initial?.allowEmpty ?? false);
-    typeController = TextEditingController(text: widget.initial?.type ?? '');
+    // typeController = TextEditingController(text: widget.initial?.type ?? ''); // Removed
+    selectedType = widget.initial?.type; // Initialize selectedType
+    // Ensure selectedType is one of the available types, or null if not
+    if (selectedType != null && !widget.availableColumnTypes.contains(selectedType)) {
+      selectedType = null;
+    }
     regexpController =
         TextEditingController(text: widget.initial?.regexp ?? '');
   }
@@ -142,7 +158,7 @@ class _ColumnDialogState extends State<_ColumnDialog> {
     nameController.dispose();
     descriptionController.dispose();
     allowEmptyController.dispose();
-    typeController.dispose();
+    // typeController.dispose(); // Removed
     regexpController.dispose();
     super.dispose();
   }
@@ -154,36 +170,54 @@ class _ColumnDialogState extends State<_ColumnDialog> {
       title: Text(isEdit ? 'Edit Column' : 'Add Column'),
       content: SizedBox(
         width: 400,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: allowEmptyController,
-              builder: (context, value, child) => CheckboxListTile(
-                title: const Text('Allow Empty'),
-                value: value,
-                onChanged: (v) => allowEmptyController.value = v ?? false,
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
+        child: SingleChildScrollView( // Added SingleChildScrollView for scrollability
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Name'),
               ),
-            ),
-            TextField(
-              controller: typeController,
-              decoration: const InputDecoration(labelText: 'Type'),
-            ),
-            TextField(
-              controller: regexpController,
-              decoration: const InputDecoration(labelText: 'Regexp'),
-            ),
-          ],
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: allowEmptyController,
+                builder: (context, value, child) => CheckboxListTile(
+                  title: const Text('Allow Empty'),
+                  value: value,
+                  onChanged: (v) => allowEmptyController.value = v ?? false,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              // TextField( // Removed TextField for type
+              //   controller: typeController,
+              //   decoration: const InputDecoration(labelText: 'Type'),
+              // ),
+              DropdownButtonFormField<String>( // Added DropdownButtonFormField for type
+                decoration: const InputDecoration(labelText: 'Type'),
+                value: selectedType,
+                hint: const Text('Select type'),
+                items: widget.availableColumnTypes
+                    .map((String value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ))
+                    .toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedType = newValue;
+                  });
+                },
+              ),
+              TextField(
+                controller: regexpController,
+                decoration: const InputDecoration(labelText: 'Regexp'),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -202,9 +236,10 @@ class _ColumnDialogState extends State<_ColumnDialog> {
                       ? null
                       : descriptionController.text.trim(),
                   allowEmpty: allowEmptyController.value,
-                  type: typeController.text.trim().isEmpty
-                      ? null
-                      : typeController.text.trim(),
+                  // type: typeController.text.trim().isEmpty // Removed
+                  //     ? null
+                  //     : typeController.text.trim(),
+                  type: selectedType, // Use selectedType
                   regexp: regexpController.text.trim().isEmpty
                       ? null
                       : regexpController.text.trim(),

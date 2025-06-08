@@ -11,6 +11,7 @@ class TableConfigDetailsEditor extends StatefulWidget {
   final int index;
   final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig>) onTableConfigsChanged;
+  final Map<String, String> columnTypes; // Added
 
   const TableConfigDetailsEditor({
     super.key,
@@ -18,6 +19,7 @@ class TableConfigDetailsEditor extends StatefulWidget {
     required this.index,
     required this.tableConfigs,
     required this.onTableConfigsChanged,
+    required this.columnTypes, // Added
   });
 
   @override
@@ -121,6 +123,7 @@ class _TableConfigDetailsEditorState extends State<TableConfigDetailsEditor> {
             index: index,
             tableConfigs: widget.tableConfigs,
             onTableConfigsChanged: widget.onTableConfigsChanged,
+            columnTypes: widget.columnTypes, // Added
           ),
           const Divider(),
           TableConfigPrimaryKeysEditor(
