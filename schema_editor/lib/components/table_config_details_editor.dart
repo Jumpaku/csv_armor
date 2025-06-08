@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/schema.dart';
 import 'table_config_columns_editor.dart';
 import 'table_config_foreign_keys_editor.dart';
-import 'table_config_primary_keys_editor.dart';
+import 'table_config_primary_key_editor.dart';
 import 'table_config_unique_keys_editor.dart';
 
 class TableConfigDetailsEditor extends StatefulWidget {
@@ -126,7 +126,7 @@ class _TableConfigDetailsEditorState extends State<TableConfigDetailsEditor> {
             columnTypes: widget.columnTypes, // Added
           ),
           const Divider(),
-          TableConfigPrimaryKeysEditor(
+          TableConfigPrimaryKeyEditor(
             config: config,
             index: index,
             tableConfigs: widget.tableConfigs,

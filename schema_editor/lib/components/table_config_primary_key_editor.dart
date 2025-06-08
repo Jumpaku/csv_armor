@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../models/schema.dart';
 
-class TableConfigPrimaryKeysEditor extends StatelessWidget {
+class TableConfigPrimaryKeyEditor extends StatelessWidget {
   final TableConfig config;
   final int index;
   final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig>) onTableConfigsChanged;
 
-  const TableConfigPrimaryKeysEditor({
+  const TableConfigPrimaryKeyEditor({
     super.key,
     required this.config,
     required this.index,
@@ -18,63 +18,66 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
 
   void _editPrimaryKeyDialog(BuildContext context, int tableIdx) async {
     final pkList = List<String>.from(tableConfigs[tableIdx].primaryKey);
+    final availableColumnNames =
+        tableConfigs[tableIdx].columns.map((col) => col.name).toList();
+
     await showDialog<void>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void addColumn() {
-              final controller = TextEditingController();
-              showDialog<String>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Add Primary Key Column'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(labelText: 'Primary Key'),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel')),
-                    ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
-              ).then((result) {
-                if (result != null && result.isNotEmpty) {
-                  setState(() => pkList.add(result));
-                }
-              });
-            }
+            void addOrEditColumn({int? idx, String? currentColumnName}) {
+              String? selectedColumn = currentColumnName;
+              final isEdit = idx != null;
+              final dialogTitle =
+                  isEdit ? 'Edit Primary Key Column' : 'Add Primary Key Column';
+              final buttonText = isEdit ? 'Save' : 'Add';
 
-            void editColumn(int idx) {
-              final controller = TextEditingController(text: pkList[idx]);
               showDialog<String>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Edit Primary Key Column'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(labelText: 'Primary Key'),
+                  title: Text(dialogTitle),
+                  content: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Column Name'),
+                    value: selectedColumn,
+                    items: availableColumnNames
+                        .where((name) =>
+                            !pkList.contains(name) || name == currentColumnName)
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      selectedColumn = newValue;
+                    },
+                    validator: (value) =>
+                        value == null ? 'Please select a column' : null,
                   ),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancel')),
                     ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pop(context, controller.text.trim()),
-                      child: const Text('Save'),
+                      onPressed: () {
+                        if (selectedColumn != null) {
+                          Navigator.pop(context, selectedColumn);
+                        }
+                      },
+                      child: Text(buttonText),
                     ),
                   ],
                 ),
               ).then((result) {
                 if (result != null && result.isNotEmpty) {
-                  setState(() => pkList[idx] = result);
+                  setState(() {
+                    if (isEdit) {
+                      pkList[idx] = result;
+                    } else {
+                      pkList.add(result);
+                    }
+                  });
                 }
               });
             }
@@ -97,7 +100,7 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.add),
                           tooltip: 'Add Primary Key Column',
-                          onPressed: addColumn,
+                          onPressed: addOrEditColumn, // Changed
                         ),
                       ],
                     ),
@@ -108,7 +111,9 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.edit),
                               tooltip: 'Edit',
-                              onPressed: () => editColumn(entry.key),
+                              onPressed: () => addOrEditColumn(
+                                  idx: entry.key,
+                                  currentColumnName: entry.value), // Changed
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
@@ -150,7 +155,7 @@ class TableConfigPrimaryKeysEditor extends StatelessWidget {
       children: [
         Row(
           children: [
-             Text('Primary Key: [${config.primaryKey.join(', ')}]'),
+            Text('Primary Key: [${config.primaryKey.join(', ')}]'),
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.edit),
