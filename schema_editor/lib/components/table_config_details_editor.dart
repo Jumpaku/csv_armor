@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/schema.dart';
+import '../schema/schema.dart';
 import 'table_config_columns_editor.dart';
 import 'table_config_foreign_keys_editor.dart';
 import 'table_config_primary_key_editor.dart';

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'components/column_type_editor.dart';
 import 'components/table_config_editor.dart';
 import 'components/validation_editor.dart';
-import 'models/schema.dart';
+import 'schema/schema.dart';
 
 void main() {
   runApp(const SchemaEditorApp());

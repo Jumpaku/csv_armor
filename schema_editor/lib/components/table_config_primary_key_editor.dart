@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/schema.dart';
+import '../schema/schema.dart';
 
 class TableConfigPrimaryKeyEditor extends StatelessWidget {
   final TableConfig config;
