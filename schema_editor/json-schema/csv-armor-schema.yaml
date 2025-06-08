@@ -123,8 +123,8 @@ $defs:
         description: "The name of the referenced table."
       unique_key:
         type: string
-        description: "The name of the unique key in the referenced table."
-    required: [ "table", "unique_key" ]
+        description: "The name of the unique key in the referenced table. If not specified, the primary key of the referenced table is used."
+    required: [ "table" ]
     additionalProperties: false
 
   Validation:

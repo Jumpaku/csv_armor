@@ -24,8 +24,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     final columns = isEdit ? List<String>.from(fk!.columns) : <String>[];
     final refTableController =
         TextEditingController(text: isEdit ? fk!.reference.table : '');
-    final refColumns =
-        isEdit ? List<String>.from(fk!.reference.uniqueKey) : <String>[];
+    final refUniqueKeyController = TextEditingController(text: isEdit ? fk!.reference.uniqueKey ?? '' : '');
     await showDialog<void>(
       context: context,
       builder: (context) {
@@ -170,66 +169,41 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                         onChanged: (String? newValue) {
                           setState(() {
                             refTableController.text = newValue ?? '';
-                            // Optionally reset refColumns if table changes
-                            refColumns.clear();
+                            refUniqueKeyController.text = '';
                           });
                         },
                         validator: (value) => value == null
                             ? 'Please select a reference table'
                             : null,
                       ),
-                      Row(
-                        children: [
-                          const Text('Reference Columns'),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            tooltip: 'Add Reference Column',
-                            onPressed: () => addOrEditColumnDialog(
-                              list: refColumns,
-                              candidates: tableConfigs
-                                  .firstWhere(
-                                      (t) => t.name == refTableController.text,
-                                      orElse: () =>
-                                          TableConfig(name: '', csvPath: ''))
-                                  .columns
-                                  .map((col) => col.name)
-                                  .toList(),
-                              label: 'Reference Column',
-                            ),
-                          ),
-                        ],
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: 'Reference Unique Key'),
+                        value: (refUniqueKeyController.text.isNotEmpty ? refUniqueKeyController.text : null),
+                        items: () {
+                          final refTable = tableConfigs.firstWhere(
+                            (t) => t.name == refTableController.text,
+                            orElse: () => TableConfig(name: '', csvPath: ''),
+                          );
+                          final uniqueKeyNames = refTable.uniqueKey.keys.toList();
+                          if (refTable.primaryKey.isNotEmpty) {
+                            uniqueKeyNames.insert(0, '');
+                          }
+                          return uniqueKeyNames
+                              .map((name) => DropdownMenuItem<String>(
+                                    value: name,
+                                    child: Text(name == '' ? '(PRIMARY KEY)' : name),
+                                  ))
+                              .toList();
+                        }(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            refUniqueKeyController.text = newValue ?? '';
+                          });
+                        },
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Please select a unique key or primary key'
+                            : null,
                       ),
-                      ...refColumns.asMap().entries.map((entry) => Row(
-                            children: [
-                              Expanded(child: Text(entry.value)),
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                tooltip: 'Edit',
-                                onPressed: () => addOrEditColumnDialog(
-                                  list: refColumns,
-                                  columnIndex: entry.key,
-                                  currentColumnName: entry.value,
-                                  candidates: tableConfigs
-                                      .firstWhere(
-                                          (t) =>
-                                              t.name == refTableController.text,
-                                          orElse: () => TableConfig(
-                                              name: '', csvPath: ''))
-                                      .columns
-                                      .map((col) => col.name)
-                                      .toList(),
-                                  label: 'Reference Column',
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                tooltip: 'Delete',
-                                onPressed: () =>
-                                    deleteColumn(refColumns, entry.key),
-                              ),
-                            ],
-                          )),
                     ],
                   ),
                 ),
@@ -243,10 +217,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                   onPressed: () {
                     final name = nameController.text.trim();
                     final refTable = refTableController.text.trim();
-                    if (name.isNotEmpty &&
-                        columns.isNotEmpty &&
-                        refTable.isNotEmpty &&
-                        refColumns.isNotEmpty) {
+                    final refUniqueKey = refUniqueKeyController.text.trim();
+                    if (name.isNotEmpty && refTable.isNotEmpty) {
                       final newConfigs = List<TableConfig>.from(tableConfigs);
                       final foreignKey = Map<String, ForeignKey>.from(
                           newConfigs[tableIdx].foreignKey);
@@ -255,7 +227,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                         columns: List<String>.from(columns),
                         reference: ForeignKeyReference(
                           table: refTable,
-                          uniqueKey: List<String>.from(refColumns),
+                          uniqueKey: refUniqueKey.isEmpty ? null : refUniqueKey,
                         ),
                       );
                       newConfigs[tableIdx] =
@@ -308,7 +280,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
                         padding: const EdgeInsets.only(
                             left: 16.0, top: 2, bottom: 2),
                         child: Text(
-                          '${e.key}: [${e.value.columns.join(', ')}] references ${e.value.reference.table} [${e.value.reference.uniqueKey.join(', ')}]',
+                          '${e.key}: [${e.value.columns.join(', ')}] references ${e.value.reference.table} (${e.value.reference.uniqueKey ?? 'PRIMARY KEY'})',
                         ),
                       ),
                       const Spacer(),

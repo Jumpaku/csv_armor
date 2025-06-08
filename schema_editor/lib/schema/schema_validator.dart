@@ -1,18 +1,20 @@
 import 'package:schema_editor/schema/schema.dart';
 
-const errorCodeUndefinedColumnType = 'undefined_column_type';
-const errorCodeInvalidColumnRegexp = 'invalid_column_regexp';
-const errorCodeEmptyPrimaryKey = 'empty_primary_key';
-const errorCodeUndefinedPrimaryKeyColumn = 'undefined_primary_key_column';
-const errorCodeEmptyUniqueKey = 'empty_unique_key';
-const errorCodeUndefinedUniqueKeyColumn = 'undefined_unique_key_column';
-const errorCodeEmptyForeignKeyColumns = 'empty_foreign_key_columns';
-const errorCodeUndefinedForeignKeyColumn = 'undefined_foreign_key_column';
-const errorCodeUndefinedForeignKeyReferenceTable =
-    'undefined_foreign_key_reference_table';
-const errorCodeInvalidColumnTypeRegexp = 'invalid_column_type_regexp';
-
 class SchemaValidationError {
+  static const codeUndefinedColumnType = 'undefined_column_type';
+  static const codeInvalidColumnRegexp = 'invalid_column_regexp';
+  static const codeEmptyPrimaryKey = 'empty_primary_key';
+  static const codeUndefinedPrimaryKeyColumn = 'undefined_primary_key_column';
+  static const codeEmptyUniqueKey = 'empty_unique_key';
+  static const codeUndefinedUniqueKeyColumn = 'undefined_unique_key_column';
+  static const codeEmptyForeignKeyColumns = 'empty_foreign_key_columns';
+  static const codeUndefinedForeignKeyColumn = 'undefined_foreign_key_column';
+  static const codeUndefinedForeignKeyReferenceTable =
+      'undefined_foreign_key_reference_table';
+  static const codeInvalidColumnTypeRegexp = 'invalid_column_type_regexp';
+  static const codeUndefinedForeignKeyReferenceUniqueKey =
+      'undefined_foreign_key_reference_unique_key';
+
   SchemaValidationError(this.path, this.code, this.message);
 
   final List<String> path;
@@ -65,7 +67,9 @@ SchemaValidationResult validateColumnType(
   try {
     RegExp(columnTypeValue);
   } catch (e) {
-    result.addError([...path], errorCodeInvalidColumnTypeRegexp,
+    result.addError(
+        [...path],
+        SchemaValidationError.codeInvalidColumnTypeRegexp,
         'Invalid regular expression for column type "$columnTypeKey": $columnTypeValue: ${e.toString()}');
   }
   return result;
@@ -110,26 +114,36 @@ SchemaValidationResult validateForeignKey(
   final result = SchemaValidationResult();
   final columns = foreignKey.columns;
   final referenceTable = foreignKey.reference.table;
-  //final referenceColumns = fk.value.reference.uniqueKey;
   if (columns.isEmpty) {
     result.addError(
         [...path, 'foreign_keys', fkName, 'columns'],
-        errorCodeEmptyForeignKeyColumns,
+        SchemaValidationError.codeEmptyForeignKeyColumns,
         'Foreign key "$fkName" cannot have empty columns in table "$tableName".');
   }
   for (final (fkIdx, fkColumn) in columns.indexed) {
     if (!columnSet.contains(fkColumn)) {
       result.addError(
           [...path, 'foreign_keys', fkName, 'columns', "$fkIdx"],
-          errorCodeUndefinedForeignKeyColumn,
+          SchemaValidationError.codeUndefinedForeignKeyColumn,
           'Foreign key column "$fkColumn" does not exist in table "$tableName".');
     }
   }
   if (!tableMap.containsKey(referenceTable)) {
     result.addError(
         [...path, 'foreign_keys', fkName, 'reference', 'table'],
-        errorCodeUndefinedForeignKeyReferenceTable,
+        SchemaValidationError.codeUndefinedForeignKeyReferenceTable,
         'Reference table "$referenceTable" does not exist in schema.');
+  } else {
+    final referenceUk = foreignKey.reference.uniqueKey;
+    final refUk = tableMap[referenceTable]?.uniqueKey ?? {};
+    if (referenceUk != null && referenceUk.isNotEmpty) {
+      if (!refUk.containsKey(referenceUk)) {
+        result.addError(
+            [...path, 'foreign_keys', fkName, 'reference', 'unique_key'],
+            SchemaValidationError.codeUndefinedForeignKeyReferenceUniqueKey,
+            'Reference unique key "$referenceUk" does not exist in table "$referenceTable".');
+      }
+    }
   }
 
   return result;
@@ -144,14 +158,16 @@ SchemaValidationResult validateUniqueKey(
 ) {
   final result = SchemaValidationResult();
   if (ukColumns.isEmpty) {
-    result.addError([...path, 'unique_keys', ukName], errorCodeEmptyUniqueKey,
+    result.addError(
+        [...path, 'unique_keys', ukName],
+        SchemaValidationError.codeEmptyUniqueKey,
         'Unique key "$ukName" cannot be empty in table "$tableName".');
   }
   for (final (ukIdx, ukColumn) in ukColumns.indexed) {
     if (!columnSet.contains(ukColumn)) {
       result.addError(
           [...path, 'unique_keys', ukName, "$ukIdx"],
-          errorCodeUndefinedUniqueKeyColumn,
+          SchemaValidationError.codeUndefinedUniqueKeyColumn,
           'Unique key column "$ukColumn" does not exist in table "$tableName".');
     }
   }
@@ -166,14 +182,16 @@ SchemaValidationResult validatePrimaryKey(
 ) {
   final result = SchemaValidationResult();
   if (primaryKey.isEmpty) {
-    result.addError([...path, 'primary_key'], errorCodeEmptyPrimaryKey,
+    result.addError(
+        [...path, 'primary_key'],
+        SchemaValidationError.codeEmptyPrimaryKey,
         'Primary key cannot be empty in table "$table".');
   }
   for (final (pkIdx, pkColumn) in primaryKey.indexed) {
     if (!columnSet.contains(pkColumn)) {
       result.addError(
           [...path, 'primary_key', "$pkIdx"],
-          errorCodeUndefinedPrimaryKeyColumn,
+          SchemaValidationError.codeUndefinedPrimaryKeyColumn,
           'Primary key column "$pkColumn" does not exist in table "$table".');
     }
   }
@@ -188,7 +206,9 @@ SchemaValidationResult validateColumn(
   final result = SchemaValidationResult();
   if (column.type != null) {
     if (!typeSet.contains(column.type!)) {
-      result.addError([...path, 'type'], errorCodeUndefinedColumnType,
+      result.addError(
+          [...path, 'type'],
+          SchemaValidationError.codeUndefinedColumnType,
           'Undefined column type "${column.type}" in column "${column.name}".');
     }
   }
@@ -196,7 +216,9 @@ SchemaValidationResult validateColumn(
     try {
       RegExp(column.regexp!);
     } catch (e) {
-      result.addError([...path, 'regexp'], errorCodeInvalidColumnRegexp,
+      result.addError(
+          [...path, 'regexp'],
+          SchemaValidationError.codeInvalidColumnRegexp,
           'Invalid regular expression in column "${column.name}": ${column.regexp}: ${e.toString()}');
     }
   }

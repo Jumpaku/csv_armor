@@ -362,7 +362,7 @@ extension $ForeignKeyCopyWith on ForeignKey {
 abstract class _$ForeignKeyReferenceCWProxy {
   ForeignKeyReference table(String table);
 
-  ForeignKeyReference uniqueKey(List<String> uniqueKey);
+  ForeignKeyReference uniqueKey(String? uniqueKey);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ForeignKeyReference(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -372,7 +372,7 @@ abstract class _$ForeignKeyReferenceCWProxy {
   /// ````
   ForeignKeyReference call({
     String? table,
-    List<String>? uniqueKey,
+    String? uniqueKey,
   });
 }
 
@@ -386,7 +386,7 @@ class _$ForeignKeyReferenceCWProxyImpl implements _$ForeignKeyReferenceCWProxy {
   ForeignKeyReference table(String table) => this(table: table);
 
   @override
-  ForeignKeyReference uniqueKey(List<String> uniqueKey) =>
+  ForeignKeyReference uniqueKey(String? uniqueKey) =>
       this(uniqueKey: uniqueKey);
 
   @override
@@ -406,10 +406,10 @@ class _$ForeignKeyReferenceCWProxyImpl implements _$ForeignKeyReferenceCWProxy {
           ? _value.table
           // ignore: cast_nullable_to_non_nullable
           : table as String,
-      uniqueKey: uniqueKey == const $CopyWithPlaceholder() || uniqueKey == null
+      uniqueKey: uniqueKey == const $CopyWithPlaceholder()
           ? _value.uniqueKey
           // ignore: cast_nullable_to_non_nullable
-          : uniqueKey as List<String>,
+          : uniqueKey as String?,
     );
   }
 }
@@ -621,8 +621,7 @@ ForeignKeyReference _$ForeignKeyReferenceFromJson(Map<String, dynamic> json) {
   );
   return ForeignKeyReference(
     table: json['table'] as String,
-    uniqueKey:
-        (json['unique_key'] as List<dynamic>).map((e) => e as String).toList(),
+    uniqueKey: json['unique_key'] as String?,
   );
 }
 

@@ -114,13 +114,13 @@ class ForeignKey {
 class ForeignKeyReference {
   ForeignKeyReference({
     required this.table,
-    required this.uniqueKey,
+     this.uniqueKey,
   });
 
   @JsonKey(name: 'table')
   String table;
   @JsonKey(name: 'unique_key')
-  List<String> uniqueKey;
+  String? uniqueKey;
 
   factory ForeignKeyReference.fromJson(Map<String, dynamic> json) =>
       _$ForeignKeyReferenceFromJson(json);
