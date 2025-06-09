@@ -7,7 +7,7 @@ class TableConfigColumnsEditor extends StatelessWidget {
   final int index;
   final List<TableConfig> tableConfigs;
   final void Function(List<TableConfig>) onTableConfigsChanged;
-  final Map<String, String> columnTypes; // Added to receive available column types
+  final Map<String, String> columnTypes;
 
   const TableConfigColumnsEditor({
     super.key,
@@ -15,10 +15,10 @@ class TableConfigColumnsEditor extends StatelessWidget {
     required this.index,
     required this.tableConfigs,
     required this.onTableConfigsChanged,
-    required this.columnTypes, // Added
+    required this.columnTypes,
   });
 
-  void _editColumnDialog(BuildContext context, int tableIdx, int colIdx) async {
+  void _editColumn(BuildContext context, int tableIdx, int colIdx) async {
     final column = tableConfigs[tableIdx].columns[colIdx];
     final result = await showDialog<TableColumn>(
       context: context,
@@ -36,14 +36,6 @@ class TableConfigColumnsEditor extends StatelessWidget {
     }
   }
 
-  void _deleteColumn(int tableIdx, int colIdx) {
-    final newConfigs = List<TableConfig>.from(tableConfigs);
-    final columns = List<TableColumn>.from(newConfigs[tableIdx].columns);
-    columns.removeAt(colIdx);
-    newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(columns: columns);
-    onTableConfigsChanged(newConfigs);
-  }
-
   void _addColumn(BuildContext context, int tableIdx) async {
     final result = await showDialog<TableColumn>(
       context: context,
@@ -58,6 +50,14 @@ class TableConfigColumnsEditor extends StatelessWidget {
       newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(columns: columns);
       onTableConfigsChanged(newConfigs);
     }
+  }
+
+  void _deleteColumn(int tableIdx, int colIdx) {
+    final newConfigs = List<TableConfig>.from(tableConfigs);
+    final columns = List<TableColumn>.from(newConfigs[tableIdx].columns);
+    columns.removeAt(colIdx);
+    newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(columns: columns);
+    onTableConfigsChanged(newConfigs);
   }
 
   @override
@@ -91,13 +91,14 @@ class TableConfigColumnsEditor extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.info_outline),
-                  tooltip: config.columns[colIdx].description ?? 'No description',
+                  tooltip:
+                      config.columns[colIdx].description ?? 'No description',
                   onPressed: () => {},
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit),
                   tooltip: 'Edit Column',
-                  onPressed: () => _editColumnDialog(context, index, colIdx),
+                  onPressed: () => _editColumn(context, index, colIdx),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete),
@@ -115,12 +116,12 @@ class TableConfigColumnsEditor extends StatelessWidget {
 
 class _ColumnDialog extends StatefulWidget {
   final TableColumn? initial;
-  final List<String> availableColumnTypes; // Added
+  final List<String> availableColumnTypes;
 
   const _ColumnDialog({
     Key? key,
     this.initial,
-    required this.availableColumnTypes, // Added
+    required this.availableColumnTypes,
   }) : super(key: key);
 
   @override
@@ -131,8 +132,8 @@ class _ColumnDialogState extends State<_ColumnDialog> {
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
   late final ValueNotifier<bool> allowEmptyController;
-  // late final TextEditingController typeController; // Removed
-  String? selectedType; // Added for dropdown
+
+  String? selectedType;
   late final TextEditingController regexpController;
 
   @override
@@ -143,10 +144,10 @@ class _ColumnDialogState extends State<_ColumnDialog> {
         TextEditingController(text: widget.initial?.description ?? '');
     allowEmptyController =
         ValueNotifier<bool>(widget.initial?.allowEmpty ?? false);
-    // typeController = TextEditingController(text: widget.initial?.type ?? ''); // Removed
     selectedType = widget.initial?.type; // Initialize selectedType
     // Ensure selectedType is one of the available types, or null if not
-    if (selectedType != null && !widget.availableColumnTypes.contains(selectedType)) {
+    if (selectedType != null &&
+        !widget.availableColumnTypes.contains(selectedType)) {
       selectedType = null;
     }
     regexpController =
@@ -158,7 +159,6 @@ class _ColumnDialogState extends State<_ColumnDialog> {
     nameController.dispose();
     descriptionController.dispose();
     allowEmptyController.dispose();
-    // typeController.dispose(); // Removed
     regexpController.dispose();
     super.dispose();
   }
@@ -170,7 +170,8 @@ class _ColumnDialogState extends State<_ColumnDialog> {
       title: Text(isEdit ? 'Edit Column' : 'Add Column'),
       content: SizedBox(
         width: 400,
-        child: SingleChildScrollView( // Added SingleChildScrollView for scrollability
+        child: SingleChildScrollView(
+          // Added SingleChildScrollView for scrollability
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -192,11 +193,7 @@ class _ColumnDialogState extends State<_ColumnDialog> {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              // TextField( // Removed TextField for type
-              //   controller: typeController,
-              //   decoration: const InputDecoration(labelText: 'Type'),
-              // ),
-              DropdownButtonFormField<String>( // Added DropdownButtonFormField for type
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Type'),
                 value: selectedType,
                 hint: const Text('Select type'),
@@ -236,10 +233,8 @@ class _ColumnDialogState extends State<_ColumnDialog> {
                       ? null
                       : descriptionController.text.trim(),
                   allowEmpty: allowEmptyController.value,
-                  // type: typeController.text.trim().isEmpty // Removed
-                  //     ? null
-                  //     : typeController.text.trim(),
-                  type: selectedType, // Use selectedType
+                  type: selectedType,
+                  // Use selectedType
                   regexp: regexpController.text.trim().isEmpty
                       ? null
                       : regexpController.text.trim(),

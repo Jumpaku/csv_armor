@@ -16,22 +16,25 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
     required this.onTableConfigsChanged,
   });
 
-  void _editUniqueKeyDialog(
+  void _editOrAddUniqueKey(
       BuildContext context, int tableIdx, String key) async {
     final nameController = TextEditingController(text: key);
     final columns =
         List<String>.from(tableConfigs[tableIdx].uniqueKey[key] ?? []);
-    final availableColumnNames = tableConfigs[tableIdx].columns.map((col) => col.name).toList();
+    final availableColumnNames =
+        tableConfigs[tableIdx].columns.map((col) => col.name).toList();
 
     await showDialog<void>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void addOrEditColumnDialog({int? columnIndex, String? currentColumnName}) {
+            void addOrEditColumnDialog(
+                {int? columnIndex, String? currentColumnName}) {
               String? selectedColumn = currentColumnName;
               final isEdit = columnIndex != null;
-              final dialogTitle = isEdit ? 'Edit Unique Key Column' : 'Add Unique Key Column';
+              final dialogTitle =
+                  isEdit ? 'Edit Unique Key Column' : 'Add Unique Key Column';
               final buttonText = isEdit ? 'Save' : 'Add';
 
               showDialog<String>(
@@ -40,13 +43,18 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                   title: Text(dialogTitle),
                   content: DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Column Name'),
-                    value: (selectedColumn != null && availableColumnNames
-                            .where((name) => !columns.contains(name) || (isEdit && name == currentColumnName))
-                            .contains(selectedColumn))
+                    value: (selectedColumn != null &&
+                            availableColumnNames
+                                .where((name) =>
+                                    !columns.contains(name) ||
+                                    (isEdit && name == currentColumnName))
+                                .contains(selectedColumn))
                         ? selectedColumn
                         : null,
                     items: availableColumnNames
-                        .where((name) => !columns.contains(name) || (isEdit && name == currentColumnName))
+                        .where((name) =>
+                            !columns.contains(name) ||
+                            (isEdit && name == currentColumnName))
                         .map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -56,7 +64,8 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                     onChanged: (String? newValue) {
                       selectedColumn = newValue;
                     },
-                    validator: (value) => value == null ? 'Please select a column' : null,
+                    validator: (value) =>
+                        value == null ? 'Please select a column' : null,
                   ),
                   actions: [
                     TextButton(
@@ -118,7 +127,9 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                             IconButton(
                               icon: const Icon(Icons.edit),
                               tooltip: 'Edit',
-                              onPressed: () => addOrEditColumnDialog(columnIndex: entry.key, currentColumnName: entry.value),
+                              onPressed: () => addOrEditColumnDialog(
+                                  columnIndex: entry.key,
+                                  currentColumnName: entry.value),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
@@ -169,10 +180,6 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
     onTableConfigsChanged(newConfigs);
   }
 
-  void _addUniqueKey(BuildContext context, int tableIdx) {
-    _editUniqueKeyDialog(context, tableIdx, '');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -185,7 +192,7 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.add),
               tooltip: 'Add Unique Key',
-              onPressed: () => _addUniqueKey(context, index),
+              onPressed: () => _editOrAddUniqueKey(context, index, ''),
             ),
           ],
         ),
@@ -204,7 +211,7 @@ class TableConfigUniqueKeysEditor extends StatelessWidget {
                         icon: const Icon(Icons.edit),
                         tooltip: 'Edit Unique Key',
                         onPressed: () =>
-                            _editUniqueKeyDialog(context, index, e.key),
+                            _editOrAddUniqueKey(context, index, e.key),
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),

@@ -100,7 +100,7 @@ class TableConfigPrimaryKeyEditor extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.add),
                           tooltip: 'Add Primary Key Column',
-                          onPressed: addOrEditColumn, // Changed
+                          onPressed: addOrEditColumn,
                         ),
                       ],
                     ),
@@ -113,7 +113,7 @@ class TableConfigPrimaryKeyEditor extends StatelessWidget {
                               tooltip: 'Edit',
                               onPressed: () => addOrEditColumn(
                                   idx: entry.key,
-                                  currentColumnName: entry.value), // Changed
+                                  currentColumnName: entry.value),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
