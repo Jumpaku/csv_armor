@@ -10,8 +10,10 @@ class SchemaValidationError {
   static const codeInvalidColumnRegexp = 'invalid_column_regexp';
   static const codeEmptyPrimaryKey = 'empty_primary_key';
   static const codeUndefinedPrimaryKeyColumn = 'undefined_primary_key_column';
-  static const codeEmptyUniqueKey = 'empty_unique_key';
+  static const codeEmptyUniqueKeyColumns = 'empty_unique_key_columns';
+  static const codeEmptyUniqueKeyName = 'empty_unique_key_name';
   static const codeUndefinedUniqueKeyColumn = 'undefined_unique_key_column';
+  static const codeEmptyForeignKeyName = 'empty_foreign_key_name';
   static const codeEmptyForeignKeyColumns = 'empty_foreign_key_columns';
   static const codeUndefinedForeignKeyColumn = 'undefined_foreign_key_column';
   static const codeUndefinedForeignKeyReferenceTable =
@@ -20,6 +22,9 @@ class SchemaValidationError {
   static const codeUndefinedForeignKeyReferenceUniqueKey =
       'undefined_foreign_key_reference_unique_key';
   static const codeInvalidAgainstJsonSchema = 'invalid_against_json_schema';
+  static const codeEmptyTableName = 'empty_table_name';
+  static const codeEmptyCsvPath = 'empty_csv_path';
+  static const codeInvalidCsvPath = 'invalid_csv_path';
 
   SchemaValidationError(this.path, this.code, this.message);
 
@@ -97,6 +102,15 @@ SchemaValidationResult validateColumnType(
   return result;
 }
 
+// <csv-path> := [<prefix>] <path-component> [ '/' <path-component> ]...
+// <prefix> := './' | '../' | '/'
+// <path-component> := <text_or_placeholder> [ <text_or_placeholder> ]...
+// <text_or_placeholder> := <text> | <placeholder>
+// <placeholder> := '[' <text> ']'
+// <text> := character sequence excluding '[', ']', '/', and '*'
+final _csvPathRegExp = RegExp(
+    r'^(\.\.?\/)?([^*\/\[\]]+|\[[^*\/\[\]]+\])+(\/([^*\/\[\]]+|\[[^*\/\[\]]+\])+)*$');
+
 SchemaValidationResult validateTableConfig(
   List<String> path,
   Set<String> typeSet,
@@ -104,6 +118,24 @@ SchemaValidationResult validateTableConfig(
   TableConfig config,
 ) {
   final result = SchemaValidationResult();
+
+  if (config.name.isEmpty) {
+    result.addError([...path, 'name'], SchemaValidationError.codeEmptyTableName,
+        'Table name cannot be empty.');
+  }
+
+  if (config.csvPath.isEmpty) {
+    result.addError(
+        [...path, 'csv_path'],
+        SchemaValidationError.codeEmptyCsvPath,
+        'Table CSV path cannot be empty.');
+  } else if (!_csvPathRegExp.hasMatch(config.csvPath)) {
+    result.addError(
+        [...path, 'csv_path'],
+        SchemaValidationError.codeInvalidCsvPath,
+        'Table CSV path "${config.csvPath}" is invalid: regexp ${_csvPathRegExp.pattern}');
+  }
+
   final columnSet = {for (var col in config.columns) col.name};
   for (final (columnIdx, column) in config.columns.indexed) {
     result.merge(
@@ -136,6 +168,12 @@ SchemaValidationResult validateForeignKey(
   final result = SchemaValidationResult();
   final columns = foreignKey.columns;
   final referenceTable = foreignKey.reference.table;
+  if (fkName.isEmpty) {
+    result.addError(
+        [...path, 'foreign_keys', fkName],
+        SchemaValidationError.codeEmptyForeignKeyName,
+        'Foreign key name cannot be empty in table "$tableName".');
+  }
   if (columns.isEmpty) {
     result.addError(
         [...path, 'foreign_keys', fkName, 'columns'],
@@ -179,10 +217,16 @@ SchemaValidationResult validateUniqueKey(
   List<String> ukColumns,
 ) {
   final result = SchemaValidationResult();
+  if (ukName.isEmpty) {
+    result.addError(
+        [...path, 'unique_keys', ukName],
+        SchemaValidationError.codeEmptyUniqueKeyName,
+        'Unique key name cannot be empty in table "$tableName".');
+  }
   if (ukColumns.isEmpty) {
     result.addError(
         [...path, 'unique_keys', ukName],
-        SchemaValidationError.codeEmptyUniqueKey,
+        SchemaValidationError.codeEmptyUniqueKeyColumns,
         'Unique key "$ukName" cannot be empty in table "$tableName".');
   }
   for (final (ukIdx, ukColumn) in ukColumns.indexed) {

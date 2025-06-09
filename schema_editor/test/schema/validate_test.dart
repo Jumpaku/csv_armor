@@ -72,7 +72,7 @@ void main() {
       final result = validateUniqueKey(['table', 'unique_keys'], 'table', {'col'}, 'uk', []);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyUniqueKey,
+          SchemaValidationError.codeEmptyUniqueKeyColumns,
         ]));
       }
     });
@@ -81,6 +81,14 @@ void main() {
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedUniqueKeyColumn,
+        ]));
+      }
+    });
+    test('returns error for empty unique key name', () {
+      final result = validateUniqueKey(['table', 'unique_keys'], 'table', {'col'}, '', ['col']);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeEmptyUniqueKeyName,
         ]));
       }
     });
@@ -137,6 +145,15 @@ void main() {
         ]));
       }
     });
+    test('returns error for empty foreign key name', () {
+      final fk = ForeignKey(columns: ['col'], reference: ForeignKeyReference(table: 'ref'));
+      final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, '', fk);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeEmptyForeignKeyName,
+        ]));
+      }
+    });
     test('returns no error for valid foreign key', () {
       final fk = ForeignKey(
         columns: ['col'],
@@ -156,12 +173,75 @@ void main() {
         primaryKey: ['col'],
         uniqueKey: {'uk': ['col']},
         foreignKey: {},
+        csvPath: 'data.csv',
       ),
     };
     test('returns no error for valid table config', () {
       final config = tableMap['table']!;
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
       expect(result.errors, isEmpty);
+    });
+    test('returns error for empty table name', () {
+      final config = TableConfig(
+        name: '',
+        columns: [TableColumn(name: 'col', type: 'type1')],
+        primaryKey: ['col'],
+        uniqueKey: {'uk': ['col']},
+        foreignKey: {},
+        csvPath: 'data.csv',
+      );
+      final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeEmptyTableName,
+        ]));
+      }
+    });
+    test('returns error for empty csvPath', () {
+      final config = TableConfig(
+        name: 'table',
+        columns: [TableColumn(name: 'col', type: 'type1')],
+        primaryKey: ['col'],
+        uniqueKey: {'uk': ['col']},
+        foreignKey: {},
+        csvPath: '',
+      );
+      final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeEmptyCsvPath,
+        ]));
+      }
+    });
+    test('returns error for invalid csvPath', () {
+      final config = TableConfig(
+        name: 'table',
+        columns: [TableColumn(name: 'col', type: 'type1')],
+        primaryKey: ['col'],
+        uniqueKey: {'uk': ['col']},
+        foreignKey: {},
+        csvPath: 'invalid*path.csv',
+      );
+      final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeInvalidCsvPath,
+        ]));
+      }
+    });
+    test('returns multiple errors for empty name and csvPath', () {
+      final config = TableConfig(
+        name: '',
+        columns: [],
+        primaryKey: [],
+        uniqueKey: {},
+        foreignKey: {},
+        csvPath: '',
+      );
+      final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      final codes = result.errors.map((e) => e.code).toSet();
+      expect(codes, contains(SchemaValidationError.codeEmptyTableName));
+      expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
     });
   });
 
@@ -175,6 +255,7 @@ void main() {
             primaryKey: ['col'],
             uniqueKey: {'uk': ['col']},
             foreignKey: {},
+            csvPath: 'data.csv',
           ),
         ],
         columnType: {'type1': r'^.*$'},
@@ -183,28 +264,38 @@ void main() {
       final result = validateSchema(schema);
       expect(result.errors, isEmpty);
     });
-    test('returns error for invalid schema', () {
+    test('returns errors for multiple invalid tables and column types', () {
       final schema = Schema(
         tableConfig: [
           TableConfig(
-            name: 'table',
+            name: '',
             columns: [TableColumn(name: 'col', type: 'unknown')],
             primaryKey: [],
             uniqueKey: {'uk': []},
             foreignKey: {},
+            csvPath: '',
+          ),
+          TableConfig(
+            name: '',
+            columns: [],
+            primaryKey: [],
+            uniqueKey: {},
+            foreignKey: {},
+            csvPath: 'invalid*path.csv',
           ),
         ],
-        columnType: {'type1': r'^.*$'},
+        columnType: {'type1': r'[', 'type2': r'['},
         validation: [],
       );
       final result = validateSchema(schema);
-      for(final error in result.errors) {
-        expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedColumnType,
-          SchemaValidationError.codeEmptyPrimaryKey,
-          SchemaValidationError.codeEmptyUniqueKey,
-        ]));
-      }
+      final codes = result.errors.map((e) => e.code).toSet();
+      expect(codes, contains(SchemaValidationError.codeEmptyTableName));
+      expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
+      expect(codes, contains(SchemaValidationError.codeInvalidCsvPath));
+      expect(codes, contains(SchemaValidationError.codeUndefinedColumnType));
+      expect(codes, contains(SchemaValidationError.codeEmptyPrimaryKey));
+      expect(codes, contains(SchemaValidationError.codeEmptyUniqueKeyColumns));
+      expect(codes, contains(SchemaValidationError.codeInvalidColumnTypeRegexp));
     });
   });
 }
