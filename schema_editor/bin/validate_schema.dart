@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:schema_editor/schema/json_schema.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/schema/validate.dart';
-import 'package:schema_editor/schema/json_schema.dart';
 
 void main(List<String> args) async {
   if (args.length != 1) {

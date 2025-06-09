@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../schema/schema.dart';
+import 'package:schema_editor/schema/schema.dart';
 
 class ValidationEditor extends StatefulWidget {
   final List<Validation> validations;

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../schema/schema.dart';
-import 'table_config_columns_editor.dart';
-import 'table_config_foreign_keys_editor.dart';
-import 'table_config_primary_key_editor.dart';
-import 'table_config_unique_keys_editor.dart';
+import 'package:schema_editor/schema/schema.dart';
+import 'package:schema_editor/schema_editor/components/table_config_columns_editor.dart';
+import 'package:schema_editor/schema_editor/components/table_config_foreign_keys_editor.dart';
+import 'package:schema_editor/schema_editor/components/table_config_primary_key_editor.dart';
+import 'package:schema_editor/schema_editor/components/table_config_unique_keys_editor.dart';
 
 class TableConfigDetailsEditor extends StatefulWidget {
   final TableConfig config;

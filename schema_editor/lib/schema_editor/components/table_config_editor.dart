@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../schema/schema.dart';
-import 'table_config_details_editor.dart';
+import 'package:schema_editor/schema/schema.dart';
+import 'package:schema_editor/schema_editor/components/table_config_details_editor.dart';
 
 class TableConfigEditor extends StatefulWidget {
   final List<TableConfig> tableConfigs;
