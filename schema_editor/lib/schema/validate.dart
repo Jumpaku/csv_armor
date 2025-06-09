@@ -1,5 +1,10 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'package:schema_editor/schema/schema.dart';
 
+part 'validate.g.dart';
+
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class SchemaValidationError {
   static const codeUndefinedColumnType = 'undefined_column_type';
   static const codeInvalidColumnRegexp = 'invalid_column_regexp';
@@ -18,14 +23,25 @@ class SchemaValidationError {
 
   SchemaValidationError(this.path, this.code, this.message);
 
+  @JsonKey(name: "path")
   final List<String> path;
+  @JsonKey(name: "code")
   final String code;
+  @JsonKey(name: "message")
   final String message;
+
+  factory SchemaValidationError.fromJson(Map<String, dynamic> json) =>
+      _$SchemaValidationErrorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SchemaValidationErrorToJson(this);
 }
 
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class SchemaValidationResult {
   SchemaValidationResult({this.errors = const []});
 
+  @JsonKey(name: "errors")
   List<SchemaValidationError> errors;
 
   bool get isValid => errors.isEmpty;
@@ -37,6 +53,11 @@ class SchemaValidationResult {
   void merge(SchemaValidationResult other) {
     errors = [...errors, ...other.errors];
   }
+
+  factory SchemaValidationResult.fromJson(Map<String, dynamic> json) =>
+      _$SchemaValidationResultFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SchemaValidationResultToJson(this);
 }
 
 SchemaValidationResult validateSchema(Schema schema) {

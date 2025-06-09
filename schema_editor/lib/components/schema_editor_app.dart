@@ -93,6 +93,63 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
     }
   }
 
+  void _checkErrors() {
+    final result = validateByJsonSchema(_schema)
+      ..merge(validateSchema(_schema));
+    if (result.errors.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("No errors found in schema!"),
+      ));
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(MaterialLocalizations.of(context).alertDialogLabel),
+            content: SizedBox(
+              width: 500,
+              child: ListView(
+                shrinkWrap: true,
+                children: result.errors
+                    .map((e) => ListTile(
+                          title: Text(e.message),
+                          subtitle: Text(e.path.map((p) => '/$p').join()),
+                        ))
+                    .toList(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  final errorText = const JsonEncoder.withIndent('  ')
+                      .convert(result.toJson());
+                  final filePath = await FilePicker.platform.saveFile(
+                    dialogTitle: 'Save Validation Errors',
+                    fileName: 'validation_errors.json',
+                    type: FileType.custom,
+                  );
+                  if (filePath != null) {
+                    final file = File(filePath);
+                    await file.writeAsString(errorText);
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Validation errors saved!')),
+                    );
+                  }
+                },
+                child: const Text('Save as File'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(MaterialLocalizations.of(context).closeButtonLabel),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget mainContent;
@@ -144,9 +201,9 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.safety_check),
-            tooltip: 'Check',
-            onPressed: () => {},
+            icon: const Icon(Icons.error),
+            tooltip: 'Check Errors',
+            onPressed: _checkErrors,
           ),
           IconButton(
             icon: const Icon(Icons.folder_open),
