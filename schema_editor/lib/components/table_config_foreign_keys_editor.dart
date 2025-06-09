@@ -16,7 +16,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
     required this.onTableConfigsChanged,
   });
 
-  void _editOrAddForeignKeyDialog(BuildContext context, int tableIdx, [String? key]) async {
+  void _editOrAddForeignKeyDialog(BuildContext context, int tableIdx,
+      [String? key]) async {
     final isEdit = key != null && key.isNotEmpty;
     final fk = isEdit ? tableConfigs[tableIdx].foreignKey[key]! : null;
     await showDialog<void>(
@@ -25,12 +26,14 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
         initialKeyName: isEdit ? key : null,
         initialColumns: isEdit ? List<String>.from(fk!.columns) : <String>[],
         initialReferenceTable: isEdit ? fk!.reference.table : null,
-        initialReferenceUniqueKey: isEdit ? fk!.reference.uniqueKey ?? '' : null,
+        initialReferenceUniqueKey:
+            isEdit ? fk!.reference.uniqueKey ?? '' : null,
         tableConfigs: tableConfigs,
         tableIdx: tableIdx,
         onSave: (name, columns, refTable, refUniqueKey) {
           final newConfigs = List<TableConfig>.from(tableConfigs);
-          final foreignKey = Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
+          final foreignKey =
+              Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
           foreignKey.remove(key);
           foreignKey[name] = ForeignKey(
             columns: List<String>.from(columns),
@@ -39,7 +42,8 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
               uniqueKey: refUniqueKey,
             ),
           );
-          newConfigs[tableIdx] = newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
+          newConfigs[tableIdx] =
+              newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
           onTableConfigsChanged(newConfigs);
         },
       ),
@@ -139,8 +143,10 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
     super.initState();
     nameController = TextEditingController(text: widget.initialKeyName ?? '');
     columns = List<String>.from(widget.initialColumns);
-    refTableController = TextEditingController(text: widget.initialReferenceTable ?? '');
-    refUniqueKeyController = TextEditingController(text: widget.initialReferenceUniqueKey ?? '');
+    refTableController =
+        TextEditingController(text: widget.initialReferenceTable ?? '');
+    refUniqueKeyController =
+        TextEditingController(text: widget.initialReferenceUniqueKey ?? '');
   }
 
   void addOrEditColumnDialog({int? columnIndex, String? currentColumnName}) {
@@ -148,20 +154,26 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
     final isEdit = columnIndex != null;
     final dialogTitle = isEdit ? 'Edit Column' : 'Add Column';
     final buttonText = isEdit ? 'Save' : 'Add';
-    final candidates = widget.tableConfigs[widget.tableIdx].columns.map((col) => col.name).toList();
+    final candidates = widget.tableConfigs[widget.tableIdx].columns
+        .map((col) => col.name)
+        .toList();
     showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(dialogTitle),
         content: DropdownButtonFormField<String>(
           decoration: const InputDecoration(labelText: 'Column Name'),
-          value: (selectedColumn != null && candidates.contains(selectedColumn)) ? selectedColumn : null,
+          value: (selectedColumn != null && candidates.contains(selectedColumn))
+              ? selectedColumn
+              : null,
           items: candidates
-              .where((name) => !columns.contains(name) || (isEdit && name == currentColumnName))
+              .where((name) =>
+                  !columns.contains(name) ||
+                  (isEdit && name == currentColumnName))
               .map((String value) => DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          ))
+                    value: value,
+                    child: Text(value),
+                  ))
               .toList(),
           onChanged: (String? newValue) {
             selectedColumn = newValue;
@@ -202,7 +214,10 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.initialKeyName != null && widget.initialKeyName!.isNotEmpty ? 'Edit Foreign Key' : 'Add Foreign Key'),
+      title: Text(
+          widget.initialKeyName != null && widget.initialKeyName!.isNotEmpty
+              ? 'Edit Foreign Key'
+              : 'Add Foreign Key'),
       content: SizedBox(
         width: 400,
         child: SingleChildScrollView(
@@ -225,34 +240,35 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
                 ],
               ),
               ...columns.asMap().entries.map((entry) => Row(
-                children: [
-                  Expanded(child: Text(entry.value)),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    tooltip: 'Edit',
-                    onPressed: () => addOrEditColumnDialog(
-                      columnIndex: entry.key,
-                      currentColumnName: entry.value,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    tooltip: 'Delete',
-                    onPressed: () => deleteColumn(entry.key),
-                  ),
-                ],
-              )),
+                    children: [
+                      Expanded(child: Text(entry.value)),
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        tooltip: 'Edit',
+                        onPressed: () => addOrEditColumnDialog(
+                          columnIndex: entry.key,
+                          currentColumnName: entry.value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        tooltip: 'Delete',
+                        onPressed: () => deleteColumn(entry.key),
+                      ),
+                    ],
+                  )),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Reference Table'),
                 value: (refTableController.text.isNotEmpty &&
-                    widget.tableConfigs.any((t) => t.name == refTableController.text))
+                        widget.tableConfigs
+                            .any((t) => t.name == refTableController.text))
                     ? refTableController.text
                     : null,
                 items: widget.tableConfigs
                     .map((t) => DropdownMenuItem<String>(
-                  value: t.name,
-                  child: Text(t.name),
-                ))
+                          value: t.name,
+                          child: Text(t.name),
+                        ))
                     .toList(),
                 onChanged: (String? newValue) {
                   setState(() {
@@ -260,14 +276,18 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
                     refUniqueKeyController.text = '';
                   });
                 },
-                validator: (value) => value == null ? 'Please select a reference table' : null,
+                validator: (value) =>
+                    value == null ? 'Please select a reference table' : null,
               ),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Reference Unique Key'),
-                value: (refUniqueKeyController.text.isNotEmpty ? refUniqueKeyController.text : null),
+                decoration:
+                    const InputDecoration(labelText: 'Reference Unique Key'),
+                value: (refUniqueKeyController.text.isNotEmpty
+                    ? refUniqueKeyController.text
+                    : null),
                 items: () {
                   final refTable = widget.tableConfigs.firstWhere(
-                        (t) => t.name == refTableController.text,
+                    (t) => t.name == refTableController.text,
                     orElse: () => TableConfig(name: '', csvPath: ''),
                   );
                   final uniqueKeyNames = refTable.uniqueKey.keys.toList();
@@ -276,9 +296,9 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
                   }
                   return uniqueKeyNames
                       .map((name) => DropdownMenuItem<String>(
-                    value: name,
-                    child: Text(name == '' ? '(PRIMARY KEY)' : name),
-                  ))
+                            value: name,
+                            child: Text(name == '' ? '(PRIMARY KEY)' : name),
+                          ))
                       .toList();
                 }(),
                 onChanged: (String? newValue) {
@@ -286,7 +306,9 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
                     refUniqueKeyController.text = newValue ?? '';
                   });
                 },
-                validator: (value) => value == null || value.isEmpty ? 'Please select a unique key or primary key' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select a unique key or primary key'
+                    : null,
               ),
             ],
           ),
@@ -303,7 +325,8 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
             final refTable = refTableController.text.trim();
             final refUniqueKey = refUniqueKeyController.text.trim();
             if (name.isNotEmpty && refTable.isNotEmpty) {
-              widget.onSave(name, List<String>.from(columns), refTable, refUniqueKey.isEmpty ? null : refUniqueKey);
+              widget.onSave(name, List<String>.from(columns), refTable,
+                  refUniqueKey.isEmpty ? null : refUniqueKey);
               Navigator.pop(context);
             }
           },
