@@ -243,6 +243,24 @@ void main() {
       expect(codes, contains(SchemaValidationError.codeEmptyTableName));
       expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
     });
+    test('returns error for undefined csv path placeholder', () {
+      final config = TableConfig(
+        name: 'table',
+        columns: [TableColumn(name: 'col1', type: 'type1')],
+        primaryKey: ['col1'],
+        uniqueKey: {'uk': ['col1']},
+        foreignKey: {},
+        csvPath: 'data_[col2].csv', // col2 does not exist
+      );
+      final typeSet = {'type1'};
+      final tableMap = {'table': config};
+      final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      for(final error in result.errors) {
+        expect(error.code, isIn([
+          SchemaValidationError.codeUndefinedCsvPathPlaceholder,
+        ]));
+      }
+    });
   });
 
   group('validateSchema', () {

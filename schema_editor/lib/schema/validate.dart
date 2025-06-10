@@ -25,6 +25,8 @@ class SchemaValidationError {
   static const codeEmptyTableName = 'empty_table_name';
   static const codeEmptyCsvPath = 'empty_csv_path';
   static const codeInvalidCsvPath = 'invalid_csv_path';
+  static const codeUndefinedCsvPathPlaceholder =
+      'undefined_csv_path_placeholder';
 
   SchemaValidationError(this.path, this.code, this.message);
 
@@ -111,6 +113,10 @@ SchemaValidationResult validateColumnType(
 final _csvPathRegExp = RegExp(
     r'^(\.\.?\/)?([^*\/\[\]]+|\[[^*\/\[\]]+\])+(\/([^*\/\[\]]+|\[[^*\/\[\]]+\])+)*$');
 
+// <placeholder> := '[' <text> ']'
+// <text> := character sequence excluding '[', ']', '/', and '*'
+final _csvPathPlaceholderRegExp = RegExp(r'\[[^*\/\[\]]+\]');
+
 SchemaValidationResult validateTableConfig(
   List<String> path,
   Set<String> typeSet,
@@ -118,6 +124,8 @@ SchemaValidationResult validateTableConfig(
   TableConfig config,
 ) {
   final result = SchemaValidationResult();
+
+  final columnSet = {for (var col in config.columns) col.name};
 
   if (config.name.isEmpty) {
     result.addError([...path, 'name'], SchemaValidationError.codeEmptyTableName,
@@ -129,14 +137,28 @@ SchemaValidationResult validateTableConfig(
         [...path, 'csv_path'],
         SchemaValidationError.codeEmptyCsvPath,
         'Table CSV path cannot be empty.');
-  } else if (!_csvPathRegExp.hasMatch(config.csvPath)) {
-    result.addError(
-        [...path, 'csv_path'],
-        SchemaValidationError.codeInvalidCsvPath,
-        'Table CSV path "${config.csvPath}" is invalid: regexp ${_csvPathRegExp.pattern}');
+  } else {
+    if (!_csvPathRegExp.hasMatch(config.csvPath)) {
+      result.addError(
+          [...path, 'csv_path'],
+          SchemaValidationError.codeInvalidCsvPath,
+          'Table CSV path "${config.csvPath}" is invalid: regexp ${_csvPathRegExp.pattern}');
+    } else {
+      final matches = _csvPathPlaceholderRegExp.allMatches(config.csvPath);
+      for (final match in matches) {
+        final placeholder = match.group(0)!;
+        final colName =
+            placeholder.substring(1, placeholder.length - 1); // Remove brackets
+        if (!columnSet.contains(colName)) {
+          result.addError(
+              [...path, 'csv_path'],
+              SchemaValidationError.codeUndefinedCsvPathPlaceholder,
+              'Table CSV path placeholder "$placeholder" in "${config.csvPath}" is not defined.');
+        }
+      }
+    }
   }
 
-  final columnSet = {for (var col in config.columns) col.name};
   for (final (columnIdx, column) in config.columns.indexed) {
     result.merge(
         validateColumn([...path, 'columns', "$columnIdx"], typeSet, column));
