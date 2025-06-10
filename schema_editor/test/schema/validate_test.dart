@@ -6,6 +6,7 @@ void main() {
   group('validateColumnType', () {
     test('returns error for invalid regexp', () {
       final result = validateColumnType(['column_type', 'bad'], 'bad', r'[');
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeInvalidColumnTypeRegexp,
@@ -22,6 +23,7 @@ void main() {
     test('returns error for undefined column type', () {
       final column = TableColumn(name: 'col', type: 'unknown');
       final result = validateColumn(['columns', '0'], {'known'}, column);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedColumnType,
@@ -31,6 +33,7 @@ void main() {
     test('returns error for invalid regexp', () {
       final column = TableColumn(name: 'col', regexp: r'[');
       final result = validateColumn(['columns', '0'], {}, column);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeInvalidColumnRegexp,
@@ -47,6 +50,7 @@ void main() {
   group('validatePrimaryKey', () {
     test('returns error for empty primary key', () {
       final result = validatePrimaryKey(['table', 'primary_key'], {'col'}, 'table', []);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyPrimaryKey,
@@ -55,6 +59,7 @@ void main() {
     });
     test('returns error for undefined primary key column', () {
       final result = validatePrimaryKey(['table', 'primary_key'], {'col'}, 'table', ['unknown']);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedPrimaryKeyColumn,
@@ -70,6 +75,7 @@ void main() {
   group('validateUniqueKey', () {
     test('returns error for empty unique key', () {
       final result = validateUniqueKey(['table', 'unique_keys'], 'table', {'col'}, 'uk', []);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyUniqueKeyColumns,
@@ -78,6 +84,7 @@ void main() {
     });
     test('returns error for undefined unique key column', () {
       final result = validateUniqueKey(['table', 'unique_keys'], 'table', {'col'}, 'uk', ['unknown']);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedUniqueKeyColumn,
@@ -86,6 +93,7 @@ void main() {
     });
     test('returns error for empty unique key name', () {
       final result = validateUniqueKey(['table', 'unique_keys'], 'table', {'col'}, '', ['col']);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyUniqueKeyName,
@@ -109,6 +117,7 @@ void main() {
     test('returns error for empty foreign key columns', () {
       final fk = ForeignKey(columns: [], reference: ForeignKeyReference(table: 'ref'));
       final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, 'fk', fk);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyForeignKeyColumns,
@@ -118,6 +127,7 @@ void main() {
     test('returns error for undefined foreign key column', () {
       final fk = ForeignKey(columns: ['unknown'], reference: ForeignKeyReference(table: 'ref'));
       final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, 'fk', fk);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedForeignKeyColumn,
@@ -127,6 +137,7 @@ void main() {
     test('returns error for undefined reference table', () {
       final fk = ForeignKey(columns: ['col'], reference: ForeignKeyReference(table: 'not_exist'));
       final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, 'fk', fk);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedForeignKeyReferenceTable,
@@ -139,6 +150,7 @@ void main() {
         reference: ForeignKeyReference(table: 'ref', uniqueKey: 'not_exist'),
       );
       final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, 'fk', fk);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedForeignKeyReferenceUniqueKey,
@@ -148,6 +160,7 @@ void main() {
     test('returns error for empty foreign key name', () {
       final fk = ForeignKey(columns: ['col'], reference: ForeignKeyReference(table: 'ref'));
       final result = validateForeignKey(['table', 'foreign_keys'], tableMap, 'table', {'col'}, '', fk);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyForeignKeyName,
@@ -191,6 +204,7 @@ void main() {
         csvPath: 'data.csv',
       );
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyTableName,
@@ -207,6 +221,7 @@ void main() {
         csvPath: '',
       );
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeEmptyCsvPath,
@@ -223,6 +238,7 @@ void main() {
         csvPath: 'invalid*path.csv',
       );
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeInvalidCsvPath,
@@ -239,6 +255,7 @@ void main() {
         csvPath: '',
       );
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      expect(result.errors, isNotEmpty);
       final codes = result.errors.map((e) => e.code).toSet();
       expect(codes, contains(SchemaValidationError.codeEmptyTableName));
       expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
@@ -255,6 +272,7 @@ void main() {
       final typeSet = {'type1'};
       final tableMap = {'table': config};
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
+      expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
           SchemaValidationError.codeUndefinedCsvPathPlaceholder,
