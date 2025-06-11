@@ -1,17 +1,15 @@
-import 'package:schema_editor/csv/csv_reader.dart';
+import 'dart:collection';
+
+import 'package:schema_editor/data/data_buffer.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
-
-// <placeholder> := '[' <text> ']'
-// <text> := character sequence excluding '[', ']', '/', and '*'
-final _csvPathPlaceholderRegExp = RegExp(r'\[[^*\/\[\]]+\]');
 
 class DataStore {
   DataStore({required DatabaseAccess db}) : _db = db;
 
   final DatabaseAccess _db;
 
-  void initialize(List<TableConfig> tableConfig, CsvReader reader) {
+  void initialize(List<TableConfig> tableConfig, DataBuffer buffer) {
     final tableMap = {for (final t in tableConfig) t.name: t};
     for (final t in tableConfig) {
       final stmt = _createTable(tableMap, t);
@@ -19,9 +17,13 @@ class DataStore {
     }
   }
 
-  void import(List<TableConfig> tableConfig, CsvReader reader) {
+  void import(List<TableConfig> tableConfig, DataBuffer buffer) {
     for (final t in tableConfig) {
-      final stmt = _insertValues(reader, t);
+      final data = buffer[t.name]!;
+      if (data.values.isEmpty) {
+        continue; // Skip empty rows
+      }
+      final stmt = _insertValues(t, buffer[t.name]!);
       _db.manip(stmt);
     }
   }
@@ -72,10 +74,8 @@ class DataStore {
     return sb.toString();
   }
 
-  String _insertValues(CsvReader reader, TableConfig t) {
-    final columns =
-        _reorderColumns(t.csvPath, t.columns.map((c) => c.name).toList());
-    final values = _readValues(reader, t.csvPath);
+  String _insertValues(TableConfig t, TableData d) {
+    final (columns: columns, values: values) = d;
 
     final sb = StringBuffer();
     final cols = columns.map((col) => '"$col"').join(", ");
@@ -90,41 +90,5 @@ class DataStore {
     sb.writeln(';');
 
     return sb.toString();
-  }
-
-  List<String> _reorderColumns(String csvPath, List<String> columns) {
-    // Extract path columns from csvPath
-    final pathColumns = <String>[];
-    final matches = _csvPathPlaceholderRegExp.allMatches(csvPath);
-    for (final match in matches) {
-      final placeholder = match.group(0)!;
-      final colName = placeholder.substring(1, placeholder.length - 1);
-      pathColumns.add(colName);
-    }
-
-    // Extract csv columns from table config
-    final csvColumns = <String>[];
-    for (final col in columns) {
-      if (!pathColumns.contains(col)) {
-        csvColumns.add(col);
-      }
-    }
-
-    return csvColumns + pathColumns;
-  }
-
-  List<List<String>> _readValues(CsvReader reader, String csvPath) {
-    final csvPathGlob = csvPath.replaceAll(_csvPathPlaceholderRegExp, '*');
-    final data = reader.readAll(csvPathGlob);
-    final values = <List<String>>[];
-    for (final (path: path, headers: _, records: records) in data) {
-      final matches = csvPathGlob.allMatches(path);
-      final pathValues = [for (final match in matches) match.group(0)!];
-      for (final csvValues in records) {
-        values.add(csvValues + pathValues);
-      }
-    }
-
-    return values;
   }
 }

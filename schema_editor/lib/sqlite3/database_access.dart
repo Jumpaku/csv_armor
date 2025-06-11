@@ -3,23 +3,36 @@ import 'dart:collection';
 import 'package:sqlite3/sqlite3.dart';
 
 class ResultRow extends MapView<String, dynamic> {
-  final Row row;
+  final List<String> _keys;
+  final List<dynamic> _values;
 
-  ResultRow(this.row) : super({for (final k in row.keys) k: row[k]});
+  factory ResultRow.ofMap(Map<String, dynamic> row) {
+    return ResultRow(
+      keys: row.keys.toList(),
+      values: row.keys.map((k) => row[k]).toList(),
+    );
+  }
+
+  ResultRow({
+    required List<String> keys,
+    required List<dynamic> values,
+  })  : _keys = keys,
+        _values = values,
+        super({for (final (index, k) in keys.indexed) k: values[index]});
 
   List<String> keyList() {
-    return row.keys;
+    return _keys;
   }
 
   List<dynamic> valueList() {
-    return row.values;
+    return _values;
   }
 
   bool isNull(String key) {
-    if (!row.containsKey(key)) {
+    if (!containsKey(key)) {
       throw ArgumentError('Key "$key" not found in ResultRow');
     }
-    return row[key] == null;
+    return this[key] == null;
   }
 
   bool isNotNull(String key) {
@@ -27,10 +40,10 @@ class ResultRow extends MapView<String, dynamic> {
   }
 
   T getAs<T>(String key) {
-    if (!row.containsKey(key)) {
+    if (!containsKey(key)) {
       throw ArgumentError('Key "$key" not found in ResultRow');
     }
-    final value = row[key];
+    final value = this[key];
     if (value is! T) {
       throw ArgumentError('Value for key "$key" is not of type $T');
     }
@@ -75,7 +88,9 @@ class DatabaseAccess {
   List<ResultRow> query(String sql, [List<dynamic> params = const []]) {
     try {
       final result = _db.select(sql, params);
-      return result.map((r) => ResultRow(r)).toList();
+      return result
+          .map((r) => ResultRow(keys: r.keys, values: r.values))
+          .toList();
     } catch (e) {
       throw Exception(
           'Failed to execute query: "$sql" with params [${params.join(",")}], Error: $e');

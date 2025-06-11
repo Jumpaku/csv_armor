@@ -133,6 +133,14 @@ class Decoder {
   ({List<List<String>> headers, List<List<String>> records}) decode(
       String input) {
     final csv = _parse(_ParseState(Characters(input).toList()));
+    if (csv.length < _headerLines) {
+      throw DecodeException(
+        "Too few header lines: expected $_headerLines, got ${csv.length}",
+        DecodeException.codeTooFewHeaderLines,
+        Characters(input).toList(),
+        0,
+      );
+    }
     return (
       headers: csv.sublist(0, _headerLines),
       records: csv.sublist(_headerLines, csv.length),
