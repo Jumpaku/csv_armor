@@ -7,7 +7,8 @@ import 'package:schema_editor/csv/decoder_config.dart';
 
 class Decoder {
   Decoder(DecoderConfig config)
-      : _recordSeparator = config.recordSeparator,
+      : _headerLines = config.headerLines,
+        _recordSeparator = config.recordSeparator,
         _fieldSeparator = Characters(config.fieldSeparator).toList(),
         _fieldQuoteLeft = Characters(config.fieldQuote.leftQuote).toList(),
         _fieldQuoteRight = Characters(config.fieldQuote.rightQuote).toList(),
@@ -15,6 +16,8 @@ class Decoder {
             Characters(config.fieldQuote.leftQuoteEscape).toList(),
         _fieldQuoteEscapeRight =
             Characters(config.fieldQuote.rightQuoteEscape).toList();
+
+  final int _headerLines;
 
   final RecordSeparator _recordSeparator;
   final List<String> _fieldSeparator;
@@ -107,8 +110,8 @@ class Decoder {
       s.move(1);
     }
 
-    s.fail("fail to read closing quote",
-        DecodeException.codeClosingQuoteNotFound);
+    s.fail(
+        "fail to read closing quote", DecodeException.codeClosingQuoteNotFound);
   }
 
   String _parseUnquotedField(_ParseState s) {
@@ -127,8 +130,13 @@ class Decoder {
     return field.toString();
   }
 
-  List<List<String>> decode(String input) {
-    return _parse(_ParseState(Characters(input).toList()));
+  ({List<List<String>> headers, List<List<String>> records}) decode(
+      String input) {
+    final csv = _parse(_ParseState(Characters(input).toList()));
+    return (
+      headers: csv.sublist(0, _headerLines),
+      records: csv.sublist(_headerLines, csv.length),
+    );
   }
 }
 

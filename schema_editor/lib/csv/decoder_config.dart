@@ -1,23 +1,43 @@
 class DecoderConfig {
   static const fieldSeparatorComma = ',';
   static const fieldSeparatorTab = '\t';
+  static const fieldQuoteDouble = '"';
+  static const fieldQuoteEscapeDouble = '""';
+  static const fieldQuoteEmpty = '';
+  static const fieldQuoteEscapeEmpty = '';
 
-  const DecoderConfig({
+  DecoderConfig({
+    required this.headerLines,
     this.recordSeparator = RecordSeparator.crlf,
     this.fieldSeparator = fieldSeparatorComma,
-    this.fieldQuote = const DecoderConfigQuote(),
-  });
+    DecoderConfigQuote? fieldQuote,
+  }) {
+    this.fieldQuote = fieldQuote ?? DecoderConfigQuote.double();
+  }
 
+  final int headerLines;
   final RecordSeparator recordSeparator;
   final String fieldSeparator;
-  final DecoderConfigQuote fieldQuote;
+  late final DecoderConfigQuote fieldQuote;
 }
 
 class DecoderConfigQuote {
-  factory DecoderConfigQuote.of({
-    String quote = '"',
-    String quoteEscape = '""',
-  }) {
+  factory DecoderConfigQuote.double() {
+    return DecoderConfigQuote.of(
+      quote: DecoderConfig.fieldQuoteDouble,
+      quoteEscape: DecoderConfig.fieldQuoteEscapeDouble,
+    );
+  }
+
+  factory DecoderConfigQuote.none() {
+    return DecoderConfigQuote.of(
+      quote: DecoderConfig.fieldQuoteEmpty,
+      quoteEscape: DecoderConfig.fieldQuoteEscapeEmpty,
+    );
+  }
+
+  factory DecoderConfigQuote.of(
+      {required String quote, required String quoteEscape}) {
     return DecoderConfigQuote(
       leftQuote: quote,
       leftQuoteEscape: quoteEscape,
@@ -26,12 +46,23 @@ class DecoderConfigQuote {
     );
   }
 
-  const DecoderConfigQuote({
-    this.leftQuote = '"',
-    this.leftQuoteEscape = '""',
-    this.rightQuote = '"',
-    this.rightQuoteEscape = '""',
-  });
+  DecoderConfigQuote({
+    required this.leftQuote,
+    required this.leftQuoteEscape,
+    required this.rightQuote,
+    required this.rightQuoteEscape,
+  }) {
+    if (leftQuote.isEmpty != rightQuote.isEmpty) {
+      throw ArgumentError(
+          "leftQuote and rightQuote must be both empty or non-empty");
+    }
+    if (leftQuote.isEmpty && rightQuote.isEmpty) {
+      if (leftQuoteEscape.isNotEmpty || rightQuoteEscape.isNotEmpty) {
+        throw ArgumentError(
+            "leftQuoteEscape and rightQuoteEscape must be empty if leftQuote and rightQuote are empty");
+      }
+    }
+  }
 
   final String leftQuote;
   final String leftQuoteEscape;

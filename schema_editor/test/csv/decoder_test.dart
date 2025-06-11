@@ -50,6 +50,7 @@ void main() {
     ];
 
     final sut = Decoder(DecoderConfig(
+      headerLines: 0,
       fieldSeparator: DecoderConfig.fieldSeparatorComma,
       recordSeparator: RecordSeparator.crlf,
       fieldQuote: DecoderConfigQuote.of(quote: '"', quoteEscape: '""'),
@@ -58,7 +59,7 @@ void main() {
     for (var (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {
         final actual = sut.decode(testcase.input);
-        expect(actual, equals(testcase.expected));
+        expect(actual.records, equals(testcase.expected));
       });
     }
   });
@@ -118,7 +119,8 @@ void main() {
       ),
     ];
 
-    final sut = Decoder(const DecoderConfig(
+    final sut = Decoder(DecoderConfig(
+      headerLines: 0,
       fieldSeparator: "<sep/>",
       recordSeparator: RecordSeparator.any,
       fieldQuote: DecoderConfigQuote(
@@ -132,7 +134,7 @@ void main() {
     for (var (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {
         final actual = sut.decode(testcase.input);
-        expect(actual, equals(testcase.expected));
+        expect(actual.records, equals(testcase.expected));
       });
     }
   });

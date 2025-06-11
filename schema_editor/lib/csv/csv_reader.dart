@@ -5,10 +5,14 @@ import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart';
 import 'package:schema_editor/csv/decoder.dart';
 
-typedef PathRecords = ({String path, List<List<String>> records});
+typedef PathRecords = ({
+  String path,
+  List<List<String>> headers,
+  List<List<String>> records
+});
 
-class GlobCSVReader {
-  GlobCSVReader({required Context ctx, required Decoder decoder})
+class CsvReader {
+  CsvReader({required Context ctx, required Decoder decoder})
       : _ctx = ctx,
         _decoder = decoder;
 
@@ -21,9 +25,9 @@ class GlobCSVReader {
     final csvFiles = csvGlob.listSync().whereType<File>().toList();
     for (final csvFile in csvFiles) {
       final content = csvFile.readAsStringSync();
-      final records = _decoder.decode(content);
+      final (headers: headers, records: records) = _decoder.decode(content);
 
-      result.add((path: csvFile.path, records: records));
+      result.add((path: csvFile.path, headers: headers, records: records));
     }
 
     result.sort((a, b) => a.path.compareTo(b.path));
