@@ -37,8 +37,8 @@ class _ValidationEditorState extends State<ValidationEditor> {
   void _addOrEditValidation({Validation? initialValidation, int? index}) async {
     final messageController =
         TextEditingController(text: initialValidation?.message ?? '');
-    final queryErrorController =
-        TextEditingController(text: initialValidation?.queryError ?? '');
+    final validationQueryController =
+        TextEditingController(text: initialValidation?.validationQuery ?? '');
     final isEdit = initialValidation != null;
     final result = await showDialog<Validation>(
       context: context,
@@ -56,9 +56,9 @@ class _ValidationEditorState extends State<ValidationEditor> {
                   decoration: const InputDecoration(labelText: 'Message'),
                 ),
                 TextField(
-                  controller: queryErrorController,
+                  controller: validationQueryController,
                   decoration:
-                      const InputDecoration(labelText: 'Query Error (SQL)'),
+                      const InputDecoration(labelText: 'Validation Query (SQL)'),
                   maxLines: null, // Allow arbitrary number of lines
                 ),
               ],
@@ -73,12 +73,12 @@ class _ValidationEditorState extends State<ValidationEditor> {
           ElevatedButton(
             onPressed: () {
               if (messageController.text.trim().isNotEmpty &&
-                  queryErrorController.text.trim().isNotEmpty) {
+                  validationQueryController.text.trim().isNotEmpty) {
                 Navigator.pop(
                     context,
                     Validation(
                       message: messageController.text.trim(),
-                      queryError: queryErrorController.text.trim(),
+                      validationQuery: validationQueryController.text.trim(),
                     ));
               }
             },
@@ -136,7 +136,7 @@ class _ValidationEditorState extends State<ValidationEditor> {
                         validation.message,
                       ),
                       subtitle: Text(
-                        validation.queryError,
+                        validation.validationQuery,
                         maxLines: 2,
                       ),
                       trailing: Row(
