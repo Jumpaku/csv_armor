@@ -31,4 +31,8 @@ class Index {
   }
 
   List<Row> getRows(Key key) => _data[key] ?? [];
+
+  List<({Key key, List<Row> rows})> data() {
+    return _data.entries.map((e) => (key: e.key, rows: e.value)).toList();
+  }
 }

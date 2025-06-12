@@ -5,13 +5,14 @@ import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart';
 import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/data/data_buffer.dart';
 import 'package:schema_editor/data/data_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 
-// <placeholder> := '[' <text> ']'
-// <text> := character sequence excluding '[', ']', '/', and '*'
-final _csvPathPlaceholderRegExp = RegExp(r'\[[^*\/\[\]]+\]');
+typedef TableData = ({List<String> columns, List<List<String>> values});
+
+class DataBuffer extends MapView<String, TableData> {
+  DataBuffer(Map<String, TableData> tableData) : super(tableData);
+}
 
 class CsvReader {
   CsvReader({required Context ctx, required Decoder decoder})
@@ -52,7 +53,7 @@ class CsvReader {
       }
     }
 
-    return csvColumns + pathColumns;
+    return pathColumns + csvColumns;
   }
 
   List<List<String>> _readValues(String tableName, String schemaCsvPath) {
@@ -70,7 +71,7 @@ class CsvReader {
       final records = _decodeCsvValues(tableName, csvFile);
 
       for (final csvValues in records) {
-        values.add(csvValues + pathValues);
+        values.add(pathValues + csvValues);
       }
     }
 
@@ -110,3 +111,7 @@ class CsvReader {
     }
   }
 }
+
+// <placeholder> := '[' <text> ']'
+// <text> := character sequence excluding '[', ']', '/', and '*'
+final _csvPathPlaceholderRegExp = RegExp(r'\[[^*\/\[\]]+\]');

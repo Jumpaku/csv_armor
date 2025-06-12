@@ -15,6 +15,10 @@ class DataValidationError {
   static const codeCsvReadFailed = 'csv_read_failed';
   static const codeQueryExecutionFailed = 'query_execution_failed';
   static const codeRowLengthMismatch = 'row_length_mismatch';
+  static const codeUniquenessViolation = 'uniqueness_violation';
+  static const codeForeignKeyViolation = 'foreign_key_violation';
+  static const codeInvalidFormatType = 'invalid_format_type';
+  static const codeInvalidFormatRegexp = 'invalid_format_regexp';
   static const codeValidationFailed = 'validation_failed';
 
   @JsonKey(name: "code")

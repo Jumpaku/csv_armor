@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/csv/decoder.dart';
+import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class TestDecoder implements Decoder {
@@ -64,9 +64,9 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.columns, ['c1', 'c2']);
+      expect(buffer['t1']!.columns, ['c2', 'c1']);
       expect(buffer['t1']!.values, [
-        ['v1', 'foo'],
+        ['foo', 'v1'],
       ]);
     });
     test('readAll loads with multiple path placeholders in csvPath', () async {
@@ -75,19 +75,24 @@ void main() {
       final tableConfig = [
         TableConfig(
           name: 't1',
-          columns: [TableColumn(name: 'c1'), TableColumn(name: 'c2'), TableColumn(name: 'c3')],
+          columns: [
+            TableColumn(name: 'c1'),
+            TableColumn(name: 'c2'),
+            TableColumn(name: 'c3')
+          ],
           primaryKey: ['c1'],
           csvPath: p.join(tempDir.path, 'data_[c2]_[c3].csv'),
         ),
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.columns, ['c1', 'c2', 'c3']);
+      expect(buffer['t1']!.columns, ['c2', 'c3', 'c1']);
       expect(buffer['t1']!.values, [
-        ['v1', 'foo', 'bar'],
+        ['foo', 'bar', 'v1'],
       ]);
     });
-    test('readAll loads with missing path placeholder value in csvPath', () async {
+    test('readAll loads with missing path placeholder value in csvPath',
+        () async {
       final file = p.join(tempDir.path, 'data_.csv');
       await File(file).writeAsString('v1\n');
       final tableConfig = [
@@ -101,7 +106,7 @@ void main() {
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.values, [
-        ['v1', ''],
+        ['', 'v1'],
       ]);
     });
     test('readAll loads with extra values in path for placeholders', () async {
@@ -118,7 +123,7 @@ void main() {
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.values, [
-        ['v1', 'foo_bar'],
+        ['foo_bar', 'v1'],
       ]);
     });
     test('reads all CSV files without glob', () async {
@@ -166,7 +171,8 @@ void main() {
       final buffer = reader.readAll(tableConfig);
       expect(buffer['notfound']!.values, isEmpty);
     });
-    test('does not match files in subdirectories unless glob includes them', () async {
+    test('does not match files in subdirectories unless glob includes them',
+        () async {
       final subDir = await Directory(p.join(tempDir.path, 'sub')).create();
       final subFile = p.join(subDir.path, 'sub.csv');
       await File(subFile).writeAsString('x1,y1\nx2,y2\n');
