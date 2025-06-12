@@ -426,7 +426,7 @@ abstract class _$ValidationCWProxy {
 
   Validation message(String message);
 
-  Validation queryError(String queryError);
+  Validation validationQuery(String validationQuery);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Validation(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -437,7 +437,7 @@ abstract class _$ValidationCWProxy {
   Validation call({
     String? import,
     String? message,
-    String? queryError,
+    String? validationQuery,
   });
 }
 
@@ -454,7 +454,8 @@ class _$ValidationCWProxyImpl implements _$ValidationCWProxy {
   Validation message(String message) => this(message: message);
 
   @override
-  Validation queryError(String queryError) => this(queryError: queryError);
+  Validation validationQuery(String validationQuery) =>
+      this(validationQuery: validationQuery);
 
   @override
 
@@ -467,7 +468,7 @@ class _$ValidationCWProxyImpl implements _$ValidationCWProxy {
   Validation call({
     Object? import = const $CopyWithPlaceholder(),
     Object? message = const $CopyWithPlaceholder(),
-    Object? queryError = const $CopyWithPlaceholder(),
+    Object? validationQuery = const $CopyWithPlaceholder(),
   }) {
     return Validation(
       import: import == const $CopyWithPlaceholder()
@@ -478,11 +479,11 @@ class _$ValidationCWProxyImpl implements _$ValidationCWProxy {
           ? _value.message
           // ignore: cast_nullable_to_non_nullable
           : message as String,
-      queryError:
-          queryError == const $CopyWithPlaceholder() || queryError == null
-              ? _value.queryError
-              // ignore: cast_nullable_to_non_nullable
-              : queryError as String,
+      validationQuery: validationQuery == const $CopyWithPlaceholder() ||
+              validationQuery == null
+          ? _value.validationQuery
+          // ignore: cast_nullable_to_non_nullable
+          : validationQuery as String,
     );
   }
 }
@@ -635,12 +636,12 @@ Map<String, dynamic> _$ForeignKeyReferenceToJson(
 Validation _$ValidationFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['import', 'message', 'query_error'],
+    allowedKeys: const ['import', 'message', 'validation_query'],
   );
   return Validation(
     import: json['import'] as String?,
     message: json['message'] as String? ?? '',
-    queryError: json['query_error'] as String? ?? '',
+    validationQuery: json['validation_query'] as String? ?? '',
   );
 }
 
@@ -648,5 +649,5 @@ Map<String, dynamic> _$ValidationToJson(Validation instance) =>
     <String, dynamic>{
       if (instance.import case final value?) 'import': value,
       'message': instance.message,
-      'query_error': instance.queryError,
+      'validation_query': instance.validationQuery,
     };

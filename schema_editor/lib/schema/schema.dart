@@ -142,15 +142,15 @@ class Validation {
   Validation({
     this.import,
     this.message = '',
-    this.queryError = '',
+    this.validationQuery = '',
   });
 
   @JsonKey(name: 'import')
   String? import;
   @JsonKey(name: 'message')
   String message;
-  @JsonKey(name: 'query_error')
-  String queryError;
+  @JsonKey(name: 'validation_query')
+  String validationQuery;
 
   factory Validation.fromJson(Map<String, dynamic> json) =>
       _$ValidationFromJson(json);

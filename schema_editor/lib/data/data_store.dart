@@ -1,19 +1,47 @@
 import 'dart:collection';
 
+import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/data/data_buffer.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
+
+class DataStoreException implements Exception {
+  DataStoreException(
+    this.message,
+    this.statement, {
+    this.params = const [],
+    this.tableName = '',
+    this.cause,
+  });
+
+  final String message;
+  final String tableName;
+  final String statement;
+  final List<dynamic> params;
+  final Object? cause;
+
+  @override
+  String toString() => 'DataStoreException: $message';
+}
 
 class DataStore {
   DataStore({required DatabaseAccess db}) : _db = db;
 
   final DatabaseAccess _db;
 
-  void initialize(List<TableConfig> tableConfig, DataBuffer buffer) {
+  void initialize(List<TableConfig> tableConfig) {
     final tableMap = {for (final t in tableConfig) t.name: t};
     for (final t in tableConfig) {
       final stmt = _createTable(tableMap, t);
-      _db.define(stmt);
+      try {
+        _db.define(stmt);
+      } catch (e) {
+        throw DataStoreException(
+          'Failed to create table "${t.name}": ${e.toString()}',
+          stmt,
+          cause: e,
+        );
+      }
     }
   }
 
@@ -21,20 +49,38 @@ class DataStore {
     for (final t in tableConfig) {
       final data = buffer[t.name]!;
       if (data.values.isEmpty) {
-        continue; // Skip empty rows
+        continue;
       }
       final stmt = _insertValues(t, buffer[t.name]!);
-      _db.manip(stmt);
+      try {
+        _db.manip(stmt);
+      } catch (e) {
+        throw DataStoreException(
+          'Failed to insert data into table "${t.name}": ${e.toString()}',
+          stmt,
+          cause: e,
+        );
+      }
     }
   }
 
   ({List<String> columns, List<List<String>> rows}) query(String stmt,
       [List<dynamic> params = const []]) {
-    final result = _db.query(stmt, params);
+    List<ResultRow> result;
+    try {
+      result = _db.query(stmt, params);
+    } catch (e) {
+      throw DataStoreException(
+        'Failed to execute query: "$stmt" with params [${params.join(",")}]: ${e.toString()}',
+        stmt,
+        params: params,
+        cause: e,
+      );
+    }
+
     if (result.isEmpty) {
       return (columns: [], rows: []);
     }
-
     final columns = result[0].keys.toList();
     final rows = [
       for (final row in result)

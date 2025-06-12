@@ -1,22 +1,34 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/data/data_store.dart';
 import 'package:schema_editor/schema/schema.dart';
+import 'package:schema_editor/sqlite3/database_access.dart';
 
 part 'validate.g.dart';
 
 @JsonSerializable(
     disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
 class DataValidationError {
-  DataValidationError(this.message, this.queryError, this.key, this.values);
+  DataValidationError({
+    required this.message,
+    required this.code,
+    this.validationErrorKey,
+    this.validationErrorValues,
+  });
 
+  static const codeCsvReadFailed = 'csv_read_failed';
+  static const codeQueryExecutionFailed = 'query_execution_failed';
+  static const codeRowLengthMismatch = 'row_length_mismatch';
+  static const codeValidationFailed = 'validation_failed';
+
+  @JsonKey(name: "code")
+  final String code;
   @JsonKey(name: "message")
   final String message;
-  @JsonKey(name: "queryError")
-  final String queryError;
-  @JsonKey(name: "key")
-  final List<String> key;
-  @JsonKey(name: "values")
-  final List<List<String>> values;
+  @JsonKey(name: "validation_error_key")
+  final List<String>? validationErrorKey;
+  @JsonKey(name: "validation_error_values")
+  final List<List<String>>? validationErrorValues;
 
   factory DataValidationError.fromJson(Map<String, dynamic> json) =>
       _$DataValidationErrorFromJson(json);
@@ -34,9 +46,8 @@ class DataValidationResult {
 
   bool get isValid => errors.isEmpty;
 
-  void addError(String message, String queryError, List<String> key,
-      List<List<String>> values) {
-    errors = [...errors, DataValidationError(message, queryError, key, values)];
+  void addError(DataValidationError err) {
+    errors = [...errors, err];
   }
 
   void merge(DataValidationResult other) {
@@ -49,14 +60,54 @@ class DataValidationResult {
   Map<String, dynamic> toJson() => _$DataValidationResultToJson(this);
 }
 
-DataValidationResult validateData(
-    DataStore store, List<Validation> validations) {
+DataValidationResult validateData(Schema schema, CsvReader reader) {
   final result = DataValidationResult();
 
-  for (final validation in validations) {
-    final r = store.query(validation.queryError);
-    result.addError(
-        validation.message, validation.queryError, r.columns, r.rows);
+  DataBuffer buf;
+  try {
+    buf = reader.readAll(schema.tableConfig);
+  } catch (e) {
+    result.addError(DataValidationError(
+      message: 'CSV error: ${e.toString()}',
+      code: DataValidationError.codeCsvReadFailed,
+    ));
+    return result;
+  }
+
+  DataStore store;
+  try {
+    store = DataStore(db: DatabaseAccess.openInMemory());
+    store.initialize(schema.tableConfig);
+    store.import(schema.tableConfig, buf);
+  } catch (e) {
+    result.addError(DataValidationError(
+      message: 'Query error: ${e.toString()}',
+      code: DataValidationError.codeQueryExecutionFailed,
+    ));
+    return result;
+  }
+
+  for (final validation in schema.validation) {
+    List<String> columns;
+    List<List<String>> rows;
+    try {
+      final r = store.query(validation.validationQuery);
+      columns = r.columns;
+      rows = r.rows;
+    } catch (e) {
+      result.addError(DataValidationError(
+        message: 'Query error: ${e.toString()}',
+        code: DataValidationError.codeQueryExecutionFailed,
+      ));
+      continue;
+    }
+
+    result.addError(DataValidationError(
+      message: validation.message,
+      code: DataValidationError.codeValidationFailed,
+      validationErrorKey: columns,
+      validationErrorValues: rows,
+    ));
   }
 
   return result;

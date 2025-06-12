@@ -9,14 +9,21 @@ part of 'validate.dart';
 DataValidationError _$DataValidationErrorFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['message', 'queryError', 'key', 'values'],
+    allowedKeys: const [
+      'code',
+      'message',
+      'validation_error_key',
+      'validation_error_values'
+    ],
   );
   return DataValidationError(
-    json['message'] as String,
-    json['queryError'] as String,
-    (json['key'] as List<dynamic>).map((e) => e as String).toList(),
-    (json['values'] as List<dynamic>)
-        .map((e) => (e as List<dynamic>).map((e) => e as String).toList())
+    message: json['message'] as String,
+    code: json['code'] as String,
+    validationErrorKey: (json['validation_error_key'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toList(),
+    validationErrorValues: (json['validation_error_values'] as List<dynamic>?)
+        ?.map((e) => (e as List<dynamic>).map((e) => e as String).toList())
         .toList(),
   );
 }
@@ -24,10 +31,12 @@ DataValidationError _$DataValidationErrorFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$DataValidationErrorToJson(
         DataValidationError instance) =>
     <String, dynamic>{
+      'code': instance.code,
       'message': instance.message,
-      'queryError': instance.queryError,
-      'key': instance.key,
-      'values': instance.values,
+      if (instance.validationErrorKey case final value?)
+        'validation_error_key': value,
+      if (instance.validationErrorValues case final value?)
+        'validation_error_values': value,
     };
 
 DataValidationResult _$DataValidationResultFromJson(Map<String, dynamic> json) {

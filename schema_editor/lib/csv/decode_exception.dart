@@ -12,4 +12,24 @@ class DecodeException implements Exception {
   final int cursor;
   final List<String> input;
   final Object? cause;
+
+  @override
+  String toString() {
+    List<List<String>> lines = [[]];
+    int line = 0;
+    int column = 1;
+    for (final (index, char) in input.indexed) {
+      lines.last.add(char);
+      if (index == cursor) {
+        line = lines.length - 1;
+        column = lines.last.length - 1;
+        break;
+      }
+      if (char == "\n" || char == "\r" || char == "\r\n") {
+        lines.add([]);
+      }
+    }
+
+    return '$message: line=$line column=$column ${cause == null ? "" : ": caused by $cause"}';
+  }
 }
