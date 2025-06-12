@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:schema_editor/data/data_buffer.dart';
+import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/data/data_store.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
@@ -62,16 +62,14 @@ void main() {
           csvPath: 't2.csv',
         ),
       ];
-      final buffer = DataBuffer({});
-      store.initialize(tableConfig, buffer);
+      store.initialize(tableConfig);
       expect(db.defined.length, 2);
       expect(db.defined[0], contains('CREATE TABLE IF NOT EXISTS "t1"'));
       expect(db.defined[1], contains('CREATE TABLE IF NOT EXISTS "t2"'));
     });
 
     test('initialize with empty tableConfig does not call define', () {
-      final buffer = DataBuffer({});
-      store.initialize([], buffer);
+      store.initialize([]);
       expect(db.defined, isEmpty);
     });
 
@@ -81,13 +79,14 @@ void main() {
           name: 't1',
           columns: [TableColumn(name: 'c1'), TableColumn(name: 'c2')],
           primaryKey: ['c1'],
-          uniqueKey: {'uk1': ['c2']},
+          uniqueKey: {
+            'uk1': ['c2']
+          },
           foreignKey: {},
           csvPath: 't1.csv',
         ),
       ];
-      final buffer = DataBuffer({});
-      store.initialize(tableConfig, buffer);
+      store.initialize(tableConfig);
       expect(db.defined.length, 1);
       expect(db.defined[0], contains('CONSTRAINT "uk1" UNIQUE ("c2")'));
     });
@@ -116,11 +115,13 @@ void main() {
           csvPath: 'child.csv',
         ),
       ];
-      final buffer = DataBuffer({});
-      store.initialize(tableConfig, buffer);
+      store.initialize(tableConfig);
       expect(db.defined.length, 2);
       final childDef = db.defined[1];
-      expect(childDef, contains('CONSTRAINT "fk1" FOREIGN KEY ("parent_id") REFERENCES "parent" ("id")'));
+      expect(
+          childDef,
+          contains(
+              'CONSTRAINT "fk1" FOREIGN KEY ("parent_id") REFERENCES "parent" ("id")'));
     });
 
     test('import calls manip for each table', () {
@@ -272,6 +273,5 @@ void main() {
       ]);
       expect(db.queryParams.last, ['y']);
     });
-
   });
 }
