@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:schema_editor/schema/json_schema.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/schema/validate.dart';
+import 'package:schema_editor/schema/validation_result.dart';
 
 void main(List<String> args) async {
   if (args.length != 1) {
@@ -16,7 +17,7 @@ void main(List<String> args) async {
     final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
     final schema = Schema.fromJson(jsonMap);
 
-    final result = SchemaValidationResult();
+    final result = ValidationResult();
     result.merge(validateByJsonSchema(schema));
     result.merge(validateSchema(schema));
 

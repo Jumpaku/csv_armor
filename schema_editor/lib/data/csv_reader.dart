@@ -5,14 +5,9 @@ import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart';
 import 'package:schema_editor/csv/decoder.dart';
+import 'package:schema_editor/data/data_buffer.dart';
 import 'package:schema_editor/data/data_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
-
-typedef TableData = ({List<String> columns, List<List<String>> values});
-
-class DataBuffer extends MapView<String, TableData> {
-  DataBuffer(Map<String, TableData> tableData) : super(tableData);
-}
 
 // <placeholder> := '[' <text> ']'
 // <text> := character sequence excluding '[', ']', '/', and '*'

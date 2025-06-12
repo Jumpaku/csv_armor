@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/schema/validate.dart';
+import 'package:schema_editor/schema/validation_result.dart';
 
 void main() {
   group('validateColumnType', () {
@@ -9,7 +10,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeInvalidColumnTypeRegexp,
+          ValidationError.codeInvalidColumnTypeRegexp,
         ]));
       }
     });
@@ -26,7 +27,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedColumnType,
+          ValidationError.codeUndefinedColumnType,
         ]));
       }
     });
@@ -36,7 +37,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeInvalidColumnRegexp,
+          ValidationError.codeInvalidColumnRegexp,
         ]));
       }
     });
@@ -53,7 +54,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyPrimaryKey,
+          ValidationError.codeEmptyPrimaryKey,
         ]));
       }
     });
@@ -62,7 +63,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedPrimaryKeyColumn,
+          ValidationError.codeUndefinedPrimaryKeyColumn,
         ]));
       }
     });
@@ -78,7 +79,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyUniqueKeyColumns,
+          ValidationError.codeEmptyUniqueKeyColumns,
         ]));
       }
     });
@@ -87,7 +88,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedUniqueKeyColumn,
+          ValidationError.codeUndefinedUniqueKeyColumn,
         ]));
       }
     });
@@ -96,7 +97,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyUniqueKeyName,
+          ValidationError.codeEmptyUniqueKeyName,
         ]));
       }
     });
@@ -120,7 +121,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyForeignKeyColumns,
+          ValidationError.codeEmptyForeignKeyColumns,
         ]));
       }
     });
@@ -130,7 +131,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedForeignKeyColumn,
+          ValidationError.codeUndefinedForeignKeyColumn,
         ]));
       }
     });
@@ -140,7 +141,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedForeignKeyReferenceTable,
+          ValidationError.codeUndefinedForeignKeyReferenceTable,
         ]));
       }
     });
@@ -153,7 +154,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedForeignKeyReferenceUniqueKey,
+          ValidationError.codeUndefinedForeignKeyReferenceUniqueKey,
         ]));
       }
     });
@@ -163,7 +164,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyForeignKeyName,
+          ValidationError.codeEmptyForeignKeyName,
         ]));
       }
     });
@@ -207,7 +208,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyTableName,
+          ValidationError.codeEmptyTableName,
         ]));
       }
     });
@@ -224,7 +225,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeEmptyCsvPath,
+          ValidationError.codeEmptyCsvPath,
         ]));
       }
     });
@@ -241,7 +242,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeInvalidCsvPath,
+          ValidationError.codeInvalidCsvPath,
         ]));
       }
     });
@@ -257,8 +258,8 @@ void main() {
       final result = validateTableConfig(['table_config', '0'], typeSet, tableMap, config);
       expect(result.errors, isNotEmpty);
       final codes = result.errors.map((e) => e.code).toSet();
-      expect(codes, contains(SchemaValidationError.codeEmptyTableName));
-      expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
+      expect(codes, contains(ValidationError.codeEmptyTableName));
+      expect(codes, contains(ValidationError.codeEmptyCsvPath));
     });
     test('returns error for undefined csv path placeholder', () {
       final config = TableConfig(
@@ -275,7 +276,7 @@ void main() {
       expect(result.errors, isNotEmpty);
       for(final error in result.errors) {
         expect(error.code, isIn([
-          SchemaValidationError.codeUndefinedCsvPathPlaceholder,
+          ValidationError.codeUndefinedCsvPathPlaceholder,
         ]));
       }
     });
@@ -325,13 +326,13 @@ void main() {
       );
       final result = validateSchema(schema);
       final codes = result.errors.map((e) => e.code).toSet();
-      expect(codes, contains(SchemaValidationError.codeEmptyTableName));
-      expect(codes, contains(SchemaValidationError.codeEmptyCsvPath));
-      expect(codes, contains(SchemaValidationError.codeInvalidCsvPath));
-      expect(codes, contains(SchemaValidationError.codeUndefinedColumnType));
-      expect(codes, contains(SchemaValidationError.codeEmptyPrimaryKey));
-      expect(codes, contains(SchemaValidationError.codeEmptyUniqueKeyColumns));
-      expect(codes, contains(SchemaValidationError.codeInvalidColumnTypeRegexp));
+      expect(codes, contains(ValidationError.codeEmptyTableName));
+      expect(codes, contains(ValidationError.codeEmptyCsvPath));
+      expect(codes, contains(ValidationError.codeInvalidCsvPath));
+      expect(codes, contains(ValidationError.codeUndefinedColumnType));
+      expect(codes, contains(ValidationError.codeEmptyPrimaryKey));
+      expect(codes, contains(ValidationError.codeEmptyUniqueKeyColumns));
+      expect(codes, contains(ValidationError.codeInvalidColumnTypeRegexp));
     });
   });
 }

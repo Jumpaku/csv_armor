@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:schema_editor/data/csv_reader.dart';
+import 'package:schema_editor/data/data_buffer.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
 
