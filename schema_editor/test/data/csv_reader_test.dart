@@ -46,7 +46,7 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.values, [
+      expect(buffer['t1']!.records, [
         ['v1'],
         ['v2'],
       ]);
@@ -64,9 +64,9 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.columns, ['c2', 'c1']);
-      expect(buffer['t1']!.values, [
-        ['foo', 'v1'],
+      expect(buffer['t1']!.columns, ['c1', 'c2']);
+      expect(buffer['t1']!.records, [
+        ['v1', 'foo'],
       ]);
     });
     test('readAll loads with multiple path placeholders in csvPath', () async {
@@ -86,9 +86,9 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.columns, ['c2', 'c3', 'c1']);
-      expect(buffer['t1']!.values, [
-        ['foo', 'bar', 'v1'],
+      expect(buffer['t1']!.columns, ['c1', 'c2', 'c3']);
+      expect(buffer['t1']!.records, [
+        ['v1', 'foo', 'bar'],
       ]);
     });
     test('readAll loads with missing path placeholder value in csvPath',
@@ -105,8 +105,8 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.values, [
-        ['', 'v1'],
+      expect(buffer['t1']!.records, [
+        ['v1', ''],
       ]);
     });
     test('readAll loads with extra values in path for placeholders', () async {
@@ -122,8 +122,8 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['t1']!.values, [
-        ['foo_bar', 'v1'],
+      expect(buffer['t1']!.records, [
+        ['v1', 'foo_bar'],
       ]);
     });
     test('reads all CSV files without glob', () async {
@@ -149,11 +149,11 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['a']!.values, [
+      expect(buffer['a']!.records, [
         ['a1', 'b1'],
         ['a2', 'b2'],
       ]);
-      expect(buffer['b']!.values, [
+      expect(buffer['b']!.records, [
         ['c1', 'd1'],
         ['c2', 'd2'],
       ]);
@@ -169,7 +169,7 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['notfound']!.values, isEmpty);
+      expect(buffer['notfound']!.records, isEmpty);
     });
     test('does not match files in subdirectories unless glob includes them',
         () async {
@@ -186,7 +186,7 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['sub']!.values, [
+      expect(buffer['sub']!.records, [
         ['x1', 'y1'],
         ['x2', 'y2'],
       ]);
@@ -197,14 +197,18 @@ void main() {
       final tableConfig = [
         TableConfig(
           name: 'notcsv',
-          columns: [TableColumn(name: 'c1'), TableColumn(name: 'c2')],
+          columns: [
+            TableColumn(name: 'c1'),
+            TableColumn(name: 'c2'),
+            TableColumn(name: 'c3')
+          ],
           primaryKey: ['c1'],
           csvPath: txtFile,
         ),
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['notcsv']!.values, [
+      expect(buffer['notcsv']!.records, [
         ['should', 'not', 'read'],
       ]);
     });
@@ -221,7 +225,7 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['empty']!.values, isEmpty);
+      expect(buffer['empty']!.records, isEmpty);
     });
     test('reads a single file correctly', () async {
       final filePaths = [
@@ -241,7 +245,7 @@ void main() {
       ];
       final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
-      expect(buffer['a']!.values, [
+      expect(buffer['a']!.records, [
         ['a1', 'b1'],
         ['a2', 'b2'],
       ]);

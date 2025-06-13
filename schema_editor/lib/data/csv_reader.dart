@@ -8,7 +8,7 @@ import 'package:schema_editor/csv/decoder.dart';
 import 'package:schema_editor/data/data_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 
-typedef TableData = ({List<String> columns, List<List<String>> values});
+typedef TableData = ({List<String> columns, List<List<String>> records});
 
 class DataBuffer extends MapView<String, TableData> {
   DataBuffer(Map<String, TableData> tableData) : super(tableData);
@@ -25,17 +25,46 @@ class CsvReader {
   DataBuffer readAll(List<TableConfig> tableConfig) {
     Map<String, TableData> tableData = {};
     for (final t in tableConfig) {
-      final columns =
-          _reorderColumns(t.csvPath, t.columns.map((c) => c.name).toList());
-      final values = _readValues(t.name, t.csvPath);
-
-      tableData[t.name] = (columns: columns, values: values);
+      final columns = t.columns.map((c) => c.name).toList();
+      final records = _readRecords(t.name, t.csvPath, columns);
+      tableData[t.name] = (columns: columns, records: records);
     }
 
     return DataBuffer(tableData);
   }
 
-  List<String> _reorderColumns(String csvPath, List<String> columns) {
+  List<List<String>> _readRecords(
+      String tableName, String schemaCsvPath, List<String> columns) {
+    final columnIdx = _columnIndex(schemaCsvPath, columns);
+    final csvGlob = schemaCsvPath.replaceAll(_csvPathPlaceholderRegExp, '*');
+
+    List<File> csvFiles = _listCsvFiles(tableName, csvGlob);
+
+    final records = <List<String>>[];
+    for (final csvFile in csvFiles) {
+      // Extract path values from csvPath
+      List<String> pathValues = _extractPathValues(schemaCsvPath, csvFile.path);
+
+      // Decode CSV file
+      final csvValues = _decodeCsvValues(tableName, csvFile);
+
+      for (final csvValues in csvValues) {
+        final record = pathValues + csvValues;
+        if (record.length != columns.length) {
+          throw DataException(
+            'CSV file "${csvFile.path}" has ${record.length} values, but expected ${columns.length} based on table "$tableName".',
+            DataException.codeInvalidCsv,
+            tableName: tableName,
+          );
+        }
+        records.add([for (final k in columnIdx) record[k]]);
+      }
+    }
+
+    return records;
+  }
+
+  List<int> _columnIndex(String csvPath, List<String> columns) {
     // Extract path columns from csvPath
     final pathColumns = <String>[];
     final matches = _csvPathPlaceholderRegExp.allMatches(csvPath);
@@ -52,30 +81,11 @@ class CsvReader {
         csvColumns.add(col);
       }
     }
+    final columnIdx = {
+      for (final (i, c) in (pathColumns + csvColumns).indexed) c: i
+    };
 
-    return pathColumns + csvColumns;
-  }
-
-  List<List<String>> _readValues(String tableName, String schemaCsvPath) {
-    final csvPathGlob =
-        schemaCsvPath.replaceAll(_csvPathPlaceholderRegExp, '*');
-
-    List<File> csvFiles = _listCsvFiles(tableName, csvPathGlob);
-
-    final values = <List<String>>[];
-    for (final csvFile in csvFiles) {
-      // Extract path values from csvPath
-      List<String> pathValues = _extractPathValues(schemaCsvPath, csvFile.path);
-
-      // Decode CSV content
-      final records = _decodeCsvValues(tableName, csvFile);
-
-      for (final csvValues in records) {
-        values.add(pathValues + csvValues);
-      }
-    }
-
-    return values;
+    return [for (final col in columns) columnIdx[col]!];
   }
 
   List<File> _listCsvFiles(String tableName, String csvPathGlob) {
@@ -85,7 +95,7 @@ class CsvReader {
     } catch (e) {
       throw DataException(
         'failed to find CSV files: glob="$csvPathGlob": ${e.toString()}',
-        DataException.codeInvalidCsvFailed,
+        DataException.codeInvalidCsv,
       );
     }
   }
@@ -106,7 +116,8 @@ class CsvReader {
     } catch (e) {
       throw DataException(
         'failed to decode CSV file: table: "$tableName", path="${csvFile.path}": ${e.toString()}',
-        DataException.codeInvalidCsvFailed,
+        DataException.codeInvalidCsv,
+        tableName: tableName,
       );
     }
   }

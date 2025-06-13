@@ -138,7 +138,7 @@ void main() {
       final buffer = DataBuffer({
         't1': (
           columns: ['c1'],
-          values: [
+          records: [
             <String>['v1']
           ]
         )
@@ -177,13 +177,13 @@ void main() {
       final buffer = DataBuffer({
         't1': (
           columns: ['c1'],
-          values: [
+          records: [
             <String>['v1']
           ]
         ),
         't2': (
           columns: ['c2'],
-          values: [
+          records: [
             <String>['v2']
           ]
         )
@@ -208,7 +208,7 @@ void main() {
       final buffer = DataBuffer({
         't1': (
           columns: ['c1'],
-          values: [
+          records: [
             <String>['v1'],
             <String>['v2']
           ]
@@ -232,7 +232,7 @@ void main() {
         ),
       ];
       final buffer = DataBuffer({
-        't1': (columns: ['c1'], values: <List<String>>[])
+        't1': (columns: ['c1'], records: <List<String>>[])
       });
       store.import(tableConfig, buffer);
       expect(db.manipulated, isEmpty);

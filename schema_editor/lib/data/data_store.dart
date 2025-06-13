@@ -47,7 +47,7 @@ class DataStore {
   void import(List<TableConfig> tableConfig, DataBuffer buffer) {
     for (final t in tableConfig) {
       final data = buffer[t.name]!;
-      if (data.values.isEmpty) {
+      if (data.records.isEmpty) {
         continue;
       }
       final stmt = _insertValues(t, buffer[t.name]!);
@@ -120,16 +120,16 @@ class DataStore {
   }
 
   String _insertValues(TableConfig t, TableData d) {
-    final (columns: columns, values: values) = d;
+    final (columns: columns, records: records) = d;
 
     final sb = StringBuffer();
     final cols = columns.map((col) => '"$col"').join(", ");
     sb.writeln('INSERT INTO "${t.name}" ($cols) VALUES ');
-    for (final (index, values) in values.indexed) {
+    for (final (index, records) in records.indexed) {
       if (index > 0) {
         sb.writeln(',');
       }
-      final row = values.map((v) => "'${v.replaceAll("'", "''")}'").join(", ");
+      final row = records.map((v) => "'${v.replaceAll("'", "''")}'").join(", ");
       sb.write('  ($row)');
     }
     sb.writeln(';');

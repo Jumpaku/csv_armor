@@ -11,6 +11,12 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
   DataBuffer buf;
   try {
     buf = reader.readAll(schema.tableConfig);
+    buf.map((t, b) {
+      return MapEntry(t, (
+        columns: b.columns,
+        values: b.records.map((v) => v.toList()).toList(),
+      ));
+    });
   } catch (e) {
     result.addError(DataValidationError(
       message: 'CSV error: ${e.toString()}',
@@ -22,7 +28,7 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
   result.merge(validateDataColumn(schema.columnType, schema.tableConfig, buf));
 
   final index = buildIndex(schema.tableConfig, buf);
-  result.merge(validateDataUniqueness(schema.tableConfig,index));
+  result.merge(validateDataUniqueness(schema.tableConfig, index));
   result.merge(validateDataForeignKey(schema.tableConfig, buf, index));
   if (result.errors.isNotEmpty) {
     return result;
@@ -70,11 +76,11 @@ DataValidationResult validateDataForeignKey(List<TableConfig> tableConfig,
   final result = DataValidationResult();
 
   for (final t in tableConfig) {
-    final (columns: columns, values: values) = data[t.name]!;
+    final (columns: columns, records: records) = data[t.name]!;
     final columnIdx = {
       for (final (idx, column) in columns.indexed) column: idx
     };
-    for (final row in values) {
+    for (final row in records) {
       for (final fk in t.foreignKey.entries) {
         final refTable = fk.value.reference.table;
         final indexName = fk.value.reference.uniqueKey ?? '';
@@ -104,11 +110,11 @@ DataValidationResult validateDataColumn(
   final result = DataValidationResult();
 
   for (final t in tableConfig) {
-    final (columns: columns, values: values) = data[t.name]!;
+    final (columns: columns, records: records) = data[t.name]!;
     final columnIdx = {
       for (final (idx, column) in columns.indexed) column: idx
     };
-    for (final row in values) {
+    for (final row in records) {
       for (final column in t.columns) {
         final value = row[columnIdx[column.name]!];
         if (column.allowEmpty && value.isEmpty) {
@@ -141,8 +147,7 @@ DataValidationResult validateDataColumn(
 }
 
 DataValidationResult validateDataUniqueness(
-    List<TableConfig> tableConfig,
-    Map<String, Map<String, Index>> index) {
+    List<TableConfig> tableConfig, Map<String, Map<String, Index>> index) {
   final result = DataValidationResult();
 
   for (final t in tableConfig) {
@@ -171,7 +176,7 @@ Map<String, Map<String, Index>> buildIndex(
     final columnIdx = {
       for (final (idx, column) in t.columns.indexed) column.name: idx,
     };
-    final records = data[t.name]!.values;
+    final records = data[t.name]!.records;
 
     Map<String, Index> index = {};
 
