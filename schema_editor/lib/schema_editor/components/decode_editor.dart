@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class DecodeEditor extends StatefulWidget {
-  final Decode? decode;
-  final ValueChanged<Decode?> onChanged;
+  final DecodeConfig? decode;
+  final ValueChanged<DecodeConfig?> onChanged;
 
   const DecodeEditor({
     super.key,
@@ -45,7 +45,7 @@ class _DecodeEditorState extends State<DecodeEditor> {
 
   void _notifyChange() {
     final headerLines = int.tryParse(_headerLinesController.text);
-    final decode = Decode(
+    final decodeConfig = DecodeConfig(
       headerLines: headerLines,
       recordSeparator: _recordSeparator != null
           ? RecordSeparator.values.firstWhere((e) => e.name == _recordSeparator)
@@ -72,7 +72,7 @@ class _DecodeEditorState extends State<DecodeEditor> {
             )
           : null,
     );
-    widget.onChanged(decode);
+    widget.onChanged(decodeConfig);
   }
 
   void _showEditDialog({

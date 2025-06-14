@@ -25,8 +25,8 @@ $defs:
         description: "An array of validation rules or import paths for validation rules."
         items:
           $ref: '#/$defs/Validation'
-      decode:
-        $ref: '#/$defs/Decode'
+      decode_config:
+        $ref: '#/$defs/DecodeConfig'
     additionalProperties: false
 
   TableConfig:
@@ -134,7 +134,7 @@ $defs:
     additionalProperties: false
 
 
-  Decode:
+  DecodeConfig:
     type: object
     description: "Configuration for decoding CSV files."
     properties:

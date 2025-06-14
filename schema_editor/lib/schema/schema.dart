@@ -12,7 +12,7 @@ class Schema {
     this.tableConfig = const [],
     this.columnType = const {},
     this.validation = const [],
-    this.decode,
+    this.decodeConfig,
   });
 
   @JsonKey(name: 'table_config')
@@ -21,8 +21,8 @@ class Schema {
   Map<String, String> columnType;
   @JsonKey(name: 'validation')
   List<Validation> validation; // Can be Validation or import path
-  @JsonKey(name: 'decode')
-  Decode? decode;
+  @JsonKey(name: 'decode_config')
+  DecodeConfig? decodeConfig;
 
   factory Schema.fromJson(Map<String, dynamic> json) => _$SchemaFromJson(json);
 
@@ -165,8 +165,8 @@ class Validation {
 @CopyWith()
 @JsonSerializable(
     disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
-class Decode {
-  Decode({
+class DecodeConfig {
+  DecodeConfig({
     this.headerLines,
     this.recordSeparator,
     this.fieldSeparator,
@@ -184,9 +184,10 @@ class Decode {
   @JsonKey(name: 'field_quote')
   FieldQuote? fieldQuote;
 
-  factory Decode.fromJson(Map<String, dynamic> json) => _$DecodeFromJson(json);
+  factory DecodeConfig.fromJson(Map<String, dynamic> json) =>
+      _$DecodeConfigFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DecodeToJson(this);
+  Map<String, dynamic> toJson() => _$DecodeConfigToJson(this);
 }
 
 /// Represents the record separator configuration for CSV files

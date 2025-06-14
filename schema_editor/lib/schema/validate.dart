@@ -30,9 +30,7 @@ ValidationResult validateColumnType(
   try {
     RegExp(columnTypeValue);
   } catch (e) {
-    result.addError(
-        [...path],
-        ValidationError.codeInvalidColumnTypeRegexp,
+    result.addError([...path], ValidationError.codeInvalidColumnTypeRegexp,
         'Invalid regular expression for column type "$columnTypeKey": $columnTypeValue: ${e.toString()}');
   }
   return result;
@@ -67,15 +65,11 @@ ValidationResult validateTableConfig(
   }
 
   if (config.csvPath.isEmpty) {
-    result.addError(
-        [...path, 'csv_path'],
-        ValidationError.codeEmptyCsvPath,
+    result.addError([...path, 'csv_path'], ValidationError.codeEmptyCsvPath,
         'Table CSV path cannot be empty.');
   } else {
     if (!_csvPathRegExp.hasMatch(config.csvPath)) {
-      result.addError(
-          [...path, 'csv_path'],
-          ValidationError.codeInvalidCsvPath,
+      result.addError([...path, 'csv_path'], ValidationError.codeInvalidCsvPath,
           'Table CSV path "${config.csvPath}" is invalid: regexp ${_csvPathRegExp.pattern}');
     } else {
       final matches = _csvPathPlaceholderRegExp.allMatches(config.csvPath);
@@ -242,6 +236,51 @@ ValidationResult validateColumn(
           [...path, 'regexp'],
           ValidationError.codeInvalidColumnRegexp,
           'Invalid regular expression in column "${column.name}": ${column.regexp}: ${e.toString()}');
+    }
+  }
+
+  return result;
+}
+
+ValidationResult validateDecode(
+  List<String> path,
+  DecodeConfig decode,
+) {
+  final result = ValidationResult();
+
+  if (decode.headerLines != null && decode.headerLines! < 0) {
+    result.addError(
+      [...path, 'header_lines'],
+      ValidationError.codeNegativeHeaderLines,
+      'Header lines must be non-negative, got ${decode.headerLines}.',
+    );
+  }
+
+  final left = decode.fieldQuote?.left ?? '';
+  final leftEscape = decode.fieldQuote?.leftEscape ?? '';
+  final right = decode.fieldQuote?.right ?? '';
+  final rightEscape = decode.fieldQuote?.leftEscape ?? '';
+  if (left.isEmpty != right.isEmpty) {
+    result.addError(
+      [...path, 'field_quote'],
+      ValidationError.codeInvalidQuoteCombination,
+      'left and right field quotes must be both empty or both non-empty.',
+    );
+  }
+  if (left.isEmpty && right.isEmpty) {
+    if (leftEscape.isNotEmpty) {
+      result.addError(
+        [...path, 'field_quote', 'left_escape'],
+        ValidationError.codeInvalidQuoteCombination,
+        "left_escape must be empty if left and right quotes are empty",
+      );
+    }
+    if (rightEscape.isNotEmpty) {
+      result.addError(
+        [...path, 'field_quote', 'right_escape'],
+        ValidationError.codeInvalidQuoteCombination,
+        "right_escape must be empty if left and right quotes are empty",
+      );
     }
   }
 

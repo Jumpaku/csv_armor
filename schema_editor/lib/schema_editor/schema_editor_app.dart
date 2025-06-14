@@ -183,10 +183,10 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
         break;
       case 3:
         mainContent = DecodeEditor(
-          decode: _schema.decode,
-          onChanged: (decode) {
+          decode: _schema.decodeConfig,
+          onChanged: (decodeConfig) {
             setState(() {
-              _schema = _schema.copyWith(decode: decode);
+              _schema = _schema.copyWith(decodeConfig: decodeConfig);
             });
           },
         );

@@ -26,6 +26,9 @@ class ValidationError {
   static const codeInvalidCsvPath = 'invalid_csv_path';
   static const codeUndefinedCsvPathPlaceholder =
       'undefined_csv_path_placeholder';
+  static const codeNegativeHeaderLines = 'negative_header_lines';
+  static const codeInvalidQuoteCombination = 'invalid_quote_combination';
+
 
   ValidationError(this.path, this.code, this.message);
 

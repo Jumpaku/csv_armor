@@ -13,7 +13,7 @@ abstract class _$SchemaCWProxy {
 
   Schema validation(List<Validation> validation);
 
-  Schema decode(Decode? decode);
+  Schema decodeConfig(DecodeConfig? decodeConfig);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Schema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -25,7 +25,7 @@ abstract class _$SchemaCWProxy {
     List<TableConfig>? tableConfig,
     Map<String, String>? columnType,
     List<Validation>? validation,
-    Decode? decode,
+    DecodeConfig? decodeConfig,
   });
 }
 
@@ -48,7 +48,8 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
       this(validation: validation);
 
   @override
-  Schema decode(Decode? decode) => this(decode: decode);
+  Schema decodeConfig(DecodeConfig? decodeConfig) =>
+      this(decodeConfig: decodeConfig);
 
   @override
 
@@ -62,7 +63,7 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
     Object? tableConfig = const $CopyWithPlaceholder(),
     Object? columnType = const $CopyWithPlaceholder(),
     Object? validation = const $CopyWithPlaceholder(),
-    Object? decode = const $CopyWithPlaceholder(),
+    Object? decodeConfig = const $CopyWithPlaceholder(),
   }) {
     return Schema(
       tableConfig:
@@ -80,10 +81,10 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
               ? _value.validation
               // ignore: cast_nullable_to_non_nullable
               : validation as List<Validation>,
-      decode: decode == const $CopyWithPlaceholder()
-          ? _value.decode
+      decodeConfig: decodeConfig == const $CopyWithPlaceholder()
+          ? _value.decodeConfig
           // ignore: cast_nullable_to_non_nullable
-          : decode as Decode?,
+          : decodeConfig as DecodeConfig?,
     );
   }
 }
@@ -505,22 +506,22 @@ extension $ValidationCopyWith on Validation {
   _$ValidationCWProxy get copyWith => _$ValidationCWProxyImpl(this);
 }
 
-abstract class _$DecodeCWProxy {
-  Decode headerLines(int? headerLines);
+abstract class _$DecodeConfigCWProxy {
+  DecodeConfig headerLines(int? headerLines);
 
-  Decode recordSeparator(RecordSeparator? recordSeparator);
+  DecodeConfig recordSeparator(RecordSeparator? recordSeparator);
 
-  Decode fieldSeparator(String? fieldSeparator);
+  DecodeConfig fieldSeparator(String? fieldSeparator);
 
-  Decode fieldQuote(FieldQuote? fieldQuote);
+  DecodeConfig fieldQuote(FieldQuote? fieldQuote);
 
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Decode(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `DecodeConfig(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
   /// ```dart
-  /// Decode(...).copyWith(id: 12, name: "My name")
+  /// DecodeConfig(...).copyWith(id: 12, name: "My name")
   /// ````
-  Decode call({
+  DecodeConfig call({
     int? headerLines,
     RecordSeparator? recordSeparator,
     String? fieldSeparator,
@@ -528,41 +529,42 @@ abstract class _$DecodeCWProxy {
   });
 }
 
-/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDecode.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDecode.copyWith.fieldName(...)`
-class _$DecodeCWProxyImpl implements _$DecodeCWProxy {
-  const _$DecodeCWProxyImpl(this._value);
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDecodeConfig.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDecodeConfig.copyWith.fieldName(...)`
+class _$DecodeConfigCWProxyImpl implements _$DecodeConfigCWProxy {
+  const _$DecodeConfigCWProxyImpl(this._value);
 
-  final Decode _value;
-
-  @override
-  Decode headerLines(int? headerLines) => this(headerLines: headerLines);
+  final DecodeConfig _value;
 
   @override
-  Decode recordSeparator(RecordSeparator? recordSeparator) =>
+  DecodeConfig headerLines(int? headerLines) => this(headerLines: headerLines);
+
+  @override
+  DecodeConfig recordSeparator(RecordSeparator? recordSeparator) =>
       this(recordSeparator: recordSeparator);
 
   @override
-  Decode fieldSeparator(String? fieldSeparator) =>
+  DecodeConfig fieldSeparator(String? fieldSeparator) =>
       this(fieldSeparator: fieldSeparator);
 
   @override
-  Decode fieldQuote(FieldQuote? fieldQuote) => this(fieldQuote: fieldQuote);
+  DecodeConfig fieldQuote(FieldQuote? fieldQuote) =>
+      this(fieldQuote: fieldQuote);
 
   @override
 
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Decode(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `DecodeConfig(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
   /// ```dart
-  /// Decode(...).copyWith(id: 12, name: "My name")
+  /// DecodeConfig(...).copyWith(id: 12, name: "My name")
   /// ````
-  Decode call({
+  DecodeConfig call({
     Object? headerLines = const $CopyWithPlaceholder(),
     Object? recordSeparator = const $CopyWithPlaceholder(),
     Object? fieldSeparator = const $CopyWithPlaceholder(),
     Object? fieldQuote = const $CopyWithPlaceholder(),
   }) {
-    return Decode(
+    return DecodeConfig(
       headerLines: headerLines == const $CopyWithPlaceholder()
           ? _value.headerLines
           // ignore: cast_nullable_to_non_nullable
@@ -583,10 +585,10 @@ class _$DecodeCWProxyImpl implements _$DecodeCWProxy {
   }
 }
 
-extension $DecodeCopyWith on Decode {
-  /// Returns a callable class that can be used as follows: `instanceOfDecode.copyWith(...)` or like so:`instanceOfDecode.copyWith.fieldName(...)`.
+extension $DecodeConfigCopyWith on DecodeConfig {
+  /// Returns a callable class that can be used as follows: `instanceOfDecodeConfig.copyWith(...)` or like so:`instanceOfDecodeConfig.copyWith.fieldName(...)`.
   // ignore: library_private_types_in_public_api
-  _$DecodeCWProxy get copyWith => _$DecodeCWProxyImpl(this);
+  _$DecodeConfigCWProxy get copyWith => _$DecodeConfigCWProxyImpl(this);
 }
 
 abstract class _$FieldQuoteCWProxy {
@@ -678,7 +680,12 @@ extension $FieldQuoteCopyWith on FieldQuote {
 Schema _$SchemaFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['table_config', 'column_type', 'validation', 'decode'],
+    allowedKeys: const [
+      'table_config',
+      'column_type',
+      'validation',
+      'decode_config'
+    ],
   );
   return Schema(
     tableConfig: (json['table_config'] as List<dynamic>?)
@@ -693,9 +700,9 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
             ?.map((e) => Validation.fromJson(e as Map<String, dynamic>))
             .toList() ??
         const [],
-    decode: json['decode'] == null
+    decodeConfig: json['decode_config'] == null
         ? null
-        : Decode.fromJson(json['decode'] as Map<String, dynamic>),
+        : DecodeConfig.fromJson(json['decode_config'] as Map<String, dynamic>),
   );
 }
 
@@ -703,7 +710,8 @@ Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
       'table_config': instance.tableConfig.map((e) => e.toJson()).toList(),
       'column_type': instance.columnType,
       'validation': instance.validation.map((e) => e.toJson()).toList(),
-      if (instance.decode?.toJson() case final value?) 'decode': value,
+      if (instance.decodeConfig?.toJson() case final value?)
+        'decode_config': value,
     };
 
 TableConfig _$TableConfigFromJson(Map<String, dynamic> json) {
@@ -833,7 +841,7 @@ Map<String, dynamic> _$ValidationToJson(Validation instance) =>
       'validation_query': instance.validationQuery,
     };
 
-Decode _$DecodeFromJson(Map<String, dynamic> json) {
+DecodeConfig _$DecodeConfigFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
     allowedKeys: const [
@@ -844,7 +852,7 @@ Decode _$DecodeFromJson(Map<String, dynamic> json) {
       'field_quote'
     ],
   );
-  return Decode(
+  return DecodeConfig(
     headerLines: (json['header_lines'] as num?)?.toInt(),
     recordSeparator:
         $enumDecodeNullable(_$RecordSeparatorEnumMap, json['record_separator']),
@@ -855,7 +863,8 @@ Decode _$DecodeFromJson(Map<String, dynamic> json) {
   )..import = json['import'] as String?;
 }
 
-Map<String, dynamic> _$DecodeToJson(Decode instance) => <String, dynamic>{
+Map<String, dynamic> _$DecodeConfigToJson(DecodeConfig instance) =>
+    <String, dynamic>{
       if (instance.import case final value?) 'import': value,
       if (instance.headerLines case final value?) 'header_lines': value,
       if (_$RecordSeparatorEnumMap[instance.recordSeparator] case final value?)
