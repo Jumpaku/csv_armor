@@ -59,7 +59,8 @@ void main() {
     for (var (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {
         final actual = sut.decode(testcase.input);
-        expect(actual.records, equals(testcase.expected));
+        final actualValues = actual.records.map((r) => r.fields.map((f) => f.value).toList()).toList();
+        expect(actualValues, equals(testcase.expected));
       });
     }
   });
@@ -134,7 +135,8 @@ void main() {
     for (var (i, testcase) in testcases.indexed) {
       test('testcase-$i', () {
         final actual = sut.decode(testcase.input);
-        expect(actual.records, equals(testcase.expected));
+        final actualValues = actual.records.map((r) => r.fields.map((f) => f.value).toList()).toList();
+        expect(actualValues, equals(testcase.expected));
       });
     }
   });

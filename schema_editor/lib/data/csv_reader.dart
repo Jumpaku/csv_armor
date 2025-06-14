@@ -111,8 +111,8 @@ class CsvReader {
   List<List<String>> _decodeCsvValues(String tableName, File csvFile) {
     try {
       final content = csvFile.readAsStringSync();
-      final (headers: _, records: records) = _decoder.decode(content);
-      return records;
+      final result = _decoder.decode(content);
+      return result.records.map((record) => record.fields.map((f) => f.value).toList()).toList();
     } catch (e) {
       throw DataException(
         'failed to decode CSV file: table: "$tableName", path="${csvFile.path}": ${e.toString()}',

@@ -7,15 +7,47 @@ import 'package:schema_editor/data/csv_reader.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class TestDecoder implements Decoder {
+  TestDecoder();
+
   @override
-  ({List<List<String>> headers, List<List<String>> records}) decode(
-      String content) {
-    final data = content
-        .split('\n')
-        .where((l) => l.isNotEmpty)
-        .map((l) => l.split(','))
-        .toList();
-    return (headers: [], records: data);
+  DecodeResult decode(String content) {
+    // Split into lines and fields
+    final lines = content.split(RegExp(r'[\r\n]+')).where((l) => l.isNotEmpty).toList();
+    final inputChars = content.split("");
+    int cursor = 0;
+    int lineNum = 0;
+    final positions = <Position>[];
+    for (final ch in inputChars) {
+      positions.add(Position(cursor, lineNum, cursor));
+      if (ch == '\n') lineNum++;
+      cursor++;
+    }
+    // Build records as List<Record> with Field and Position
+    List<Record> makeRecords(List<List<String>> rows) {
+      int pos = 0;
+      int line = 0;
+      return rows.map((fields) {
+        final fieldObjs = <Field>[];
+        int col = 0;
+        for (final value in fields) {
+          final start = Position(pos, line, col);
+          final end = Position(pos + value.length, line, col + value.length);
+          fieldObjs.add(Field(start, end, value));
+          pos += value.length + 1; // +1 for separator
+          col += value.length + 1;
+        }
+        final start = fieldObjs.isNotEmpty ? fieldObjs.first.start : Position(pos, line, 0);
+        final end = fieldObjs.isNotEmpty ? fieldObjs.last.end : Position(pos, line, 0);
+        line++;
+        return Record(start, end, fieldObjs);
+      }).toList();
+    }
+    final data = lines.map((l) => l.split(',')).toList();
+    return DecodeResult(
+      inputChars,
+      <Record>[], // no headers for test
+      makeRecords(data),
+    );
   }
 }
 

@@ -5,6 +5,38 @@ import 'package:collection/collection.dart';
 import 'package:schema_editor/csv/decode_exception.dart';
 import 'package:schema_editor/csv/decoder_config.dart';
 
+class Position {
+  Position(this.cursor, this.line, this.column);
+
+  final int cursor;
+  final int line;
+  final int column;
+}
+
+class Record {
+  Record(this.start, this.end, this.fields);
+
+  final Position start;
+  final Position end;
+  final List<Field> fields;
+}
+
+class Field {
+  Field(this.start, this.end, this.value);
+
+  final Position start;
+  final Position end;
+  final String value;
+}
+
+class DecodeResult {
+  DecodeResult(this.input, this.headers, this.records);
+
+  final List<String> input;
+  final List<Record> headers;
+  final List<Record> records;
+}
+
 class Decoder {
   Decoder(DecoderConfig config)
       : _headerLines = config.headerLines,
@@ -26,8 +58,40 @@ class Decoder {
   final List<String> _fieldQuoteEscapeLeft;
   final List<String> _fieldQuoteEscapeRight;
 
-  List<List<String>> _parse(_ParseState s) {
-    final records = <List<String>>[];
+  DecodeResult decode(String input) {
+    final inputChars = Characters(input).toList();
+    final positions = <Position>[];
+    int line = 0;
+    int column = 0;
+    for (final (cursor, char) in inputChars.indexed) {
+      positions.add(Position(cursor, line, column));
+      column++;
+      if (char == "\r\n" || char == "\n" || char == "\r") {
+        line++;
+        column = 0;
+      }
+    }
+    positions.add(Position(inputChars.length, line, column));
+
+    final csv = _parse(_ParseState(inputChars, positions));
+    if (csv.length < _headerLines) {
+      throw DecodeException(
+        "Too few header lines: expected $_headerLines, got ${csv.length}",
+        DecodeException.codeTooFewHeaderLines,
+        Characters(input).toList(),
+        positions.last,
+      );
+    }
+
+    return DecodeResult(
+      inputChars,
+      csv.sublist(0, _headerLines),
+      csv.sublist(_headerLines, csv.length),
+    );
+  }
+
+  List<Record> _parse(_ParseState s) {
+    final records = <Record>[];
     if (s.done()) {
       return [];
     }
@@ -42,8 +106,10 @@ class Decoder {
     return records;
   }
 
-  List<String> _parseRecord(_ParseState s) {
-    final List<String> fields = [];
+  Record _parseRecord(_ParseState s) {
+    final start = s.positions[s.cursor];
+
+    final List<Field> fields = [];
     while (!s.done()) {
       if (_matchesRecordSeparator(s, _recordSeparator) > 0) {
         break;
@@ -54,18 +120,20 @@ class Decoder {
       final field = _parseField(s);
       fields.add(field);
     }
-    return fields;
+    final end = s.positions[s.cursor];
+    return Record(start, end, fields);
   }
 
-  String _parseField(_ParseState s) {
+  Field _parseField(_ParseState s) {
+    final start = s.positions[s.cursor];
     if (s.done()) {
-      return "";
+      return Field(start, start, "");
     }
     if (_matchesRecordSeparator(s, _recordSeparator) > 0) {
-      return "";
+      return Field(start, start, "");
     }
     if (s.matches(_fieldSeparator) > 0) {
-      return "";
+      return Field(start, start, "");
     }
 
     final f = (s.matches(_fieldQuoteLeft) > 0)
@@ -81,32 +149,36 @@ class Decoder {
         DecodeException.codeInvalidCharAfterField);
   }
 
-  String _parseQuotedField(_ParseState s) {
+  Field _parseQuotedField(_ParseState s) {
     if (s.matches(_fieldQuoteLeft) == 0) {
       s.fail("fail to read opening quote",
           DecodeException.codeOpeningQuoteNotFound);
     }
     s.move(s.matches(_fieldQuoteLeft));
 
-    final field = StringBuffer();
+    final start = s.positions[s.cursor];
+
+    final fieldValue = StringBuffer();
     while (!s.done()) {
       final [escL, escR] = [_fieldQuoteEscapeLeft, _fieldQuoteEscapeRight];
       if (s.peek(escL.length) == escL.join()) {
-        field.write(_fieldQuoteLeft.join());
+        fieldValue.write(_fieldQuoteLeft.join());
         s.move(escL.length);
         continue;
       }
       if (s.peek(escR.length) == escR.join()) {
-        field.write(_fieldQuoteRight.join());
+        fieldValue.write(_fieldQuoteRight.join());
         s.move(escR.length);
         continue;
       }
       if (s.matches(_fieldQuoteRight) > 0) {
+        final end = s.positions[s.cursor];
+
         s.move(s.matches(_fieldQuoteRight));
-        return field.toString();
+        return Field(start, end, fieldValue.toString());
       }
 
-      field.write(s.peek(1));
+      fieldValue.write(s.peek(1));
       s.move(1);
     }
 
@@ -114,44 +186,32 @@ class Decoder {
         "fail to read closing quote", DecodeException.codeClosingQuoteNotFound);
   }
 
-  String _parseUnquotedField(_ParseState s) {
-    final field = StringBuffer();
+  Field _parseUnquotedField(_ParseState s) {
+    final start = s.positions[s.cursor];
+    final fieldValue = StringBuffer();
     while (!s.done()) {
       if (_matchesRecordSeparator(s, _recordSeparator) > 0) {
-        return field.toString();
+        final end = s.positions[s.cursor];
+        return Field(start, end, fieldValue.toString());
       }
       if (s.matches(_fieldSeparator) > 0) {
-        return field.toString();
+        final end = s.positions[s.cursor];
+        return Field(start, end, fieldValue.toString());
       }
 
-      field.write(s.peek(1));
+      fieldValue.write(s.peek(1));
       s.move(1);
     }
-    return field.toString();
-  }
-
-  ({List<List<String>> headers, List<List<String>> records}) decode(
-      String input) {
-    final csv = _parse(_ParseState(Characters(input).toList()));
-    if (csv.length < _headerLines) {
-      throw DecodeException(
-        "Too few header lines: expected $_headerLines, got ${csv.length}",
-        DecodeException.codeTooFewHeaderLines,
-        Characters(input).toList(),
-        0,
-      );
-    }
-    return (
-      headers: csv.sublist(0, _headerLines),
-      records: csv.sublist(_headerLines, csv.length),
-    );
+    final end = s.positions[s.cursor];
+    return Field(start, end, fieldValue.toString());
   }
 }
 
 class _ParseState {
-  _ParseState(this.input);
+  _ParseState(this.input, this.positions);
 
   final List<String> input;
+  final List<Position> positions;
   int cursor = 0;
 
   bool done() {
@@ -171,7 +231,7 @@ class _ParseState {
   }
 
   Never fail(String message, String code) {
-    throw DecodeException(message, code, input, cursor);
+    throw DecodeException(message, code, input, positions[cursor]);
   }
 }
 
