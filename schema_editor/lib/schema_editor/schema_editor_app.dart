@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:schema_editor/schema_editor/components/column_type_editor.dart';
+import 'package:schema_editor/schema_editor/components/decode_editor.dart';
 import 'package:schema_editor/schema_editor/components/table_config_editor.dart';
 import 'package:schema_editor/schema_editor/components/validation_editor.dart';
 import 'package:schema_editor/schema/json_schema.dart';
@@ -63,9 +64,6 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
         _filePathController.text = result.files.single.path!;
       });
     }
-    // Notify TableConfigEditor to update its state after loading new schema
-    // This is handled by passing initialTableConfigs: _schema.tableConfig,
-    // and TableConfigEditor should update when this changes.
   }
 
   void _saveJson() async {
@@ -183,6 +181,16 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
           },
         );
         break;
+      case 3:
+        mainContent = DecodeEditor(
+          decode: _schema.decode,
+          onChanged: (decode) {
+            setState(() {
+              _schema = _schema.copyWith(decode: decode);
+            });
+          },
+        );
+        break;
       default:
         mainContent =
             const Center(child: Text('Select an item from the sidebar'));
@@ -234,6 +242,10 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
               NavigationRailDestination(
                 icon: Icon(Icons.rule),
                 label: Text('Validation'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.code),
+                label: Text('Decode'),
               ),
             ],
           ),
