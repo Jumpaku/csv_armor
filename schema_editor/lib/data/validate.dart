@@ -1,7 +1,9 @@
 import 'package:schema_editor/data/buffer/buffer.dart';
-import 'package:schema_editor/data/reader/csv_reader.dart';
-import 'package:schema_editor/data/store/data_store.dart';
 import 'package:schema_editor/data/index.dart';
+import 'package:schema_editor/data/reader/csv_reader.dart';
+import 'package:schema_editor/data/reader/csv_reader_exception.dart';
+import 'package:schema_editor/data/store/data_store.dart';
+import 'package:schema_editor/data/store/data_store_exception.dart';
 import 'package:schema_editor/data/validation_result.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
@@ -12,18 +14,15 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
   DataBuffer buf;
   try {
     buf = reader.readAll(schema.tableConfig);
-    buf.map((t, b) {
-      return MapEntry(t, (
-        columns: b.columns,
-        values: b.records.map((v) => v.toList()).toList(),
-      ));
-    });
   } catch (e) {
-    result.addError(DataValidationError(
-      message: 'CSV error: ${e.toString()}',
-      code: DataValidationError.codeCsvReadFailed,
-    ));
-    return result;
+    if (e is CsvReaderException) {
+      result.addError(DataValidationError(
+        message: 'CSV error: ${e.toString()}',
+        code: DataValidationError.codeCsvReadError,
+      ));
+      return result;
+    }
+    rethrow;
   }
 
   result.merge(validateDataColumn(schema.columnType, schema.tableConfig, buf));
@@ -41,11 +40,14 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
     store.initialize(schema.tableConfig);
     store.import(schema.tableConfig, buf);
   } catch (e) {
-    result.addError(DataValidationError(
-      message: 'Query error: ${e.toString()}',
-      code: DataValidationError.codeQueryExecutionFailed,
-    ));
-    return result;
+    if (e is DataStoreException) {
+      result.addError(DataValidationError(
+        message: 'Data store error: ${e.toString()}',
+        code: DataValidationError.codeQueryExecutionError,
+      ));
+      return result;
+    }
+    rethrow;
   }
 
   for (final validation in schema.validation) {
@@ -54,11 +56,14 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
     try {
       (columns: columns, rows: rows) = store.query(validation.validationQuery);
     } catch (e) {
-      result.addError(DataValidationError(
-        message: 'Query error: ${e.toString()}',
-        code: DataValidationError.codeQueryExecutionFailed,
-      ));
-      continue;
+      if (e is DataStoreException) {
+        result.addError(DataValidationError(
+          message: 'Query error: ${e.toString()}',
+          code: DataValidationError.codeQueryExecutionError,
+        ));
+        continue;
+      }
+      rethrow;
     }
 
     result.addError(DataValidationError(

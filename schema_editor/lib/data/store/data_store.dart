@@ -20,6 +20,7 @@ class DataStore {
         throw DataStoreException(
           'Failed to create table "${t.name}": ${e.toString()}',
           stmt,
+          tableName: t.name,
           cause: e,
         );
       }
@@ -39,6 +40,7 @@ class DataStore {
         throw DataStoreException(
           'Failed to insert data into table "${t.name}": ${e.toString()}',
           stmt,
+          tableName: t.name,
           cause: e,
         );
       }

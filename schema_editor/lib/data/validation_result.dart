@@ -1,5 +1,5 @@
-
 import 'package:json_annotation/json_annotation.dart';
+
 part 'validation_result.g.dart';
 
 @JsonSerializable(
@@ -12,8 +12,8 @@ class DataValidationError {
     this.validationErrorValues,
   });
 
-  static const codeCsvReadFailed = 'csv_read_failed';
-  static const codeQueryExecutionFailed = 'query_execution_failed';
+  static const codeCsvReadError = 'csv_read_error';
+  static const codeQueryExecutionError = 'query_execution_error';
   static const codeRowLengthMismatch = 'row_length_mismatch';
   static const codeUniquenessViolation = 'uniqueness_violation';
   static const codeForeignKeyViolation = 'foreign_key_violation';

@@ -50,8 +50,8 @@ class CsvReader {
           throw CsvReaderException(
             'CSV file "${csvFile.path}" has ${csvValues.length} values, but expected ${columns.length} based on table "$tableName".',
             CsvReaderException.codeFieldCountMismatch,
-            tableName: tableName,
-            filePath: csvFile.path,
+            tableName,
+            csvFile.path,
             csvLine: csvRecord.end.line,
             csvColumn: csvRecord.end.column,
           );
@@ -96,7 +96,8 @@ class CsvReader {
       throw CsvReaderException(
         'failed to find CSV files: glob="$csvPathGlob": ${e.toString()}',
         CsvReaderException.codeFileReadFailed,
-        filePath: csvPathGlob,
+        tableName,
+        csvPathGlob,
       );
     }
   }
@@ -118,8 +119,8 @@ class CsvReader {
       throw CsvReaderException(
         'failed to read file: table: "$tableName", path="${csvFile.path}": ${e.toString()}',
         CsvReaderException.codeFileReadFailed,
-        tableName: tableName,
-        filePath: csvFile.path,
+        tableName,
+        csvFile.path,
       );
     }
 
@@ -131,8 +132,8 @@ class CsvReader {
         throw CsvReaderException(
           'failed to decode CSV file: table="$tableName", path="${csvFile.path}", line=${e.position.line}, line=${e.position.column}: ${e.toString()}',
           CsvReaderException.codeCsvDecodeFailed,
-          tableName: tableName,
-          filePath: csvFile.path,
+          tableName,
+          csvFile.path,
           csvLine: e.position.line,
           csvColumn: e.position.column,
         );
