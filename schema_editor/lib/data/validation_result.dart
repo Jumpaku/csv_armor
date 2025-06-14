@@ -12,7 +12,6 @@ class DataValidationError {
     this.validationErrorValues,
   });
 
-  static const codeCsvReadError = 'csv_read_error';
   static const codeQueryExecutionError = 'query_execution_error';
   static const codeRowLengthMismatch = 'row_length_mismatch';
   static const codeUniquenessViolation = 'uniqueness_violation';

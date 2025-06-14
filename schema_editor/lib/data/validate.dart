@@ -1,29 +1,12 @@
 import 'package:schema_editor/data/buffer/buffer.dart';
 import 'package:schema_editor/data/index.dart';
-import 'package:schema_editor/data/reader/csv_reader.dart';
-import 'package:schema_editor/data/reader/csv_reader_exception.dart';
 import 'package:schema_editor/data/store/data_store.dart';
-import 'package:schema_editor/data/store/data_store_exception.dart';
 import 'package:schema_editor/data/validation_result.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
 
-DataValidationResult validateData(Schema schema, CsvReader reader) {
+DataValidationResult validateData(Schema schema, DataBuffer buf) {
   final result = DataValidationResult();
-
-  DataBuffer buf;
-  try {
-    buf = reader.readAll(schema.tableConfig);
-  } catch (e) {
-    if (e is CsvReaderException) {
-      result.addError(DataValidationError(
-        message: 'CSV error: ${e.toString()}',
-        code: DataValidationError.codeCsvReadError,
-      ));
-      return result;
-    }
-    rethrow;
-  }
 
   result.merge(validateDataColumn(schema.columnType, schema.tableConfig, buf));
 
@@ -34,21 +17,17 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
     return result;
   }
 
-  DataStore store;
-  try {
-    store = DataStore(db: DatabaseAccess.openInMemory());
-    store.initialize(schema.tableConfig);
-    store.import(schema.tableConfig, buf);
-  } catch (e) {
-    if (e is DataStoreException) {
-      result.addError(DataValidationError(
-        message: 'Data store error: ${e.toString()}',
-        code: DataValidationError.codeQueryExecutionError,
-      ));
-      return result;
-    }
-    rethrow;
-  }
+  result.merge(validateValidations(schema, buf));
+
+  return result;
+}
+
+DataValidationResult validateValidations(Schema schema, DataBuffer buf) {
+  DataValidationResult result = DataValidationResult();
+
+  DataStore store = DataStore(db: DatabaseAccess.openInMemory())
+    ..initialize(schema.tableConfig)
+    ..import(schema.tableConfig, buf);
 
   for (final validation in schema.validation) {
     List<String> columns;
@@ -56,22 +35,21 @@ DataValidationResult validateData(Schema schema, CsvReader reader) {
     try {
       (columns: columns, rows: rows) = store.query(validation.validationQuery);
     } catch (e) {
-      if (e is DataStoreException) {
-        result.addError(DataValidationError(
-          message: 'Query error: ${e.toString()}',
-          code: DataValidationError.codeQueryExecutionError,
-        ));
-        continue;
-      }
-      rethrow;
+      result.addError(DataValidationError(
+        message: 'Query error: ${e.toString()}',
+        code: DataValidationError.codeQueryExecutionError,
+      ));
+      continue;
     }
 
-    result.addError(DataValidationError(
-      message: validation.message,
-      code: DataValidationError.codeValidationFailed,
-      validationErrorKey: columns,
-      validationErrorValues: rows,
-    ));
+    if (rows.isNotEmpty) {
+      result.addError(DataValidationError(
+        message: validation.message,
+        code: DataValidationError.codeValidationFailed,
+        validationErrorKey: columns,
+        validationErrorValues: rows,
+      ));
+    }
   }
 
   return result;

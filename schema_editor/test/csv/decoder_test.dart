@@ -1,3 +1,4 @@
+import 'package:schema_editor/csv/decode_exception.dart';
 import 'package:schema_editor/csv/decoder.dart';
 import 'package:schema_editor/csv/decoder_config.dart';
 import 'package:test/test.dart';
@@ -139,5 +140,40 @@ void main() {
         expect(actualValues, equals(testcase.expected));
       });
     }
+
+    group('Decoder error cases', () {
+      test('throws codeInvalidCharAfterField', () {
+        final input = '<field>aaa</field> <sep/>bbb<sep/><field>ccc</field>';
+        expect(
+          () => sut.decode(input),
+          throwsA(predicate((e) => e is DecodeException && e.code == DecodeException.codeInvalidCharAfterField)),
+        );
+      });
+      test('throws codeClosingQuoteNotFound', () {
+        final input = '<field>aaa</field><sep/>bbb<sep/><field>ccc';
+        expect(
+          () => sut.decode(input),
+          throwsA(predicate((e) => e is DecodeException && e.code == DecodeException.codeClosingQuoteNotFound)),
+        );
+      });
+      test('throws codeTooFewHeaderLines', () {
+        final decoderWithHeader = Decoder(DecoderConfig(
+          headerLines: 2,
+          fieldSeparator: "<sep/>",
+          recordSeparator: RecordSeparator.any,
+          fieldQuote: DecoderConfigQuote(
+            leftQuote: '<field>',
+            rightQuote: '</field>',
+            leftQuoteEscape: '&lt;field&gt;',
+            rightQuoteEscape: '&lt;/field&gt;',
+          ),
+        ));
+        final input = '<field>aaa</field><sep/><field>bbb</field><sep/><field>ccc</field>';
+        expect(
+          () => decoderWithHeader.decode(input),
+          throwsA(predicate((e) => e is DecodeException && e.code == DecodeException.codeTooFewHeaderLines)),
+        );
+      });
+    });
   });
 }
