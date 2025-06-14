@@ -1,5 +1,6 @@
-import 'package:schema_editor/data/csv_reader.dart';
-import 'package:schema_editor/data/data_store.dart';
+import 'package:schema_editor/data/buffer/buffer.dart';
+import 'package:schema_editor/data/reader/csv_reader.dart';
+import 'package:schema_editor/data/store/data_store.dart';
 import 'package:schema_editor/data/index.dart';
 import 'package:schema_editor/data/validation_result.dart';
 import 'package:schema_editor/schema/schema.dart';

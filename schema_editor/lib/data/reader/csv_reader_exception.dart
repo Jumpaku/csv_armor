@@ -1,17 +1,15 @@
-class DataException implements Exception {
+class CsvReaderException implements Exception {
   static const String codeFileReadFailed = 'file_read_failed';
-  static const String codeInvalidCsvFormat = 'invalid_csv_format';
-  static const String codeQueryExecutionFailed = 'query_execution_failed';
+  static const String codeFieldCountMismatch = 'field_count_mismatch';
+  static const String codeCsvDecodeFailed = 'csv_decode_failed';
 
-  DataException(
+  CsvReaderException(
     this.message,
     this.code, {
     this.tableName,
     this.filePath,
     this.csvLine,
     this.csvColumn,
-    this.queryStatement,
-    this.queryParams,
   });
 
   final String message;
@@ -20,11 +18,9 @@ class DataException implements Exception {
   final String? filePath;
   final int? csvLine;
   final int? csvColumn;
-  final String? queryStatement;
-  final List<dynamic>? queryParams;
 
   @override
   String toString() {
-    return 'DataException: $message';
+    return 'CsvReaderException: $message';
   }
 }

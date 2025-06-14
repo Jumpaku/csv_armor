@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/data/csv_reader.dart';
+import 'package:schema_editor/data/reader/csv_reader.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class TestDecoder implements Decoder {

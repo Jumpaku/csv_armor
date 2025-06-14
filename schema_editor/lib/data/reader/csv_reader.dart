@@ -4,15 +4,11 @@ import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart';
+import 'package:schema_editor/csv/decode_exception.dart';
 import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/data/data_exception.dart';
+import 'package:schema_editor/data/buffer/buffer.dart';
+import 'package:schema_editor/data/reader/csv_reader_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
-
-typedef TableData = ({List<String> columns, List<List<String>> records});
-
-class DataBuffer extends MapView<String, TableData> {
-  DataBuffer(Map<String, TableData> tableData) : super(tableData);
-}
 
 class CsvReader {
   CsvReader({required Context ctx, required Decoder decoder})
@@ -46,17 +42,21 @@ class CsvReader {
       List<String> pathValues = _extractPathValues(schemaCsvPath, csvFile.path);
 
       // Decode CSV file
-      final csvValues = _decodeCsvValues(tableName, csvFile);
+      final csvRecords = _decodeCsvValues(tableName, csvFile);
 
-      for (final csvValues in csvValues) {
-        final record = pathValues + csvValues;
-        if (record.length != columns.length) {
-          throw DataException(
-            'CSV file "${csvFile.path}" has ${record.length} values, but expected ${columns.length} based on table "$tableName".',
-            DataException.codeInvalidCsv,
+      for (final csvRecord in csvRecords) {
+        final csvValues = csvRecord.fields.map((f) => f.value).toList();
+        if (csvValues.length != columns.length - pathValues.length) {
+          throw CsvReaderException(
+            'CSV file "${csvFile.path}" has ${csvValues.length} values, but expected ${columns.length} based on table "$tableName".',
+            CsvReaderException.codeFieldCountMismatch,
             tableName: tableName,
+            filePath: csvFile.path,
+            csvLine: csvRecord.end.line,
+            csvColumn: csvRecord.end.column,
           );
         }
+        final record = pathValues + csvValues;
         records.add([for (final k in columnIdx) record[k]]);
       }
     }
@@ -93,9 +93,10 @@ class CsvReader {
       final glob = Glob(csvPathGlob, context: _ctx);
       return glob.listSync().whereType<File>().toList();
     } catch (e) {
-      throw DataException(
+      throw CsvReaderException(
         'failed to find CSV files: glob="$csvPathGlob": ${e.toString()}',
-        DataException.codeInvalidCsv,
+        CsvReaderException.codeFileReadFailed,
+        filePath: csvPathGlob,
       );
     }
   }
@@ -108,18 +109,38 @@ class CsvReader {
     return [for (int i = 1; i <= match.groupCount; i++) match.group(i)!];
   }
 
-  List<List<String>> _decodeCsvValues(String tableName, File csvFile) {
+  List<Record> _decodeCsvValues(String tableName, File csvFile) {
+    String content;
+
     try {
-      final content = csvFile.readAsStringSync();
-      final result = _decoder.decode(content);
-      return result.records.map((record) => record.fields.map((f) => f.value).toList()).toList();
+      content = csvFile.readAsStringSync();
     } catch (e) {
-      throw DataException(
-        'failed to decode CSV file: table: "$tableName", path="${csvFile.path}": ${e.toString()}',
-        DataException.codeInvalidCsv,
+      throw CsvReaderException(
+        'failed to read file: table: "$tableName", path="${csvFile.path}": ${e.toString()}',
+        CsvReaderException.codeFileReadFailed,
         tableName: tableName,
+        filePath: csvFile.path,
       );
     }
+
+    DecodeResult result;
+    try {
+      result = _decoder.decode(content);
+    } catch (e) {
+      if (e is DecodeException) {
+        throw CsvReaderException(
+          'failed to decode CSV file: table="$tableName", path="${csvFile.path}", line=${e.position.line}, line=${e.position.column}: ${e.toString()}',
+          CsvReaderException.codeCsvDecodeFailed,
+          tableName: tableName,
+          filePath: csvFile.path,
+          csvLine: e.position.line,
+          csvColumn: e.position.column,
+        );
+      }
+      rethrow;
+    }
+
+    return result.records;
   }
 }
 

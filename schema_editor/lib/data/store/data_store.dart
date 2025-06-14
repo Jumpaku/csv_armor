@@ -1,27 +1,9 @@
 import 'dart:collection';
 
-import 'package:schema_editor/data/csv_reader.dart';
+import 'package:schema_editor/data/buffer/buffer.dart';
+import 'package:schema_editor/data/store/data_store_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
-
-class DataStoreException implements Exception {
-  DataStoreException(
-    this.message,
-    this.statement, {
-    this.params = const [],
-    this.tableName = '',
-    this.cause,
-  });
-
-  final String message;
-  final String tableName;
-  final String statement;
-  final List<dynamic> params;
-  final Object? cause;
-
-  @override
-  String toString() => 'DataStoreException: $message';
-}
 
 class DataStore {
   DataStore({required DatabaseAccess db}) : _db = db;
