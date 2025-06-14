@@ -40,7 +40,7 @@ class _SchemaEditorHomePageState extends State<SchemaEditorHomePage> {
   @override
   void initState() {
     super.initState();
-    _schema = Schema(columnType: {});
+    _schema = Schema();
     _filePathController = TextEditingController();
   }
 

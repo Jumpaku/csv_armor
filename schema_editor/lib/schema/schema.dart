@@ -12,6 +12,7 @@ class Schema {
     this.tableConfig = const [],
     this.columnType = const {},
     this.validation = const [],
+    this.decode,
   });
 
   @JsonKey(name: 'table_config')
@@ -20,6 +21,8 @@ class Schema {
   Map<String, String> columnType;
   @JsonKey(name: 'validation')
   List<Validation> validation; // Can be Validation or import path
+  @JsonKey(name: 'decode')
+  Decode? decode;
 
   factory Schema.fromJson(Map<String, dynamic> json) => _$SchemaFromJson(json);
 
@@ -156,4 +159,68 @@ class Validation {
       _$ValidationFromJson(json);
 
   Map<String, dynamic> toJson() => _$ValidationToJson(this);
+}
+
+/// Represents decode configuration for CSV files
+@CopyWith()
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
+class Decode {
+  Decode({
+    this.headerLines,
+    this.recordSeparator,
+    this.fieldSeparator,
+    this.fieldQuote,
+  });
+
+  @JsonKey(name: 'import')
+  String? import;
+  @JsonKey(name: 'header_lines')
+  int? headerLines;
+  @JsonKey(name: 'record_separator')
+  RecordSeparator? recordSeparator;
+  @JsonKey(name: 'field_separator')
+  String? fieldSeparator;
+  @JsonKey(name: 'field_quote')
+  FieldQuote? fieldQuote;
+
+  factory Decode.fromJson(Map<String, dynamic> json) => _$DecodeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DecodeToJson(this);
+}
+
+/// Represents the record separator configuration for CSV files
+@JsonEnum()
+enum RecordSeparator {
+  CRLF, // \r\n
+  LF, // \n
+  CR, // \r
+  ANY, // any of the above
+}
+
+/// Represents field quote configuration for CSV files
+@CopyWith()
+@JsonSerializable(
+    disallowUnrecognizedKeys: true, explicitToJson: true, includeIfNull: false)
+class FieldQuote {
+  FieldQuote({
+    this.left,
+    this.leftEscape,
+    this.right,
+    this.rightEscape,
+  });
+
+  @JsonKey(name: 'left')
+  String? left;
+  @JsonKey(name: 'left_escape')
+  String? leftEscape;
+  @JsonKey(name: 'right')
+  String? right;
+  @JsonKey(name: 'right_escape')
+  String? rightEscape;
+
+  factory FieldQuote.fromJson(Map<String, dynamic> json) =>
+      _$FieldQuoteFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FieldQuoteToJson(this);
 }

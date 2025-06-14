@@ -13,6 +13,8 @@ abstract class _$SchemaCWProxy {
 
   Schema validation(List<Validation> validation);
 
+  Schema decode(Decode? decode);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Schema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -23,6 +25,7 @@ abstract class _$SchemaCWProxy {
     List<TableConfig>? tableConfig,
     Map<String, String>? columnType,
     List<Validation>? validation,
+    Decode? decode,
   });
 }
 
@@ -45,6 +48,9 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
       this(validation: validation);
 
   @override
+  Schema decode(Decode? decode) => this(decode: decode);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Schema(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -56,6 +62,7 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
     Object? tableConfig = const $CopyWithPlaceholder(),
     Object? columnType = const $CopyWithPlaceholder(),
     Object? validation = const $CopyWithPlaceholder(),
+    Object? decode = const $CopyWithPlaceholder(),
   }) {
     return Schema(
       tableConfig:
@@ -73,6 +80,10 @@ class _$SchemaCWProxyImpl implements _$SchemaCWProxy {
               ? _value.validation
               // ignore: cast_nullable_to_non_nullable
               : validation as List<Validation>,
+      decode: decode == const $CopyWithPlaceholder()
+          ? _value.decode
+          // ignore: cast_nullable_to_non_nullable
+          : decode as Decode?,
     );
   }
 }
@@ -494,6 +505,172 @@ extension $ValidationCopyWith on Validation {
   _$ValidationCWProxy get copyWith => _$ValidationCWProxyImpl(this);
 }
 
+abstract class _$DecodeCWProxy {
+  Decode headerLines(int? headerLines);
+
+  Decode recordSeparator(RecordSeparator? recordSeparator);
+
+  Decode fieldSeparator(String? fieldSeparator);
+
+  Decode fieldQuote(FieldQuote? fieldQuote);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Decode(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// Decode(...).copyWith(id: 12, name: "My name")
+  /// ````
+  Decode call({
+    int? headerLines,
+    RecordSeparator? recordSeparator,
+    String? fieldSeparator,
+    FieldQuote? fieldQuote,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfDecode.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfDecode.copyWith.fieldName(...)`
+class _$DecodeCWProxyImpl implements _$DecodeCWProxy {
+  const _$DecodeCWProxyImpl(this._value);
+
+  final Decode _value;
+
+  @override
+  Decode headerLines(int? headerLines) => this(headerLines: headerLines);
+
+  @override
+  Decode recordSeparator(RecordSeparator? recordSeparator) =>
+      this(recordSeparator: recordSeparator);
+
+  @override
+  Decode fieldSeparator(String? fieldSeparator) =>
+      this(fieldSeparator: fieldSeparator);
+
+  @override
+  Decode fieldQuote(FieldQuote? fieldQuote) => this(fieldQuote: fieldQuote);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `Decode(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// Decode(...).copyWith(id: 12, name: "My name")
+  /// ````
+  Decode call({
+    Object? headerLines = const $CopyWithPlaceholder(),
+    Object? recordSeparator = const $CopyWithPlaceholder(),
+    Object? fieldSeparator = const $CopyWithPlaceholder(),
+    Object? fieldQuote = const $CopyWithPlaceholder(),
+  }) {
+    return Decode(
+      headerLines: headerLines == const $CopyWithPlaceholder()
+          ? _value.headerLines
+          // ignore: cast_nullable_to_non_nullable
+          : headerLines as int?,
+      recordSeparator: recordSeparator == const $CopyWithPlaceholder()
+          ? _value.recordSeparator
+          // ignore: cast_nullable_to_non_nullable
+          : recordSeparator as RecordSeparator?,
+      fieldSeparator: fieldSeparator == const $CopyWithPlaceholder()
+          ? _value.fieldSeparator
+          // ignore: cast_nullable_to_non_nullable
+          : fieldSeparator as String?,
+      fieldQuote: fieldQuote == const $CopyWithPlaceholder()
+          ? _value.fieldQuote
+          // ignore: cast_nullable_to_non_nullable
+          : fieldQuote as FieldQuote?,
+    );
+  }
+}
+
+extension $DecodeCopyWith on Decode {
+  /// Returns a callable class that can be used as follows: `instanceOfDecode.copyWith(...)` or like so:`instanceOfDecode.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$DecodeCWProxy get copyWith => _$DecodeCWProxyImpl(this);
+}
+
+abstract class _$FieldQuoteCWProxy {
+  FieldQuote left(String? left);
+
+  FieldQuote leftEscape(String? leftEscape);
+
+  FieldQuote right(String? right);
+
+  FieldQuote rightEscape(String? rightEscape);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FieldQuote(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// FieldQuote(...).copyWith(id: 12, name: "My name")
+  /// ````
+  FieldQuote call({
+    String? left,
+    String? leftEscape,
+    String? right,
+    String? rightEscape,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfFieldQuote.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfFieldQuote.copyWith.fieldName(...)`
+class _$FieldQuoteCWProxyImpl implements _$FieldQuoteCWProxy {
+  const _$FieldQuoteCWProxyImpl(this._value);
+
+  final FieldQuote _value;
+
+  @override
+  FieldQuote left(String? left) => this(left: left);
+
+  @override
+  FieldQuote leftEscape(String? leftEscape) => this(leftEscape: leftEscape);
+
+  @override
+  FieldQuote right(String? right) => this(right: right);
+
+  @override
+  FieldQuote rightEscape(String? rightEscape) => this(rightEscape: rightEscape);
+
+  @override
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `FieldQuote(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// FieldQuote(...).copyWith(id: 12, name: "My name")
+  /// ````
+  FieldQuote call({
+    Object? left = const $CopyWithPlaceholder(),
+    Object? leftEscape = const $CopyWithPlaceholder(),
+    Object? right = const $CopyWithPlaceholder(),
+    Object? rightEscape = const $CopyWithPlaceholder(),
+  }) {
+    return FieldQuote(
+      left: left == const $CopyWithPlaceholder()
+          ? _value.left
+          // ignore: cast_nullable_to_non_nullable
+          : left as String?,
+      leftEscape: leftEscape == const $CopyWithPlaceholder()
+          ? _value.leftEscape
+          // ignore: cast_nullable_to_non_nullable
+          : leftEscape as String?,
+      right: right == const $CopyWithPlaceholder()
+          ? _value.right
+          // ignore: cast_nullable_to_non_nullable
+          : right as String?,
+      rightEscape: rightEscape == const $CopyWithPlaceholder()
+          ? _value.rightEscape
+          // ignore: cast_nullable_to_non_nullable
+          : rightEscape as String?,
+    );
+  }
+}
+
+extension $FieldQuoteCopyWith on FieldQuote {
+  /// Returns a callable class that can be used as follows: `instanceOfFieldQuote.copyWith(...)` or like so:`instanceOfFieldQuote.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$FieldQuoteCWProxy get copyWith => _$FieldQuoteCWProxyImpl(this);
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -501,7 +678,7 @@ extension $ValidationCopyWith on Validation {
 Schema _$SchemaFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['table_config', 'column_type', 'validation'],
+    allowedKeys: const ['table_config', 'column_type', 'validation', 'decode'],
   );
   return Schema(
     tableConfig: (json['table_config'] as List<dynamic>?)
@@ -516,6 +693,9 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) {
             ?.map((e) => Validation.fromJson(e as Map<String, dynamic>))
             .toList() ??
         const [],
+    decode: json['decode'] == null
+        ? null
+        : Decode.fromJson(json['decode'] as Map<String, dynamic>),
   );
 }
 
@@ -523,6 +703,7 @@ Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
       'table_config': instance.tableConfig.map((e) => e.toJson()).toList(),
       'column_type': instance.columnType,
       'validation': instance.validation.map((e) => e.toJson()).toList(),
+      if (instance.decode?.toJson() case final value?) 'decode': value,
     };
 
 TableConfig _$TableConfigFromJson(Map<String, dynamic> json) {
@@ -650,4 +831,63 @@ Map<String, dynamic> _$ValidationToJson(Validation instance) =>
       if (instance.import case final value?) 'import': value,
       'message': instance.message,
       'validation_query': instance.validationQuery,
+    };
+
+Decode _$DecodeFromJson(Map<String, dynamic> json) {
+  $checkKeys(
+    json,
+    allowedKeys: const [
+      'import',
+      'header_lines',
+      'record_separator',
+      'field_separator',
+      'field_quote'
+    ],
+  );
+  return Decode(
+    headerLines: (json['header_lines'] as num?)?.toInt(),
+    recordSeparator:
+        $enumDecodeNullable(_$RecordSeparatorEnumMap, json['record_separator']),
+    fieldSeparator: json['field_separator'] as String?,
+    fieldQuote: json['field_quote'] == null
+        ? null
+        : FieldQuote.fromJson(json['field_quote'] as Map<String, dynamic>),
+  )..import = json['import'] as String?;
+}
+
+Map<String, dynamic> _$DecodeToJson(Decode instance) => <String, dynamic>{
+      if (instance.import case final value?) 'import': value,
+      if (instance.headerLines case final value?) 'header_lines': value,
+      if (_$RecordSeparatorEnumMap[instance.recordSeparator] case final value?)
+        'record_separator': value,
+      if (instance.fieldSeparator case final value?) 'field_separator': value,
+      if (instance.fieldQuote?.toJson() case final value?) 'field_quote': value,
+    };
+
+const _$RecordSeparatorEnumMap = {
+  RecordSeparator.CRLF: 'CRLF',
+  RecordSeparator.LF: 'LF',
+  RecordSeparator.CR: 'CR',
+  RecordSeparator.ANY: 'ANY',
+};
+
+FieldQuote _$FieldQuoteFromJson(Map<String, dynamic> json) {
+  $checkKeys(
+    json,
+    allowedKeys: const ['left', 'left_escape', 'right', 'right_escape'],
+  );
+  return FieldQuote(
+    left: json['left'] as String?,
+    leftEscape: json['left_escape'] as String?,
+    right: json['right'] as String?,
+    rightEscape: json['right_escape'] as String?,
+  );
+}
+
+Map<String, dynamic> _$FieldQuoteToJson(FieldQuote instance) =>
+    <String, dynamic>{
+      if (instance.left case final value?) 'left': value,
+      if (instance.leftEscape case final value?) 'left_escape': value,
+      if (instance.right case final value?) 'right': value,
+      if (instance.rightEscape case final value?) 'right_escape': value,
     };

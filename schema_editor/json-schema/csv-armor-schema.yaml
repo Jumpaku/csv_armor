@@ -25,6 +25,8 @@ $defs:
         description: "An array of validation rules or import paths for validation rules."
         items:
           $ref: '#/$defs/Validation'
+      decode:
+        $ref: '#/$defs/Decode'
     additionalProperties: false
 
   TableConfig:
@@ -129,4 +131,45 @@ $defs:
         type: string
         description: "Path to a file to import validation rules from."
     required: [ "message" ]
+    additionalProperties: false
+
+
+  Decode:
+    type: object
+    description: "Configuration for decoding CSV files."
+    properties:
+      import:
+        type: string
+        description: "Path to a file to import decoding configurations from."
+      header_lines:
+        type: integer
+        description: "The number of header lines in the CSV file. It must be a non-negative integer."
+      record_separator:
+        type: string
+        enum: [ "CRLF", "LF", "CR", "ANY" ]
+        description: "The character used to separate records in the CSV file."
+      field_separator:
+        type: string
+        description: "The character used to separate fields in the CSV file. It must be not empty."
+      field_quote:
+        $ref: '#/$defs/FieldQuote'
+    additionalProperties: false
+
+
+  FieldQuote:
+    description: "Configuration for quoting fields in CSV files. If left and right are empty, the field cannot be quoted."
+    type: object
+    properties:
+      left:
+        type: string
+        description: "The character used to quote the left side of a field."
+      left_escape:
+        type: string
+        description: "The character used to escape the left quote character. If it is empty, the left quote character cannot be escaped."
+      right:
+        type: string
+        description: "The character used to quote the right side of a field."
+      right_escape:
+        type: string
+        description: "The character used to escape the right quote character. If it is empty, the right quote character cannot be escaped."
     additionalProperties: false
