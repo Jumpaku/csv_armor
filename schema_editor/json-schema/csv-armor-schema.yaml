@@ -124,7 +124,7 @@ $defs:
       message:
         type: string
         description: "A message of the validation rule."
-      query_error:
+      validation_query:
         type: string
         description: "The SQL query that defines the validation logic, which must return only rows representing validation error."
       import:
