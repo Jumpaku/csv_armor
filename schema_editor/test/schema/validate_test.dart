@@ -4,6 +4,61 @@ import 'package:schema_editor/schema/validate.dart';
 import 'package:schema_editor/schema/validation_result.dart';
 
 void main() {
+
+  group('validateSchema', () {
+    test('returns no error for valid schema', () {
+      final schema = Schema(
+        tableConfig: [
+          TableConfig(
+            name: 'table',
+            columns: [TableColumn(name: 'col', type: 'type1')],
+            primaryKey: ['col'],
+            uniqueKey: {'uk': ['col']},
+            foreignKey: {},
+            csvPath: 'data.csv',
+          ),
+        ],
+        columnType: {'type1': r'^.*$'},
+        validation: [],
+      );
+      final result = validateSchema(schema);
+      expect(result.errors, isEmpty);
+    });
+    test('returns errors for multiple invalid tables and column types', () {
+      final schema = Schema(
+        tableConfig: [
+          TableConfig(
+            name: '',
+            columns: [TableColumn(name: 'col', type: 'unknown')],
+            primaryKey: [],
+            uniqueKey: {'uk': []},
+            foreignKey: {},
+            csvPath: '',
+          ),
+          TableConfig(
+            name: '',
+            columns: [],
+            primaryKey: [],
+            uniqueKey: {},
+            foreignKey: {},
+            csvPath: 'invalid*path.csv',
+          ),
+        ],
+        columnType: {'type1': r'[', 'type2': r'['},
+        validation: [],
+      );
+      final result = validateSchema(schema);
+      final codes = result.errors.map((e) => e.code).toSet();
+      expect(codes, contains(ValidationError.codeEmptyTableName));
+      expect(codes, contains(ValidationError.codeEmptyCsvPath));
+      expect(codes, contains(ValidationError.codeInvalidCsvPath));
+      expect(codes, contains(ValidationError.codeUndefinedColumnType));
+      expect(codes, contains(ValidationError.codeEmptyPrimaryKey));
+      expect(codes, contains(ValidationError.codeEmptyUniqueKeyColumns));
+      expect(codes, contains(ValidationError.codeInvalidColumnTypeRegexp));
+    });
+  });
+
   group('validateColumnType', () {
     test('returns error for invalid regexp', () {
       final result = validateColumnType(['column_type', 'bad'], 'bad', r'[');
@@ -282,57 +337,51 @@ void main() {
     });
   });
 
-  group('validateSchema', () {
-    test('returns no error for valid schema', () {
-      final schema = Schema(
-        tableConfig: [
-          TableConfig(
-            name: 'table',
-            columns: [TableColumn(name: 'col', type: 'type1')],
-            primaryKey: ['col'],
-            uniqueKey: {'uk': ['col']},
-            foreignKey: {},
-            csvPath: 'data.csv',
-          ),
-        ],
-        columnType: {'type1': r'^.*$'},
-        validation: [],
-      );
-      final result = validateSchema(schema);
+  group('validateDecodeConfig', () {
+    test('returns error for negative headerLines', () {
+      final decode = DecodeConfig(headerLines: -1);
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isNotEmpty);
+      expect(result.errors.first.code, ValidationError.codeNegativeHeaderLines);
+    });
+    test('returns error for only left quote', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote(left: '"'));
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isNotEmpty);
+      expect(result.errors.first.code, ValidationError.codeInvalidQuoteCombination);
+    });
+    test('returns error for only right quote', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote(right: '"'));
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isNotEmpty);
+      expect(result.errors.first.code, ValidationError.codeInvalidQuoteCombination);
+    });
+    test('returns error for leftEscape when quotes are empty', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote(leftEscape: '\\'));
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isNotEmpty);
+      expect(result.errors.first.code, ValidationError.codeInvalidQuoteCombination);
+    });
+    test('returns error for rightEscape when quotes are empty', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote(rightEscape: '\\'));
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isNotEmpty);
+      expect(result.errors.first.code, ValidationError.codeInvalidQuoteCombination);
+    });
+    test('returns no error for valid quotes', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote(left: '"', right: '"'));
+      final result = validateDecodeConfig(['decode'], decode);
       expect(result.errors, isEmpty);
     });
-    test('returns errors for multiple invalid tables and column types', () {
-      final schema = Schema(
-        tableConfig: [
-          TableConfig(
-            name: '',
-            columns: [TableColumn(name: 'col', type: 'unknown')],
-            primaryKey: [],
-            uniqueKey: {'uk': []},
-            foreignKey: {},
-            csvPath: '',
-          ),
-          TableConfig(
-            name: '',
-            columns: [],
-            primaryKey: [],
-            uniqueKey: {},
-            foreignKey: {},
-            csvPath: 'invalid*path.csv',
-          ),
-        ],
-        columnType: {'type1': r'[', 'type2': r'['},
-        validation: [],
-      );
-      final result = validateSchema(schema);
-      final codes = result.errors.map((e) => e.code).toSet();
-      expect(codes, contains(ValidationError.codeEmptyTableName));
-      expect(codes, contains(ValidationError.codeEmptyCsvPath));
-      expect(codes, contains(ValidationError.codeInvalidCsvPath));
-      expect(codes, contains(ValidationError.codeUndefinedColumnType));
-      expect(codes, contains(ValidationError.codeEmptyPrimaryKey));
-      expect(codes, contains(ValidationError.codeEmptyUniqueKeyColumns));
-      expect(codes, contains(ValidationError.codeInvalidColumnTypeRegexp));
+    test('returns no error for empty quotes and escapes', () {
+      final decode = DecodeConfig(fieldQuote: FieldQuote());
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isEmpty);
+    });
+    test('returns no error for valid headerLines', () {
+      final decode = DecodeConfig(headerLines: 0);
+      final result = validateDecodeConfig(['decode'], decode);
+      expect(result.errors, isEmpty);
     });
   });
 }

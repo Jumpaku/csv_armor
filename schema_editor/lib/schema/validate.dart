@@ -18,6 +18,10 @@ ValidationResult validateSchema(Schema schema) {
         ['column_type', columnType.key], columnType.key, columnType.value));
   }
 
+  if (schema.decodeConfig != null) {
+    result.merge(validateDecodeConfig(['decode_config'], schema.decodeConfig!));
+  }
+
   return result;
 }
 
@@ -242,7 +246,7 @@ ValidationResult validateColumn(
   return result;
 }
 
-ValidationResult validateDecode(
+ValidationResult validateDecodeConfig(
   List<String> path,
   DecodeConfig decode,
 ) {
@@ -259,7 +263,7 @@ ValidationResult validateDecode(
   final left = decode.fieldQuote?.left ?? '';
   final leftEscape = decode.fieldQuote?.leftEscape ?? '';
   final right = decode.fieldQuote?.right ?? '';
-  final rightEscape = decode.fieldQuote?.leftEscape ?? '';
+  final rightEscape = decode.fieldQuote?.rightEscape ?? '';
   if (left.isEmpty != right.isEmpty) {
     result.addError(
       [...path, 'field_quote'],
