@@ -91,7 +91,7 @@ class CsvReader {
   List<File> _listCsvFiles(String tableName, String csvPathGlob) {
     try {
       final glob = Glob(csvPathGlob, context: _ctx);
-      return glob.listSync().whereType<File>().toList();
+      return glob.listSync(root: _ctx.current).whereType<File>().toList();
     } catch (e) {
       throw CsvReaderException(
         'failed to find CSV files: glob="$csvPathGlob": ${e.toString()}',
@@ -105,7 +105,7 @@ class CsvReader {
   List<String> _extractPathValues(String csvPath, String csvFilePath) {
     // <placeholder-value> := character sequence excluding '[', ']', '/', and '*'
     final csvPathRegexp = RegExp(
-        '^${csvPath.replaceAll(_csvPathPlaceholderRegExp, r'([^*\/\[\]]*)')}\$');
+        '.*${csvPath.replaceAll(_csvPathPlaceholderRegExp, r'([^*\/\[\]]*)')}\$');
     final match = csvPathRegexp.firstMatch(csvFilePath)!;
     return [for (int i = 1; i <= match.groupCount; i++) match.group(i)!];
   }

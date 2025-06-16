@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:schema_editor/schema/schema.dart';
 
 class TableConfigForeignKeysEditor extends StatelessWidget {
@@ -28,9 +27,10 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
         initialReferenceTable: isEdit ? fk!.reference.table : null,
         initialReferenceUniqueKey:
             isEdit ? fk!.reference.uniqueKey ?? '' : null,
+        initialIgnoreEmpty: isEdit ? fk!.ignoreEmpty : false,
         tableConfigs: tableConfigs,
         tableIdx: tableIdx,
-        onSave: (name, columns, refTable, refUniqueKey) {
+        onSave: (name, columns, refTable, refUniqueKey, ignoreEmpty) {
           final newConfigs = List<TableConfig>.from(tableConfigs);
           final foreignKey =
               Map<String, ForeignKey>.from(newConfigs[tableIdx].foreignKey);
@@ -41,6 +41,7 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
               table: refTable,
               uniqueKey: refUniqueKey,
             ),
+            ignoreEmpty: ignoreEmpty,
           );
           newConfigs[tableIdx] =
               newConfigs[tableIdx].copyWith(foreignKey: foreignKey);
@@ -78,29 +79,33 @@ class TableConfigForeignKeysEditor extends StatelessWidget {
         ),
         Column(
           children: config.foreignKey.entries
-              .map((e) => Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16.0, top: 2, bottom: 2),
+              .map(
+                (e) => Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0, top: 2, bottom: 2),
                         child: Text(
                           '${e.key}: [${e.value.columns.join(', ')}] references ${e.value.reference.table} (${e.value.reference.uniqueKey ?? 'PRIMARY KEY'})',
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                         ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        tooltip: 'Edit Foreign Key',
-                        onPressed: () =>
-                            _editOrAddForeignKeyDialog(context, index, e.key),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        tooltip: 'Delete Foreign Key',
-                        onPressed: () => _deleteForeignKey(index, e.key),
-                      ),
-                    ],
-                  ))
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Edit Foreign Key',
+                      onPressed: () =>
+                          _editOrAddForeignKeyDialog(context, index, e.key),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: 'Delete Foreign Key',
+                      onPressed: () => _deleteForeignKey(index, e.key),
+                    ),
+                  ],
+                ),
+              )
               .toList(),
         ),
       ],
@@ -115,7 +120,8 @@ class EditForeignKeyDialog extends StatefulWidget {
   final String? initialReferenceUniqueKey;
   final List<TableConfig> tableConfigs;
   final int tableIdx;
-  final void Function(String, List<String>, String, String?) onSave;
+  final void Function(String, List<String>, String, String?, bool) onSave;
+  final bool initialIgnoreEmpty;
 
   const EditForeignKeyDialog({
     super.key,
@@ -126,6 +132,7 @@ class EditForeignKeyDialog extends StatefulWidget {
     required this.tableConfigs,
     required this.tableIdx,
     required this.onSave,
+    required this.initialIgnoreEmpty,
   });
 
   @override
@@ -137,6 +144,7 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
   late List<String> columns;
   late TextEditingController refTableController;
   late TextEditingController refUniqueKeyController;
+  bool ignoreEmpty = false;
 
   @override
   void initState() {
@@ -147,6 +155,7 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
         TextEditingController(text: widget.initialReferenceTable ?? '');
     refUniqueKeyController =
         TextEditingController(text: widget.initialReferenceUniqueKey ?? '');
+    ignoreEmpty = widget.initialIgnoreEmpty;
   }
 
   void addOrEditColumnDialog({int? columnIndex, String? currentColumnName}) {
@@ -310,6 +319,19 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
                     ? 'Please select a unique key or primary key'
                     : null,
               ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ignoreEmpty,
+                    onChanged: (value) {
+                      setState(() {
+                        ignoreEmpty = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('Ignore Empty'),
+                ],
+              ),
             ],
           ),
         ),
@@ -326,7 +348,7 @@ class _EditForeignKeyDialogState extends State<EditForeignKeyDialog> {
             final refUniqueKey = refUniqueKeyController.text.trim();
             if (name.isNotEmpty && refTable.isNotEmpty) {
               widget.onSave(name, List<String>.from(columns), refTable,
-                  refUniqueKey.isEmpty ? null : refUniqueKey);
+                  refUniqueKey.isEmpty ? null : refUniqueKey, ignoreEmpty);
               Navigator.pop(context);
             }
           },

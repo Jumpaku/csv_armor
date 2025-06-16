@@ -103,12 +103,15 @@ class ForeignKey {
   ForeignKey({
     required this.columns,
     required this.reference,
+    this.ignoreEmpty = false,
   });
 
   @JsonKey(name: 'columns')
   List<String> columns;
   @JsonKey(name: 'reference')
   ForeignKeyReference reference;
+  @JsonKey(name: 'ignore_empty')
+  bool ignoreEmpty;
 
   factory ForeignKey.fromJson(Map<String, dynamic> json) =>
       _$ForeignKeyFromJson(json);

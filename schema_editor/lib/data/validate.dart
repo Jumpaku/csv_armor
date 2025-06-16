@@ -70,10 +70,13 @@ DataValidationResult validateDataForeignKey(List<TableConfig> tableConfig,
         final indexName = fk.value.reference.uniqueKey ?? '';
         final refIndex = index[refTable]![indexName]!;
         final key = Key([for (final c in fk.value.columns) row[columnIdx[c]!]]);
+        if (fk.value.ignoreEmpty && key.key.any((v) => v.isEmpty)) {
+          continue; // Ignore empty foreign keys if configured
+        }
         if (refIndex.getRows(key).isEmpty) {
           result.addError(DataValidationError(
             message:
-                'Foreign key violation in table "${t.name}" for foreign key "${fk.key}" referencing table "${fk.value.reference.table}" with key "$key"',
+                'Foreign key violation in table "${t.name}" for foreign key "${fk.key}" referencing table "${fk.value.reference.table}" with key "${key.key}"',
             code: DataValidationError.codeForeignKeyViolation,
             validationErrorKey: key.key,
             validationErrorValues: [row],

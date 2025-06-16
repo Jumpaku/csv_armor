@@ -101,6 +101,10 @@ $defs:
       reference:
         $ref: '#/$defs/ForeignKeyReference'
         description: "The reference to the foreign table and key."
+      ignore_empty:
+        type: boolean
+        description: "If true, empty values in the columns are ignored and do not trigger validation errors."
+        default: false
     required: [ "columns", "reference" ]
     additionalProperties: false
 

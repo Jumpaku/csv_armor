@@ -1,0 +1,299 @@
+{
+  "table_config": [
+    {
+      "name": "home_banner_badge",
+      "csv_path": "./home/banner/badge.tsv",
+      "columns": [
+        {
+          "name": "id",
+          "allow_empty": false
+        },
+        {
+          "name": "image_url",
+          "allow_empty": false
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique_key": {},
+      "foreign_key": {}
+    },
+    {
+      "name": "home_banner",
+      "csv_path": "./home/banner.tsv",
+      "columns": [
+        {
+          "name": "id",
+          "allow_empty": false
+        },
+        {
+          "name": "sort_key",
+          "allow_empty": false,
+          "type": "integer"
+        },
+        {
+          "name": "start_time",
+          "allow_empty": false,
+          "type": "datetime"
+        },
+        {
+          "name": "end_time",
+          "allow_empty": false,
+          "type": "datetime"
+        },
+        {
+          "name": "home_badge_id",
+          "allow_empty": true
+        },
+        {
+          "name": "image_url",
+          "allow_empty": false
+        },
+        {
+          "name": "destination_url",
+          "allow_empty": false
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique_key": {},
+      "foreign_key": {
+        "home_banner_badge": {
+          "columns": [
+            "home_badge_id"
+          ],
+          "reference": {
+            "table": "home_banner_badge"
+          },
+          "ignore_empty": true
+        }
+      }
+    },
+    {
+      "name": "home_area",
+      "csv_path": "./home/area.tsv",
+      "columns": [
+        {
+          "name": "id",
+          "allow_empty": false
+        },
+        {
+          "name": "name",
+          "allow_empty": false
+        },
+        {
+          "name": "start_time",
+          "allow_empty": true,
+          "type": "datetime"
+        },
+        {
+          "name": "end_time",
+          "allow_empty": true,
+          "type": "datetime"
+        },
+        {
+          "name": "coord_x",
+          "allow_empty": false,
+          "type": "decimal"
+        },
+        {
+          "name": "coord_y",
+          "allow_empty": false,
+          "type": "decimal"
+        },
+        {
+          "name": "image_url",
+          "allow_empty": false
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique_key": {},
+      "foreign_key": {}
+    },
+    {
+      "name": "home_area_spot_type",
+      "csv_path": "./home/area/spot/type.tsv",
+      "columns": [
+        {
+          "name": "type",
+          "allow_empty": false
+        }
+      ],
+      "primary_key": [
+        "type"
+      ],
+      "unique_key": {},
+      "foreign_key": {}
+    },
+    {
+      "name": "home_area_spot",
+      "csv_path": "./home/area/spot.tsv",
+      "columns": [
+        {
+          "name": "id",
+          "allow_empty": false
+        },
+        {
+          "name": "area_id",
+          "allow_empty": false
+        },
+        {
+          "name": "type",
+          "allow_empty": false
+        },
+        {
+          "name": "coord_x",
+          "allow_empty": false,
+          "type": "decimal"
+        },
+        {
+          "name": "coord_y",
+          "allow_empty": false,
+          "type": "decimal"
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique_key": {},
+      "foreign_key": {
+        "home_area": {
+          "columns": [
+            "area_id"
+          ],
+          "reference": {
+            "table": "home_area"
+          },
+          "ignore_empty": false
+        },
+        "home_area_spot_type": {
+          "columns": [
+            "type"
+          ],
+          "reference": {
+            "table": "home_area_spot_type"
+          },
+          "ignore_empty": false
+        }
+      }
+    },
+    {
+      "name": "home_area_item",
+      "csv_path": "./home/area/item.tsv",
+      "columns": [
+        {
+          "name": "id",
+          "allow_empty": false
+        },
+        {
+          "name": "name",
+          "allow_empty": false
+        },
+        {
+          "name": "spot_shop_id",
+          "allow_empty": false
+        },
+        {
+          "name": "spot_item_id",
+          "allow_empty": false
+        },
+        {
+          "name": "image_url",
+          "allow_empty": false
+        },
+        {
+          "name": "description",
+          "allow_empty": false
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique_key": {},
+      "foreign_key": {
+        "home_area_spot_shop": {
+          "columns": [
+            "spot_shop_id"
+          ],
+          "reference": {
+            "table": "home_area_spot"
+          },
+          "ignore_empty": false
+        },
+        "home_area_spot_item": {
+          "columns": [
+            "spot_item_id"
+          ],
+          "reference": {
+            "table": "home_area_spot"
+          },
+          "ignore_empty": false
+        }
+      }
+    },
+    {
+      "name": "home_area_item_level",
+      "csv_path": "./home/area/item/level.tsv",
+      "columns": [
+        {
+          "name": "level",
+          "allow_empty": false
+        },
+        {
+          "name": "area_item_id",
+          "allow_empty": false
+        },
+        {
+          "name": "consume_coin",
+          "allow_empty": false,
+          "type": "integer"
+        }
+      ],
+      "primary_key": [
+        "level"
+      ],
+      "unique_key": {},
+      "foreign_key": {
+        "home_area_item": {
+          "columns": [
+            "area_item_id"
+          ],
+          "reference": {
+            "table": "home_area_item"
+          },
+          "ignore_empty": false
+        }
+      }
+    }
+  ],
+  "column_type": {
+    "datetime": "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
+    "integer": "^[+-]?\\d+$",
+    "decimal": "^[+-]?\\d+(.\\d+)?$"
+  },
+  "validation": [
+    {
+      "message": "home_area_itemはspot_shopのspotを参照する",
+      "validation_query": "select * from home_area_item as i \njoin home_area_spot as s on i.spot_shop_id = s.id \njoin home_area_spot_type as t on s.type = t.type\nwhere s.type <> 'spot_shop'"
+    },
+    {
+      "message": "home_area_itemはspot_itemのspotを参照する",
+      "validation_query": "select * from home_area_item as i \njoin home_area_spot as s on i.spot_item_id = s.id \njoin home_area_spot_type as t on s.type = t.type\nwhere s.type <> 'spot_item'"
+    }
+  ],
+  "decode_config": {
+    "header_lines": 1,
+    "record_separator": "ANY",
+    "field_separator": "\t",
+    "field_quote": {
+      "left": "",
+      "left_escape": "",
+      "right": "",
+      "right_escape": ""
+    }
+  }
+}

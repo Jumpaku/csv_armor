@@ -315,6 +315,8 @@ abstract class _$ForeignKeyCWProxy {
 
   ForeignKey reference(ForeignKeyReference reference);
 
+  ForeignKey ignoreEmpty(bool ignoreEmpty);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ForeignKey(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -324,6 +326,7 @@ abstract class _$ForeignKeyCWProxy {
   ForeignKey call({
     List<String>? columns,
     ForeignKeyReference? reference,
+    bool? ignoreEmpty,
   });
 }
 
@@ -341,6 +344,9 @@ class _$ForeignKeyCWProxyImpl implements _$ForeignKeyCWProxy {
       this(reference: reference);
 
   @override
+  ForeignKey ignoreEmpty(bool ignoreEmpty) => this(ignoreEmpty: ignoreEmpty);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ForeignKey(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -351,6 +357,7 @@ class _$ForeignKeyCWProxyImpl implements _$ForeignKeyCWProxy {
   ForeignKey call({
     Object? columns = const $CopyWithPlaceholder(),
     Object? reference = const $CopyWithPlaceholder(),
+    Object? ignoreEmpty = const $CopyWithPlaceholder(),
   }) {
     return ForeignKey(
       columns: columns == const $CopyWithPlaceholder() || columns == null
@@ -361,6 +368,11 @@ class _$ForeignKeyCWProxyImpl implements _$ForeignKeyCWProxy {
           ? _value.reference
           // ignore: cast_nullable_to_non_nullable
           : reference as ForeignKeyReference,
+      ignoreEmpty:
+          ignoreEmpty == const $CopyWithPlaceholder() || ignoreEmpty == null
+              ? _value.ignoreEmpty
+              // ignore: cast_nullable_to_non_nullable
+              : ignoreEmpty as bool,
     );
   }
 }
@@ -788,13 +800,14 @@ Map<String, dynamic> _$TableColumnToJson(TableColumn instance) =>
 ForeignKey _$ForeignKeyFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    allowedKeys: const ['columns', 'reference'],
+    allowedKeys: const ['columns', 'reference', 'ignore_empty'],
   );
   return ForeignKey(
     columns:
         (json['columns'] as List<dynamic>).map((e) => e as String).toList(),
     reference:
         ForeignKeyReference.fromJson(json['reference'] as Map<String, dynamic>),
+    ignoreEmpty: json['ignore_empty'] as bool? ?? false,
   );
 }
 
@@ -802,6 +815,7 @@ Map<String, dynamic> _$ForeignKeyToJson(ForeignKey instance) =>
     <String, dynamic>{
       'columns': instance.columns,
       'reference': instance.reference.toJson(),
+      'ignore_empty': instance.ignoreEmpty,
     };
 
 ForeignKeyReference _$ForeignKeyReferenceFromJson(Map<String, dynamic> json) {

@@ -1,7 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
+import 'package:schema_editor/csv/decoder.dart';
+import 'package:schema_editor/csv/decoder_config.dart';
+import 'package:schema_editor/data/reader/csv_reader.dart';
+import 'package:schema_editor/data/validate.dart' as data;
+import 'package:schema_editor/schema/schema.dart' as schema;
 
 class DataValidatorApp extends StatefulWidget {
   const DataValidatorApp({Key? key}) : super(key: key);
@@ -44,13 +51,32 @@ class _DataValidatorAppState extends State<DataValidatorApp> {
       isValidating = true;
       validationErrors.clear();
     });
-    // TODO: Implement actual validation logic here.
-    await Future.delayed(const Duration(seconds: 1));
+    final content = await File(schemaFilePath!).readAsString();
+    final s = schema.Schema.fromJson(jsonDecode(content));
+    final d = s.decodeConfig;
+    final r = CsvReader(
+        ctx: path.Context(current: workingDirectory),
+        decoder: Decoder(DecoderConfig(
+          headerLines: d?.headerLines ?? 0,
+          fieldSeparator: d?.fieldSeparator ?? "\t",
+          recordSeparator: {
+            schema.RecordSeparator.ANY: RecordSeparator.any,
+            schema.RecordSeparator.CRLF: RecordSeparator.crlf,
+            schema.RecordSeparator.CR: RecordSeparator.cr,
+            schema.RecordSeparator.LF: RecordSeparator.lf,
+          }[d?.recordSeparator ?? schema.RecordSeparator.ANY]!,
+          fieldQuote: DecoderConfigQuote(
+            leftQuote: d?.fieldQuote?.left ?? '',
+            leftQuoteEscape: d?.fieldQuote?.leftEscape ?? '',
+            rightQuote: d?.fieldQuote?.right ?? '',
+            rightQuoteEscape: d?.fieldQuote?.rightEscape ?? '',
+          ),
+        )));
+    final b = r.readAll(s.tableConfig);
+    final v = data.validateData(s, b);
+
     setState(() {
-      validationErrors = [
-        'Example error: Row 1, Column 2: Invalid value',
-        'Example error: Row 3, Column 1: Missing required field',
-      ];
+      validationErrors = v.errors.map((e) => e.message).toList();
       isValidating = false;
     });
   }
@@ -65,6 +91,7 @@ class _DataValidatorAppState extends State<DataValidatorApp> {
     if (outputPath != null) {
       final file = File(outputPath);
       await file.writeAsString(validationErrors.join('\n'));
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Validation result saved.')),
       );
@@ -150,3 +177,6 @@ class _DataValidatorAppState extends State<DataValidatorApp> {
     );
   }
 }
+
+
+
