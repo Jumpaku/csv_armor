@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
-import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/csv/decoder_config.dart';
 import 'package:schema_editor/data/reader/csv_reader.dart';
 import 'package:schema_editor/data/validate.dart' as data;
 import 'package:schema_editor/schema/schema.dart' as schema;
@@ -53,25 +51,11 @@ class _DataValidatorAppState extends State<DataValidatorApp> {
     });
     final content = await File(schemaFilePath!).readAsString();
     final s = schema.Schema.fromJson(jsonDecode(content));
-    final d = s.decodeConfig;
-    final r = CsvReader(
-        ctx: path.Context(current: workingDirectory),
-        decoder: Decoder(DecoderConfig(
-          headerLines: d?.headerLines ?? 0,
-          fieldSeparator: d?.fieldSeparator ?? "\t",
-          recordSeparator: {
-            schema.RecordSeparator.ANY: RecordSeparator.any,
-            schema.RecordSeparator.CRLF: RecordSeparator.crlf,
-            schema.RecordSeparator.CR: RecordSeparator.cr,
-            schema.RecordSeparator.LF: RecordSeparator.lf,
-          }[d?.recordSeparator ?? schema.RecordSeparator.ANY]!,
-          fieldQuote: DecoderConfigQuote(
-            leftQuote: d?.fieldQuote?.left ?? '',
-            leftQuoteEscape: d?.fieldQuote?.leftEscape ?? '',
-            rightQuote: d?.fieldQuote?.right ?? '',
-            rightQuoteEscape: d?.fieldQuote?.rightEscape ?? '',
-          ),
-        )));
+    final r = CsvReader.fromConfig(
+      ctx: path.Context(style: path.Style.posix),
+      root: workingDirectory!,
+      decoderConfig: s.decodeConfig!,
+    );
     final b = r.readAll(s.tableConfig);
     final v = data.validateData(s, b);
 
@@ -177,6 +161,3 @@ class _DataValidatorAppState extends State<DataValidatorApp> {
     );
   }
 }
-
-
-

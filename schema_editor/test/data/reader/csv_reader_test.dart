@@ -12,7 +12,8 @@ class TestDecoder implements Decoder {
   @override
   DecodeResult decode(String content) {
     // Split into lines and fields
-    final lines = content.split(RegExp(r'[\r\n]+')).where((l) => l.isNotEmpty).toList();
+    final lines =
+        content.split(RegExp(r'[\r\n]+')).where((l) => l.isNotEmpty).toList();
     final inputChars = content.split("");
     int cursor = 0;
     int lineNum = 0;
@@ -36,12 +37,16 @@ class TestDecoder implements Decoder {
           pos += value.length + 1; // +1 for separator
           col += value.length + 1;
         }
-        final start = fieldObjs.isNotEmpty ? fieldObjs.first.start : Position(pos, line, 0);
-        final end = fieldObjs.isNotEmpty ? fieldObjs.last.end : Position(pos, line, 0);
+        final start = fieldObjs.isNotEmpty
+            ? fieldObjs.first.start
+            : Position(pos, line, 0);
+        final end =
+            fieldObjs.isNotEmpty ? fieldObjs.last.end : Position(pos, line, 0);
         line++;
         return Record(start, end, fieldObjs);
       }).toList();
     }
+
     final data = lines.map((l) => l.split(',')).toList();
     return DecodeResult(
       inputChars,
@@ -61,7 +66,8 @@ void main() {
       await tempDir.delete(recursive: true);
     });
     test('readAll returns empty buffer for empty tableConfig', () {
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll([]);
       expect(buffer.keys, isEmpty);
     });
@@ -76,7 +82,8 @@ void main() {
           csvPath: file,
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.records, [
         ['v1'],
@@ -94,7 +101,8 @@ void main() {
           csvPath: p.join(tempDir.path, 'data_[c2].csv'),
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.columns, ['c1', 'c2']);
       expect(buffer['t1']!.records, [
@@ -116,7 +124,8 @@ void main() {
           csvPath: p.join(tempDir.path, 'data_[c2]_[c3].csv'),
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.columns, ['c1', 'c2', 'c3']);
       expect(buffer['t1']!.records, [
@@ -135,7 +144,8 @@ void main() {
           csvPath: p.join(tempDir.path, 'data_[c2].csv'),
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.records, [
         ['v1', ''],
@@ -152,7 +162,8 @@ void main() {
           csvPath: p.join(tempDir.path, 'data_[c2].csv'),
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['t1']!.records, [
         ['v1', 'foo_bar'],
@@ -179,7 +190,8 @@ void main() {
           csvPath: filePaths[1],
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['a']!.records, [
         ['a1', 'b1'],
@@ -199,7 +211,8 @@ void main() {
           csvPath: p.join(tempDir.path, 'notfound.csv'),
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['notfound']!.records, isEmpty);
     });
@@ -216,7 +229,8 @@ void main() {
           csvPath: subFile,
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['sub']!.records, [
         ['x1', 'y1'],
@@ -238,7 +252,8 @@ void main() {
           csvPath: txtFile,
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['notcsv']!.records, [
         ['should', 'not', 'read'],
@@ -255,7 +270,8 @@ void main() {
           csvPath: emptyFile,
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['empty']!.records, isEmpty);
     });
@@ -275,7 +291,8 @@ void main() {
           csvPath: filePaths[0],
         ),
       ];
-      final reader = CsvReader(ctx: p.Context(), decoder: TestDecoder());
+      final reader =
+          CsvReader(ctx: p.Context(), root: tempDir.path, decoder: TestDecoder());
       final buffer = reader.readAll(tableConfig);
       expect(buffer['a']!.records, [
         ['a1', 'b1'],

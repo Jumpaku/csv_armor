@@ -3,19 +3,48 @@ import 'dart:io';
 
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:schema_editor/csv/decode_exception.dart';
 import 'package:schema_editor/csv/decoder.dart';
+import 'package:schema_editor/csv/decoder_config.dart' as csv;
 import 'package:schema_editor/data/buffer/buffer.dart';
 import 'package:schema_editor/data/reader/csv_reader_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class CsvReader {
-  CsvReader({required Context ctx, required Decoder decoder})
-      : _ctx = ctx,
-        _decoder = decoder;
+  factory CsvReader.fromConfig(
+      {required path.Context ctx,
+      required String root,
+      required DecodeConfig decoderConfig}) {
+    final decoder = Decoder(csv.DecoderConfig(
+      headerLines: decoderConfig.headerLines ?? 0,
+      fieldSeparator: decoderConfig.fieldSeparator ?? ",",
+      recordSeparator: {
+        RecordSeparator.CRLF: csv.RecordSeparator.crlf,
+        RecordSeparator.CR: csv.RecordSeparator.cr,
+        RecordSeparator.LF: csv.RecordSeparator.lf,
+        RecordSeparator.ANY: csv.RecordSeparator.any,
+      }[decoderConfig.recordSeparator ?? csv.RecordSeparator.any]!,
+      fieldQuote: csv.DecoderConfigQuote(
+        leftQuote: decoderConfig.fieldQuote?.left ?? '"',
+        leftQuoteEscape: decoderConfig.fieldQuote?.leftEscape ?? '""',
+        rightQuote: decoderConfig.fieldQuote?.right ?? '"',
+        rightQuoteEscape: decoderConfig.fieldQuote?.rightEscape ?? '""',
+      ),
+    ));
+    return CsvReader(ctx: ctx, root: root, decoder: decoder);
+  }
 
-  final Context _ctx;
+  CsvReader({
+    required path.Context ctx,
+    required String root,
+    required Decoder decoder,
+  })  : _ctx = ctx,
+        _decoder = decoder,
+        _root = ctx.canonicalize(root);
+
+  final path.Context _ctx;
+  final String _root;
   final Decoder _decoder;
 
   DataBuffer readAll(List<TableConfig> tableConfig) {
@@ -31,7 +60,8 @@ class CsvReader {
 
   List<List<String>> _readRecords(
       String tableName, String schemaCsvPath, List<String> columns) {
-    final columnIdx = _columnIndex(schemaCsvPath, columns);
+    final (columnIndex: columnIndex, pathColumnCount: pathColumnCount) =
+        _columnIndex(schemaCsvPath, columns);
     final csvGlob = schemaCsvPath.replaceAll(_csvPathPlaceholderRegExp, '*');
 
     List<File> csvFiles = _listCsvFiles(tableName, csvGlob);
@@ -39,7 +69,8 @@ class CsvReader {
     final records = <List<String>>[];
     for (final csvFile in csvFiles) {
       // Extract path values from csvPath
-      List<String> pathValues = _extractPathValues(schemaCsvPath, csvFile.path);
+      List<String> pathValues = _extractPathValues(
+          schemaCsvPath, _ctx.canonicalize(csvFile.path), pathColumnCount);
 
       // Decode CSV file
       final csvRecords = _decodeCsvValues(tableName, csvFile);
@@ -57,14 +88,15 @@ class CsvReader {
           );
         }
         final record = pathValues + csvValues;
-        records.add([for (final k in columnIdx) record[k]]);
+        records.add([for (final k in columnIndex) record[k]]);
       }
     }
 
     return records;
   }
 
-  List<int> _columnIndex(String csvPath, List<String> columns) {
+  ({List<int> columnIndex, int pathColumnCount}) _columnIndex(
+      String csvPath, List<String> columns) {
     // Extract path columns from csvPath
     final pathColumns = <String>[];
     final matches = _csvPathPlaceholderRegExp.allMatches(csvPath);
@@ -81,17 +113,25 @@ class CsvReader {
         csvColumns.add(col);
       }
     }
-    final columnIdx = {
+    final columnIndex = {
       for (final (i, c) in (pathColumns + csvColumns).indexed) c: i
     };
 
-    return [for (final col in columns) columnIdx[col]!];
+    return (
+      columnIndex: [for (final col in columns) columnIndex[col]!],
+      pathColumnCount: pathColumns.length,
+    );
   }
 
   List<File> _listCsvFiles(String tableName, String csvPathGlob) {
     try {
       final glob = Glob(csvPathGlob, context: _ctx);
-      return glob.listSync(root: _ctx.current).whereType<File>().toList();
+      final files = glob.listSync(root: _root).whereType<File>();
+      final scoped = files.where((f) {
+        final rel = _ctx.relative(_ctx.canonicalize(f.path), from: _root);
+        return !rel.startsWith('..');
+      });
+      return scoped.toList();
     } catch (e) {
       throw CsvReaderException(
         'failed to find CSV files: glob="$csvPathGlob": ${e.toString()}',
@@ -102,12 +142,23 @@ class CsvReader {
     }
   }
 
-  List<String> _extractPathValues(String csvPath, String csvFilePath) {
-    // <placeholder-value> := character sequence excluding '[', ']', '/', and '*'
-    final csvPathRegexp = RegExp(
-        '.*${csvPath.replaceAll(_csvPathPlaceholderRegExp, r'([^*\/\[\]]*)')}\$');
-    final match = csvPathRegexp.firstMatch(csvFilePath)!;
-    return [for (int i = 1; i <= match.groupCount; i++) match.group(i)!];
+  List<String> _extractPathValues(
+      String schemaCsvPath, String csvFilePath, int pathColumnCount) {
+    final relativeCsvFilePath = _ctx.relative(csvFilePath, from: _root);
+    final canonicalSchemaCsvPath =
+        _ctx.canonicalize(_ctx.join(_root, schemaCsvPath));
+    final relativeSchemaCsvPath =
+        _ctx.relative(canonicalSchemaCsvPath, from: _root);
+    final csvPathRegexp = relativeSchemaCsvPath.splitMapJoin(
+      _csvPathPlaceholderRegExp,
+      onMatch: (_) => r'([^*\/\[\]]*)',
+      onNonMatch: (s) => RegExp.escape(s),
+    );
+    final match = RegExp('.*$csvPathRegexp\$').firstMatch(relativeCsvFilePath)!;
+    final pathValues = [
+      for (int i = 1; i <= match.groupCount; i++) match.group(i)!
+    ];
+    return pathValues.sublist(pathValues.length - pathColumnCount);
   }
 
   List<Record> _decodeCsvValues(String tableName, File csvFile) {

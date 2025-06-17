@@ -38,7 +38,9 @@ $defs:
         description: "The name of the table."
       csv_path:
         type: string
-        description: "The path to the CSV files which may include placeholders enclosed with '[' and ']'."
+        description: |
+          The path to the CSV files which may include placeholders enclosed with '[' and ']'.
+          Each placeholder must be one of the column names defined in the table.
       columns:
         type: array
         description: "An array of column definitions for the table."
