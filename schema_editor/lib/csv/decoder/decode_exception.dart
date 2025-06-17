@@ -1,4 +1,4 @@
-import 'package:schema_editor/csv/decoder.dart';
+import 'package:schema_editor/csv/decoder/decoder.dart';
 
 class DecodeException implements Exception {
   static const codeInvalidCharAfterField = "invalid_char_after_field";

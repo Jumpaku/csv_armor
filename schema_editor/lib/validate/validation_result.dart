@@ -13,7 +13,6 @@ class DataValidationError {
   });
 
   static const codeQueryExecutionError = 'query_execution_error';
-  static const codeRowLengthMismatch = 'row_length_mismatch';
   static const codeUniquenessViolation = 'uniqueness_violation';
   static const codeForeignKeyViolation = 'foreign_key_violation';
   static const codeInvalidFormatType = 'invalid_format_type';

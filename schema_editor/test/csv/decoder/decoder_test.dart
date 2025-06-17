@@ -1,6 +1,6 @@
-import 'package:schema_editor/csv/decode_exception.dart';
-import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/csv/decoder_config.dart';
+import 'package:schema_editor/csv/decoder/decode_exception.dart';
+import 'package:schema_editor/csv/decoder/decoder.dart';
+import 'package:schema_editor/csv/decoder/decoder_config.dart';
 import 'package:test/test.dart';
 
 typedef _Testcase = ({String input, List<List<String>> expected});

@@ -1,7 +1,7 @@
-import 'package:schema_editor/data/buffer/buffer.dart';
+import 'package:schema_editor/data/buffer.dart';
 import 'package:schema_editor/data/index.dart';
-import 'package:schema_editor/data/store/data_store.dart';
-import 'package:schema_editor/data/validation_result.dart';
+import 'package:schema_editor/data/data_store.dart';
+import 'package:schema_editor/validate/validation_result.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
 

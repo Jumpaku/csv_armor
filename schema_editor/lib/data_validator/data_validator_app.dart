@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
-import 'package:schema_editor/data/reader/csv_reader.dart';
-import 'package:schema_editor/data/validate.dart' as data;
+import 'package:schema_editor/csv/csv_reader.dart';
+import 'package:schema_editor/validate/validate.dart' as data;
 import 'package:schema_editor/schema/schema.dart' as schema;
 
 class DataValidatorApp extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:schema_editor/data/validate.dart';
-import 'package:schema_editor/data/buffer/buffer.dart';
-import 'package:schema_editor/data/validation_result.dart';
+import 'package:schema_editor/data/buffer.dart';
 import 'package:schema_editor/schema/schema.dart';
+import 'package:schema_editor/validate/validate.dart';
+import 'package:schema_editor/validate/validation_result.dart';
 
 void main() {
   group('validateData', () {
@@ -80,11 +80,18 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['abc']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['abc']
+          ]
+        ),
       });
-      final result = validateDataColumn(schema.columnType, schema.tableConfig, buf);
+      final result =
+          validateDataColumn(schema.columnType, schema.tableConfig, buf);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeInvalidFormatType);
+      expect(
+          result.errors.first.code, DataValidationError.codeInvalidFormatType);
     });
     test('detects invalid regexp', () {
       final schema = Schema(
@@ -92,7 +99,10 @@ void main() {
         tableConfig: [
           TableConfig(
             name: 't',
-            columns: [TableColumn(name: 'id', type: 'str', regexp: r'^a+$', allowEmpty: false)],
+            columns: [
+              TableColumn(
+                  name: 'id', type: 'str', regexp: r'^a+$', allowEmpty: false)
+            ],
             primaryKey: ['id'],
             uniqueKey: {},
             foreignKey: {},
@@ -101,11 +111,18 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['bbb']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['bbb']
+          ]
+        ),
       });
-      final result = validateDataColumn(schema.columnType, schema.tableConfig, buf);
+      final result =
+          validateDataColumn(schema.columnType, schema.tableConfig, buf);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeInvalidFormatRegexp);
+      expect(result.errors.first.code,
+          DataValidationError.codeInvalidFormatRegexp);
     });
     test('accepts valid column type and regexp', () {
       final schema = Schema(
@@ -113,7 +130,10 @@ void main() {
         tableConfig: [
           TableConfig(
             name: 't',
-            columns: [TableColumn(name: 'id', type: 'str', regexp: r'^a+$', allowEmpty: false)],
+            columns: [
+              TableColumn(
+                  name: 'id', type: 'str', regexp: r'^a+$', allowEmpty: false)
+            ],
             primaryKey: ['id'],
             uniqueKey: {},
             foreignKey: {},
@@ -122,39 +142,16 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['aaa']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['aaa']
+          ]
+        ),
       });
-      final result = validateDataColumn(schema.columnType, schema.tableConfig, buf);
+      final result =
+          validateDataColumn(schema.columnType, schema.tableConfig, buf);
       expect(result.errors, isEmpty);
-    });
-    test('row length mismatch', () {
-      final schema = Schema(
-        columnType: {'str': r'.*'},
-        tableConfig: [
-          TableConfig(
-            name: 't',
-            columns: [TableColumn(name: 'id', type: 'str', allowEmpty: false), TableColumn(name: 'val', type: 'str', allowEmpty: false)],
-            primaryKey: ['id'],
-            uniqueKey: {},
-            foreignKey: {},
-          ),
-        ],
-        validation: const [],
-      );
-      // row with missing column
-      final buf = DataBuffer({
-        't': (columns: ['id', 'val'], records: [['only_id']]),
-      });
-      // Simulate row length mismatch error
-      final result = DataValidationResult();
-      if (buf['t']!.records.any((row) => row.length != buf['t']!.columns.length)) {
-        result.addError(DataValidationError(
-          message: 'Row length mismatch',
-          code: DataValidationError.codeRowLengthMismatch,
-        ));
-      }
-      expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeRowLengthMismatch);
     });
     test('accepts empty field value if allowEmpty', () {
       final schema = Schema(
@@ -173,9 +170,15 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['']
+          ]
+        ),
       });
-      final result = validateDataColumn(schema.columnType, schema.tableConfig, buf);
+      final result =
+          validateDataColumn(schema.columnType, schema.tableConfig, buf);
       expect(result.errors, isEmpty);
     });
   });
@@ -196,12 +199,19 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['1'], ['1']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['1'],
+            ['1']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataUniqueness(schema.tableConfig, index);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeValidationFailed);
+      expect(
+          result.errors.first.code, DataValidationError.codeValidationFailed);
     });
     test('accepts unique primary key', () {
       final schema = Schema(
@@ -218,7 +228,13 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['1'], ['2']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['1'],
+            ['2']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataUniqueness(schema.tableConfig, index);
@@ -244,12 +260,19 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id', 'val'], records: [['1', 'a'], ['2', 'a']]),
+        't': (
+          columns: ['id', 'val'],
+          records: [
+            ['1', 'a'],
+            ['2', 'a']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataUniqueness(schema.tableConfig, index);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeValidationFailed);
+      expect(
+          result.errors.first.code, DataValidationError.codeValidationFailed);
     });
     test('accepts unique unique key', () {
       final schema = Schema(
@@ -271,7 +294,13 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        't': (columns: ['id', 'val'], records: [['1', 'a'], ['2', 'b']]),
+        't': (
+          columns: ['id', 'val'],
+          records: [
+            ['1', 'a'],
+            ['2', 'b']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataUniqueness(schema.tableConfig, index);
@@ -307,13 +336,24 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        'parent': (columns: ['id'], records: [['1']]),
-        'child': (columns: ['pid'], records: [['2']]),
+        'parent': (
+          columns: ['id'],
+          records: [
+            ['1']
+          ]
+        ),
+        'child': (
+          columns: ['pid'],
+          records: [
+            ['2']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataForeignKey(schema.tableConfig, buf, index);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeForeignKeyViolation);
+      expect(result.errors.first.code,
+          DataValidationError.codeForeignKeyViolation);
     });
     test('accepts valid foreign key', () {
       final schema = Schema(
@@ -342,8 +382,18 @@ void main() {
         validation: const [],
       );
       final buf = DataBuffer({
-        'parent': (columns: ['id'], records: [['1']]),
-        'child': (columns: ['pid'], records: [['1']]),
+        'parent': (
+          columns: ['id'],
+          records: [
+            ['1']
+          ]
+        ),
+        'child': (
+          columns: ['pid'],
+          records: [
+            ['1']
+          ]
+        ),
       });
       final index = buildIndex(schema.tableConfig, buf);
       final result = validateDataForeignKey(schema.tableConfig, buf, index);
@@ -372,11 +422,17 @@ void main() {
         ],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['999']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['999']
+          ]
+        ),
       });
       final result = validateValidations(schema, buf);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeValidationFailed);
+      expect(
+          result.errors.first.code, DataValidationError.codeValidationFailed);
     });
     test('returns query execution error', () {
       final schema = Schema(
@@ -398,11 +454,17 @@ void main() {
         ],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['1']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['1']
+          ]
+        ),
       });
       final result = validateValidations(schema, buf);
       expect(result.errors, isNotEmpty);
-      expect(result.errors.first.code, DataValidationError.codeQueryExecutionError);
+      expect(result.errors.first.code,
+          DataValidationError.codeQueryExecutionError);
     });
     test('returns no error for custom validation', () {
       final schema = Schema(
@@ -424,7 +486,12 @@ void main() {
         ],
       );
       final buf = DataBuffer({
-        't': (columns: ['id'], records: [['1']]),
+        't': (
+          columns: ['id'],
+          records: [
+            ['1']
+          ]
+        ),
       });
       final result = validateValidations(schema, buf);
       expect(result.errors, isEmpty);

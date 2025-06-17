@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import 'package:schema_editor/data/buffer/buffer.dart';
-import 'package:schema_editor/data/store/data_store_exception.dart';
+import 'package:schema_editor/data/buffer.dart';
+import 'package:schema_editor/data/data_store_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 import 'package:schema_editor/sqlite3/database_access.dart';
 

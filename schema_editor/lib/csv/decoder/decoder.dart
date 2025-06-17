@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:characters/characters.dart';
 import 'package:collection/collection.dart';
-import 'package:schema_editor/csv/decode_exception.dart';
-import 'package:schema_editor/csv/decoder_config.dart';
+import 'package:schema_editor/csv/decoder/decode_exception.dart';
+import 'package:schema_editor/csv/decoder/decoder_config.dart';
 
 class Position {
   Position(this.cursor, this.line, this.column);

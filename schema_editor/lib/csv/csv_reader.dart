@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart' as path;
-import 'package:schema_editor/csv/decode_exception.dart';
-import 'package:schema_editor/csv/decoder.dart';
-import 'package:schema_editor/csv/decoder_config.dart' as csv;
-import 'package:schema_editor/data/buffer/buffer.dart';
-import 'package:schema_editor/data/reader/csv_reader_exception.dart';
+import 'package:schema_editor/csv/decoder/decode_exception.dart';
+import 'package:schema_editor/csv/decoder/decoder.dart';
+import 'package:schema_editor/csv/decoder/decoder_config.dart' as csv;
+import 'package:schema_editor/data/buffer.dart';
+import 'package:schema_editor/csv/csv_reader_exception.dart';
 import 'package:schema_editor/schema/schema.dart';
 
 class CsvReader {
